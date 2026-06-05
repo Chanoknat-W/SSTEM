@@ -99,7 +99,7 @@
       <!-- Charts -->
       <div class="charts-row">
         <div class="chart-box">
-          <h3>คะแนนเฉลี่ยรายด้าน</h3>
+          <h3>คะแนนเฉลี่ยรายด้าน <span style="font-weight:400;color:var(--text-muted);font-size:13px;">(เต็ม 24 คะแนน)</span></h3>
           <canvas id="bar-chart"></canvas>
         </div>
         <div class="chart-box">
@@ -234,7 +234,14 @@
         scales: {
           y: { min: 0, max: 24, ticks: { stepSize: 6 } },
         },
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` เฉลี่ย ${ctx.raw} / 24 คะแนน`,
+            },
+          },
+        },
       },
     });
 
