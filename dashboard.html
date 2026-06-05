@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | SST-EM</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px; }
+    @media(min-width:600px){ .dash-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .stat-card { background:#fff; border-radius:12px; box-shadow:var(--shadow); padding:18px 16px; text-align:center; }
+    .stat-card .stat-num { font-size:36px; font-weight:800; color:var(--primary-dark); line-height:1; }
+    .stat-card .stat-label { font-size:13px; color:var(--text-muted); margin-top:6px; }
+
+    .charts-row { display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:20px; }
+    @media(min-width:700px){ .charts-row { grid-template-columns:1fr 1fr; } }
+
+    .chart-box { background:#fff; border-radius:12px; box-shadow:var(--shadow); padding:20px; }
+    .chart-box h3 { font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:14px; }
+
+    .table-wrap { background:#fff; border-radius:12px; box-shadow:var(--shadow); padding:20px; margin-bottom:20px; overflow-x:auto; }
+    .table-wrap h3 { font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:14px; }
+
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th { background:var(--primary-light); padding:10px 12px; text-align:left; font-weight:700; color:var(--primary-dark); white-space:nowrap; }
+    td { padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#F9F9F9; }
+
+    .level-chip { display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:700; }
+
+    .gate { max-width:380px; margin:80px auto; }
+    .gate .card { text-align:center; }
+    .gate h2 { font-size:20px; font-weight:700; color:var(--primary-dark); margin-bottom:6px; }
+    .gate p { font-size:14px; color:var(--text-muted); margin-bottom:20px; }
+
+    .loading { text-align:center; padding:60px; color:var(--text-muted); font-size:16px; }
+    .toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+    .toolbar h3 { font-size:15px; font-weight:700; color:var(--primary-dark); margin:0; }
+
+    input[type="search"] {
+      padding:8px 12px; border:2px solid var(--border); border-radius:8px;
+      font-size:14px; font-family:inherit; outline:none; width:200px;
+    }
+    input[type="search"]:focus { border-color:var(--primary); }
+  </style>
+</head>
+<body>
+
+<!-- Password Gate -->
+<div id="gate" class="gate">
+  <div class="card">
+    <div style="font-size:40px;margin-bottom:12px;">📊</div>
+    <h2>SST-EM Dashboard</h2>
+    <p>สำหรับผู้ดูแลระบบเท่านั้น</p>
+    <div class="form-group">
+      <input type="password" id="pwd-input" placeholder="รหัสผ่าน" style="text-align:center;" />
+    </div>
+    <div id="pwd-error" class="error-msg">รหัสผ่านไม่ถูกต้อง</div>
+    <button class="btn btn-primary" onclick="checkPassword()">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<!-- Dashboard (hidden until login) -->
+<div id="dashboard" style="display:none;">
+  <nav class="progress-bar">
+    <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-weight:700;color:var(--primary-dark);">📊 SST-EM Dashboard</span>
+      <a href="index.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;">← กลับหน้าหลัก</a>
+    </div>
+  </nav>
+
+  <main class="page" style="max-width:960px;">
+    <div id="loading" class="loading">⏳ กำลังโหลดข้อมูล...</div>
+    <div id="content" style="display:none;">
+
+      <!-- Stat Cards -->
+      <div class="dash-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="s-total">0</div>
+          <div class="stat-label">ครูที่ประเมินแล้ว</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="s-avg">0</div>
+          <div class="stat-label">คะแนนเฉลี่ยรวม / 72</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="s-pass">0</div>
+          <div class="stat-label">ผ่านเกณฑ์ (≥ดี)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="s-improve">0</div>
+          <div class="stat-label">ต้องพัฒนา (พอใช้/ปรับปรุง)</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="chart-box">
+          <h3>คะแนนเฉลี่ยรายด้าน</h3>
+          <canvas id="bar-chart"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>สัดส่วนระดับผลการประเมิน</h3>
+          <canvas id="doughnut-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <div class="toolbar">
+          <h3>รายชื่อครูทั้งหมด</h3>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <input type="search" id="search" placeholder="ค้นหาชื่อ/โรงเรียน..." oninput="filterTable()" />
+            <button class="btn btn-secondary" style="padding:8px 16px;font-size:13px;" onclick="exportCSV()">⬇️ Export CSV</button>
+          </div>
+        </div>
+        <table id="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>ชื่อครู</th>
+              <th>โรงเรียน</th>
+              <th>ภาคเรียน</th>
+              <th style="text-align:center;">ด้าน 1</th>
+              <th style="text-align:center;">ด้าน 2</th>
+              <th style="text-align:center;">ด้าน 3</th>
+              <th style="text-align:center;">รวม</th>
+              <th style="text-align:center;">ระดับ</th>
+              <th>วันที่</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+        <p id="no-result" style="display:none;text-align:center;color:var(--text-muted);padding:20px;">ไม่พบข้อมูล</p>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /dashboard -->
+
+<script src="js/supabase.js"></script>
+<script>
+  // ---- Password ----
+  const DASHBOARD_PASSWORD = 'sstem2567'; // เปลี่ยนรหัสได้ที่นี่
+
+  function checkPassword() {
+    const val = document.getElementById('pwd-input').value;
+    if (val === DASHBOARD_PASSWORD) {
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadData();
+    } else {
+      document.getElementById('pwd-error').classList.add('show');
+    }
+  }
+  document.getElementById('pwd-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPassword();
+  });
+
+  // ---- Level helper ----
+  const LEVEL_STYLE = {
+    'ดีมาก':    { bg:'#E8F5E9', color:'#1B5E20' },
+    'ดี':       { bg:'#F1F8E9', color:'#2E7D32' },
+    'พอใช้':   { bg:'#FFF8E1', color:'#F57F17' },
+    'ปรับปรุง': { bg:'#FFEBEE', color:'#B71C1C' },
+  };
+
+  function levelFromScore(s) {
+    if (s >= 60) return 'ดีมาก';
+    if (s >= 46) return 'ดี';
+    if (s >= 31) return 'พอใช้';
+    return 'ปรับปรุง';
+  }
+
+  // ---- Load data from Supabase ----
+  let allRows = [];
+
+  async function loadData() {
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/evaluations?select=*&order=created_at.desc`,
+        {
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+        }
+      );
+      if (!res.ok) throw new Error(await res.text());
+      allRows = await res.json();
+      render(allRows);
+    } catch (e) {
+      document.getElementById('loading').textContent = '❌ โหลดข้อมูลไม่ได้: ' + e.message;
+    }
+  }
+
+  function render(rows) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+
+    const n = rows.length;
+    const avgTotal = n ? Math.round(rows.reduce((s, r) => s + (r.total_score || 0), 0) / n) : 0;
+    const avgD1    = n ? (rows.reduce((s, r) => s + (r.domain1_total || 0), 0) / n).toFixed(1) : 0;
+    const avgD2    = n ? (rows.reduce((s, r) => s + (r.domain2_total || 0), 0) / n).toFixed(1) : 0;
+    const avgD3    = n ? (rows.reduce((s, r) => s + (r.domain3_total || 0), 0) / n).toFixed(1) : 0;
+    const pass     = rows.filter(r => (r.total_score || 0) >= 46).length;
+
+    document.getElementById('s-total').textContent   = n;
+    document.getElementById('s-avg').textContent     = avgTotal;
+    document.getElementById('s-pass').textContent    = pass;
+    document.getElementById('s-improve').textContent = n - pass;
+
+    // Level counts
+    const levelCount = { 'ดีมาก': 0, 'ดี': 0, 'พอใช้': 0, 'ปรับปรุง': 0 };
+    rows.forEach(r => { const lv = r.level || levelFromScore(r.total_score || 0); levelCount[lv]++; });
+
+    // Bar chart
+    new Chart(document.getElementById('bar-chart'), {
+      type: 'bar',
+      data: {
+        labels: ['ด้านที่ 1\nการจัดการเรียนรู้', 'ด้านที่ 2\nสถาบันและบริบท', 'ด้านที่ 3\nพฤติกรรมวิชาชีพ'],
+        datasets: [{
+          label: 'คะแนนเฉลี่ย',
+          data: [avgD1, avgD2, avgD3],
+          backgroundColor: ['rgba(46,125,50,0.75)', 'rgba(245,127,23,0.75)', 'rgba(21,101,192,0.75)'],
+          borderRadius: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { min: 0, max: 24, ticks: { stepSize: 6 } },
+        },
+        plugins: { legend: { display: false } },
+      },
+    });
+
+    // Doughnut chart
+    new Chart(document.getElementById('doughnut-chart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['ดีมาก', 'ดี', 'พอใช้', 'ปรับปรุง'],
+        datasets: [{
+          data: [levelCount['ดีมาก'], levelCount['ดี'], levelCount['พอใช้'], levelCount['ปรับปรุง']],
+          backgroundColor: ['#1B5E20', '#2E7D32', '#F57F17', '#B71C1C'],
+          borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 13 } } },
+        },
+      },
+    });
+
+    // Table
+    renderTable(rows);
+  }
+
+  function renderTable(rows) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+    document.getElementById('no-result').style.display = rows.length ? 'none' : 'block';
+
+    rows.forEach((r, i) => {
+      const lv = r.level || levelFromScore(r.total_score || 0);
+      const st = LEVEL_STYLE[lv] || {};
+      const date = r.created_at ? new Date(r.created_at).toLocaleDateString('th-TH') : '-';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${r.teacher_name || '-'}</td>
+        <td>${r.school || '-'}</td>
+        <td>${r.semester || '-'}</td>
+        <td style="text-align:center;">${r.domain1_total ?? '-'}</td>
+        <td style="text-align:center;">${r.domain2_total ?? '-'}</td>
+        <td style="text-align:center;">${r.domain3_total ?? '-'}</td>
+        <td style="text-align:center;font-weight:700;">${r.total_score ?? '-'}</td>
+        <td style="text-align:center;">
+          <span class="level-chip" style="background:${st.bg};color:${st.color};">${lv}</span>
+        </td>
+        <td>${date}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function filterTable() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const filtered = allRows.filter(r =>
+      (r.teacher_name || '').toLowerCase().includes(q) ||
+      (r.school || '').toLowerCase().includes(q)
+    );
+    renderTable(filtered);
+  }
+
+  // ---- Export CSV ----
+  function exportCSV() {
+    const header = ['ชื่อครู', 'โรงเรียน', 'ภาคเรียน', 'ด้าน1', 'ด้าน2', 'ด้าน3', 'รวม', 'ระดับ', 'วันที่'];
+    const rows = allRows.map(r => [
+      r.teacher_name || '',
+      r.school || '',
+      r.semester || '',
+      r.domain1_total ?? '',
+      r.domain2_total ?? '',
+      r.domain3_total ?? '',
+      r.total_score ?? '',
+      r.level || levelFromScore(r.total_score || 0),
+      r.created_at ? new Date(r.created_at).toLocaleDateString('th-TH') : '',
+    ]);
+
+    const csv = [header, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sstem-results-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
+</body>
+</html>
