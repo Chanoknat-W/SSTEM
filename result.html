@@ -82,6 +82,9 @@
       </div>
     </div>
 
+    <!-- Domain Feedback -->
+    <div id="domain-feedback"></div>
+
     <!-- Score Table -->
     <div class="card" style="margin-bottom:20px;">
       <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:12px;">เกณฑ์การประเมิน</h3>
@@ -186,6 +189,39 @@
           },
         },
       },
+    });
+
+    // Render domain feedback
+    const domainMeta = [
+      { key: 'domain1', label: 'ด้านที่ 1 — การจัดการเรียนรู้', score: d1Total },
+      { key: 'domain2', label: 'ด้านที่ 2 — สถาบันและบริบท',    score: d2Total },
+      { key: 'domain3', label: 'ด้านที่ 3 — พฤติกรรมวิชาชีพ',  score: d3Total },
+    ];
+
+    const feedbackContainer = document.getElementById('domain-feedback');
+    feedbackContainer.innerHTML = '<p class="feedback-section-title">สรุปผลรายด้าน</p>';
+
+    domainMeta.forEach(({ key, label, score }) => {
+      const lv = State.getDomainLevel(score);
+      const text = State.DOMAIN_FEEDBACK[key][lv.label];
+
+      const card = document.createElement('div');
+      card.className = 'domain-feedback-card';
+      card.style.borderLeftColor = lv.color;
+
+      card.innerHTML = `
+        <div class="domain-feedback-header">
+          <span class="domain-feedback-title">${label}</span>
+          <div class="domain-feedback-meta">
+            <span class="domain-feedback-score">${score} / 24 คะแนน</span>
+            <span class="domain-pass-badge" style="background:${lv.bg}; color:${lv.color};">
+              ${lv.icon} ${lv.label}
+            </span>
+          </div>
+        </div>
+        <div class="domain-feedback-text">${text}</div>
+      `;
+      feedbackContainer.appendChild(card);
     });
 
     function startNew() {

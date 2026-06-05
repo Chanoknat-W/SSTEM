@@ -521,6 +521,69 @@ body {
   flex: 1;
 }
 
+/* ===== Domain Feedback ===== */
+.domain-feedback-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  border-left: 5px solid var(--border);
+}
+
+.domain-feedback-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.domain-feedback-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.domain-feedback-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.domain-feedback-score {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.domain-pass-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.domain-feedback-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.65;
+  background: #F9F9F9;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.feedback-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin: 24px 0 12px;
+}
+
 /* ===== Print ===== */
 @media print {
   .progress-bar,
