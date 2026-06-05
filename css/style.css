@@ -16,7 +16,7 @@
 }
 
 body {
-  font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;
+  font-family: 'Sarabun', 'Leelawadee UI', 'Noto Sans Thai', 'Thonburi', sans-serif;
   background: #F5F7F5;
   color: var(--text);
   min-height: 100vh;
