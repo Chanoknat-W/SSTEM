@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ผลการประเมิน | SST-EM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <nav class="progress-bar no-print">
+    <div class="progress-steps">
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line"></div>
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line"></div>
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line"></div>
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line"></div>
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line"></div>
+      <div class="step active"><div class="step-dot">6</div></div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <!-- Result Header -->
+    <div class="result-header">
+      <h2 id="teacher-name">ครู...</h2>
+      <div class="school-info" id="school-info"></div>
+      <div class="level-badge" id="level-badge">—</div>
+      <div>
+        <span class="total-score" id="total-score">0</span>
+        <span class="score-max"> / 72 คะแนน</span>
+      </div>
+    </div>
+
+    <!-- Domain Scores -->
+    <div class="domain-scores">
+      <div class="domain-score-card">
+        <div class="label">ด้านที่ 1<br/>การนำหลักสูตร</div>
+        <div class="score" id="d1-score">0</div>
+        <div class="max">/ 24</div>
+      </div>
+      <div class="domain-score-card">
+        <div class="label">ด้านที่ 2<br/>เครือข่ายชุมชน</div>
+        <div class="score" id="d2-score">0</div>
+        <div class="max">/ 24</div>
+      </div>
+      <div class="domain-score-card">
+        <div class="label">ด้านที่ 3<br/>สมรรถนะ/ผู้นำ</div>
+        <div class="score" id="d3-score">0</div>
+        <div class="max">/ 24</div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container">
+      <canvas id="radar-chart"></canvas>
+    </div>
+
+    <!-- Reflection -->
+    <div class="reflection-result">
+      <h3>การสะท้อนคิด P-A-R-I</h3>
+      <div class="reflect-item">
+        <div class="reflect-q">🟢 สิ่งที่ทำได้ดีในภาคเรียนนี้</div>
+        <div class="reflect-a" id="r-good">—</div>
+      </div>
+      <div class="reflect-item">
+        <div class="reflect-q">🟠 ปัญหา/อุปสรรคที่พบ</div>
+        <div class="reflect-a" id="r-problem">—</div>
+      </div>
+      <div class="reflect-item">
+        <div class="reflect-q">🔵 สิ่งที่เด็กได้รับเกินความคาดหมาย</div>
+        <div class="reflect-a" id="r-surprise">—</div>
+      </div>
+      <div class="reflect-item">
+        <div class="reflect-q">🟣 สิ่งที่จะปรับปรุงในภาคเรียนหน้า</div>
+        <div class="reflect-a" id="r-improve">—</div>
+      </div>
+    </div>
+
+    <!-- Score Table -->
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:12px;">เกณฑ์การประเมิน</h3>
+      <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        <thead>
+          <tr style="background:var(--primary-light);">
+            <th style="padding:8px 12px; text-align:left; border-radius:6px 0 0 0;">ระดับ</th>
+            <th style="padding:8px 12px; text-align:center;">คะแนน</th>
+            <th style="padding:8px 12px; text-align:center; border-radius:0 6px 0 0;">ร้อยละ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:8px 12px; border-bottom:1px solid var(--border);">ดีมาก</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">60–72</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">≥83%</td></tr>
+          <tr><td style="padding:8px 12px; border-bottom:1px solid var(--border);">ดี</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">46–59</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">64–82%</td></tr>
+          <tr><td style="padding:8px 12px; border-bottom:1px solid var(--border);">พอใช้</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">31–45</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">43–62%</td></tr>
+          <tr><td style="padding:8px 12px;">ปรับปรุง</td><td style="padding:8px 12px; text-align:center;">0–30</td><td style="padding:8px 12px; text-align:center;">≤42%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Actions -->
+    <div class="btn-row no-print">
+      <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์รายงาน</button>
+      <button class="btn btn-secondary" onclick="startNew()">ทำแบบประเมินใหม่</button>
+    </div>
+  </main>
+
+  <script src="js/state.js"></script>
+  <script>
+    // Redirect guard
+    const info = State.load('sst_info');
+    if (!info) { window.location.href = 'index.html'; }
+
+    // Load data
+    const d1 = State.load('sst_domain1') || {};
+    const d2 = State.load('sst_domain2') || {};
+    const d3 = State.load('sst_domain3') || {};
+    const reflection = State.load('sst_reflection') || {};
+
+    const d1Total = Object.values(d1).reduce((s, v) => s + (parseInt(v) || 0), 0);
+    const d2Total = Object.values(d2).reduce((s, v) => s + (parseInt(v) || 0), 0);
+    const d3Total = Object.values(d3).reduce((s, v) => s + (parseInt(v) || 0), 0);
+    const total = d1Total + d2Total + d3Total;
+    const level = State.getLevel(total);
+
+    // Fill UI
+    document.getElementById('teacher-name').textContent = info.teacher_name;
+    document.getElementById('school-info').textContent = `${info.school}  |  ${info.semester}`;
+    document.getElementById('total-score').textContent = total;
+    document.getElementById('d1-score').textContent = d1Total;
+    document.getElementById('d2-score').textContent = d2Total;
+    document.getElementById('d3-score').textContent = d3Total;
+
+    const badge = document.getElementById('level-badge');
+    badge.textContent = level.label;
+    badge.style.background = level.bg;
+    badge.style.color = level.color;
+    badge.style.border = `2px solid ${level.color}`;
+
+    // Reflection
+    const fill = (id, val) => { document.getElementById(id).textContent = val || '—'; };
+    fill('r-good', reflection.good);
+    fill('r-problem', reflection.problem);
+    fill('r-surprise', reflection.surprise);
+    fill('r-improve', reflection.improve);
+
+    // Radar Chart
+    const ctx = document.getElementById('radar-chart').getContext('2d');
+    new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: ['ด้านที่ 1\nการนำหลักสูตร', 'ด้านที่ 2\nเครือข่ายชุมชน', 'ด้านที่ 3\nสมรรถนะ/ผู้นำ'],
+        datasets: [{
+          label: 'คะแนนของท่าน',
+          data: [d1Total, d2Total, d3Total],
+          backgroundColor: 'rgba(46, 125, 50, 0.15)',
+          borderColor: '#2E7D32',
+          borderWidth: 2.5,
+          pointBackgroundColor: '#2E7D32',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          r: {
+            min: 0,
+            max: 24,
+            ticks: { stepSize: 6, font: { size: 12 } },
+            pointLabels: { font: { size: 13, weight: '600' } },
+            grid: { color: 'rgba(0,0,0,0.08)' },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.raw} / 24 คะแนน`,
+            },
+          },
+        },
+      },
+    });
+
+    function startNew() {
+      State.clearAll();
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

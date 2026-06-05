@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สะท้อนคิด P-A-R-I | SST-EM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line"></div>
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line"></div>
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line"></div>
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line"></div>
+      <div class="step active"><div class="step-dot">5</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">6</div></div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="badge">ขั้นตอนที่ 5 จาก 6</div>
+      <h1>สะท้อนคิด P-A-R-I</h1>
+      <p>Reflective Practice — บันทึกสั้นๆ ใช้เวลาไม่เกิน 5 นาที</p>
+    </div>
+
+    <div class="card">
+      <div class="form-group">
+        <div class="reflect-label">
+          <span class="tag">P</span>
+          <span>สิ่งที่ทำได้ดีในภาคเรียนนี้</span>
+        </div>
+        <textarea id="r-good" placeholder="เช่น นักเรียนมีส่วนร่วมในกิจกรรมบูรณาการมากขึ้น ชุมชนให้ความร่วมมือดี..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <div class="reflect-label">
+          <span class="tag" style="background:#F57F17">A</span>
+          <span>ปัญหา/อุปสรรคที่พบ</span>
+        </div>
+        <textarea id="r-problem" placeholder="เช่น ขาดสื่อการสอน เวลาไม่เพียงพอ นักเรียนมีพื้นฐานต่างกันมาก..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <div class="reflect-label">
+          <span class="tag" style="background:#1565C0">R</span>
+          <span>สิ่งที่เด็กได้รับเกินความคาดหมาย</span>
+        </div>
+        <textarea id="r-surprise" placeholder="เช่น เด็กริเริ่มทำโครงงานด้วยตนเอง ผู้ปกครองเข้ามามีส่วนร่วมมากกว่าที่คาดไว้..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <div class="reflect-label">
+          <span class="tag" style="background:#6A1B9A">I</span>
+          <span>สิ่งที่จะปรับปรุงในภาคเรียนหน้า</span>
+        </div>
+        <textarea id="r-improve" placeholder="เช่น จะเพิ่มกิจกรรมเยี่ยมบ้าน จะสร้างเครือข่าย PLC กับโรงเรียนใกล้เคียง..."></textarea>
+      </div>
+    </div>
+
+    <div id="error-msg" class="error-msg">⚠️ กรุณากรอกข้อมูลอย่างน้อย 1 ช่องก่อนดูผล</div>
+
+    <button class="btn btn-primary" id="btn-submit">
+      ดูผลการประเมิน →
+    </button>
+  </main>
+
+  <script src="js/state.js"></script>
+  <script src="js/supabase.js"></script>
+  <script>
+    // Redirect guard
+    if (!State.load('sst_info')) window.location.href = 'index.html';
+    if (!State.load('sst_domain3')) window.location.href = 'domain3.html';
+
+    // Pre-fill
+    const saved = State.load('sst_reflection') || {};
+    document.getElementById('r-good').value = saved.good || '';
+    document.getElementById('r-problem').value = saved.problem || '';
+    document.getElementById('r-surprise').value = saved.surprise || '';
+    document.getElementById('r-improve').value = saved.improve || '';
+
+    document.getElementById('btn-submit').addEventListener('click', async () => {
+      const good = document.getElementById('r-good').value.trim();
+      const problem = document.getElementById('r-problem').value.trim();
+      const surprise = document.getElementById('r-surprise').value.trim();
+      const improve = document.getElementById('r-improve').value.trim();
+
+      if (!good && !problem && !surprise && !improve) {
+        document.getElementById('error-msg').classList.add('show');
+        return;
+      }
+      document.getElementById('error-msg').classList.remove('show');
+
+      const reflection = { good, problem, surprise, improve };
+      State.save('sst_reflection', reflection);
+
+      // Send to Supabase (non-blocking)
+      const btn = document.getElementById('btn-submit');
+      btn.textContent = 'กำลังบันทึก...';
+      btn.disabled = true;
+
+      try {
+        await SupabaseClient.saveEvaluation();
+      } catch (e) {
+        console.warn('Supabase save failed:', e);
+      }
+
+      window.location.href = 'result.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SST-EM | แบบประเมินครูโรงเรียนขนาดเล็ก</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Progress -->
+  <nav class="progress-bar">
+    <div class="progress-steps">
+      <div class="step active">
+        <div class="step-dot">1</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-dot">2</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-dot">3</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-dot">4</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-dot">5</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-dot">6</div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <!-- Cover -->
+    <div class="cover">
+      <div class="logo">🏫</div>
+      <h1>SST-EM</h1>
+      <p class="subtitle">แบบประเมินการจัดการศึกษาสำหรับครูในสถานศึกษาขนาดเล็ก<br/>Small School Teacher Evaluation Model</p>
+    </div>
+
+    <!-- Form -->
+    <div class="card">
+      <div class="page-header" style="text-align:left; margin-bottom:20px;">
+        <div class="badge">ขั้นตอนที่ 1 จาก 6</div>
+        <h1>กรอกข้อมูลเบื้องต้น</h1>
+        <p>ข้อมูลนี้จะปรากฏในรายงานผลการประเมิน</p>
+      </div>
+
+      <div id="error-msg" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
+
+      <div class="form-group">
+        <label for="teacher-name">ชื่อ-นามสกุลครู</label>
+        <input type="text" id="teacher-name" placeholder="เช่น นางสาวสมใจ ใจดี" autocomplete="name" />
+      </div>
+
+      <div class="form-group">
+        <label for="school">ชื่อโรงเรียน</label>
+        <input type="text" id="school" placeholder="เช่น โรงเรียนบ้านหนองเล็ก" />
+      </div>
+
+      <div class="form-group">
+        <label for="semester">ภาคเรียน / ปีการศึกษา</label>
+        <input type="text" id="semester" placeholder="เช่น ภาคเรียนที่ 1/2567" />
+      </div>
+
+      <button class="btn btn-primary" onclick="startEval()">
+        เริ่มทำแบบประเมิน →
+      </button>
+    </div>
+  </main>
+
+  <script src="js/state.js"></script>
+  <script>
+    // Pre-fill if returning
+    const saved = State.load('sst_info');
+    if (saved) {
+      document.getElementById('teacher-name').value = saved.teacher_name || '';
+      document.getElementById('school').value = saved.school || '';
+      document.getElementById('semester').value = saved.semester || '';
+    }
+
+    function startEval() {
+      const teacher_name = document.getElementById('teacher-name').value.trim();
+      const school = document.getElementById('school').value.trim();
+      const semester = document.getElementById('semester').value.trim();
+      const err = document.getElementById('error-msg');
+
+      if (!teacher_name || !school || !semester) {
+        err.classList.add('show');
+        return;
+      }
+      err.classList.remove('show');
+
+      State.save('sst_info', { teacher_name, school, semester });
+      window.location.href = 'domain1.html';
+    }
+  </script>
+</body>
+</html>

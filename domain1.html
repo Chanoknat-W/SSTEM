@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ด้านที่ 1 | SST-EM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-domain="domain1" data-next="domain2.html">
+
+  <nav class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line"></div>
+      <div class="step active"><div class="step-dot">2</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">3</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">4</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">5</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">6</div></div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="badge">ขั้นตอนที่ 2 จาก 6</div>
+      <h1 id="domain-title"></h1>
+      <p id="domain-subtitle"></p>
+    </div>
+
+    <div id="error-msg" class="error-msg">⚠️ กรุณาตอบทุกข้อก่อนไปหน้าถัดไป</div>
+
+    <div id="questions-container"></div>
+
+    <button class="btn btn-primary" id="btn-next">ถัดไป: ด้านที่ 2 →</button>
+  </main>
+
+  <script src="js/questions.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/domain-page.js"></script>
+</body>
+</html>
