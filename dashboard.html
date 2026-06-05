@@ -84,7 +84,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-num" id="s-avg">0</div>
-          <div class="stat-label">คะแนนเฉลี่ยรวม / 72</div>
+          <div class="stat-label">คะแนนเฉลี่ยรวม <strong>/ 72</strong></div>
         </div>
         <div class="stat-card">
           <div class="stat-num" id="s-pass">0</div>
@@ -124,10 +124,10 @@
               <th>ชื่อครู</th>
               <th>โรงเรียน</th>
               <th>ภาคเรียน</th>
-              <th style="text-align:center;">ด้าน 1</th>
-              <th style="text-align:center;">ด้าน 2</th>
-              <th style="text-align:center;">ด้าน 3</th>
-              <th style="text-align:center;">รวม</th>
+              <th style="text-align:center;">ด้าน 1<br/><span style="font-weight:400;font-size:11px;">/24</span></th>
+              <th style="text-align:center;">ด้าน 2<br/><span style="font-weight:400;font-size:11px;">/24</span></th>
+              <th style="text-align:center;">ด้าน 3<br/><span style="font-weight:400;font-size:11px;">/24</span></th>
+              <th style="text-align:center;">รวม<br/><span style="font-weight:400;font-size:11px;">/72</span></th>
               <th style="text-align:center;">ระดับ</th>
               <th>วันที่</th>
             </tr>
@@ -232,7 +232,12 @@
       options: {
         responsive: true,
         scales: {
-          y: { min: 0, max: 24, ticks: { stepSize: 6 } },
+          y: {
+            min: 0,
+            max: 24,
+            ticks: { stepSize: 6 },
+            title: { display: true, text: 'คะแนน (เต็ม 24)', color: '#757575', font: { size: 12 } },
+          },
         },
         plugins: {
           legend: { display: false },
