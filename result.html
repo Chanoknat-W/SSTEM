@@ -40,17 +40,17 @@
     <!-- Domain Scores -->
     <div class="domain-scores">
       <div class="domain-score-card">
-        <div class="label">ด้านที่ 1<br/>การนำหลักสูตร</div>
+        <div class="label">ด้านที่ 1<br/>การจัดการเรียนรู้</div>
         <div class="score" id="d1-score">0</div>
         <div class="max">/ 24</div>
       </div>
       <div class="domain-score-card">
-        <div class="label">ด้านที่ 2<br/>เครือข่ายชุมชน</div>
+        <div class="label">ด้านที่ 2<br/>สถาบันและบริบท</div>
         <div class="score" id="d2-score">0</div>
         <div class="max">/ 24</div>
       </div>
       <div class="domain-score-card">
-        <div class="label">ด้านที่ 3<br/>สมรรถนะ/ผู้นำ</div>
+        <div class="label">ด้านที่ 3<br/>พฤติกรรมวิชาชีพ</div>
         <div class="score" id="d3-score">0</div>
         <div class="max">/ 24</div>
       </div>
@@ -153,7 +153,7 @@
     new Chart(ctx, {
       type: 'radar',
       data: {
-        labels: ['ด้านที่ 1\nการนำหลักสูตร', 'ด้านที่ 2\nเครือข่ายชุมชน', 'ด้านที่ 3\nสมรรถนะ/ผู้นำ'],
+        labels: ['ด้านที่ 1\nการจัดการเรียนรู้', 'ด้านที่ 2\nสถาบันและบริบท', 'ด้านที่ 3\nพฤติกรรมวิชาชีพ'],
         datasets: [{
           label: 'คะแนนของท่าน',
           data: [d1Total, d2Total, d3Total],
