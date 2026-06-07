@@ -3,45 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ด้านที่ 3 | SST-EM</title>
+  <title>ประเมินด้านที่ 2 | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body data-domain="domain3" data-next="upload.html">
+<body data-domain="domain2" data-next="eval-domain3.html">
 
   <nav class="progress-bar">
     <div class="progress-steps">
       <div class="step done"><div class="step-dot">✓</div></div>
-      <div class="step-line"></div>
+      <div class="step-line done-line"></div>
       <div class="step done"><div class="step-dot">✓</div></div>
-      <div class="step-line"></div>
+      <div class="step-line done-line"></div>
       <div class="step done"><div class="step-dot">✓</div></div>
-      <div class="step-line"></div>
+      <div class="step-line done-line"></div>
       <div class="step active"><div class="step-dot">4</div></div>
       <div class="step-line"></div>
       <div class="step"><div class="step-dot">5</div></div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-dot">6</div></div>
     </div>
   </nav>
 
   <main class="page">
     <div class="page-header">
-      <div class="badge">ขั้นตอนที่ 4 จาก 6</div>
+      <div class="badge">ผู้ประเมิน · ขั้นตอนที่ 4 จาก 5</div>
       <h1 id="domain-title"></h1>
       <p id="domain-subtitle"></p>
     </div>
 
     <div id="error-msg" class="error-msg">⚠️ กรุณาตอบทุกข้อก่อนไปหน้าถัดไป</div>
-
     <div id="questions-container"></div>
 
-    <button class="btn btn-primary" id="btn-next">ถัดไป: อัปโหลดเอกสาร →</button>
+    <button class="btn btn-primary" id="btn-next">ถัดไป: ด้านที่ 3 →</button>
   </main>
 
   <script src="js/questions.js"></script>
-  <script src="js/state.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/domain-page.js"></script>
+  <script src="js/eval-domain-page.js"></script>
   <script>Auth.requireAuth();</script>
 </body>
 </html>

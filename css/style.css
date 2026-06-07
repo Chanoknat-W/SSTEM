@@ -346,12 +346,19 @@ body {
 /* ===== Cover Page ===== */
 .cover {
   text-align: center;
-  padding: 40px 20px;
+  padding: 36px 20px 20px;
+}
+
+.univ-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 10px;
 }
 
 .cover .logo {
-  font-size: 56px;
-  margin-bottom: 16px;
+  font-size: 48px;
+  margin-bottom: 10px;
 }
 
 .cover h1 {
@@ -364,7 +371,139 @@ body {
 .cover .subtitle {
   font-size: 15px;
   color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.dev-credit {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+/* ===== Role Selection ===== */
+.role-prompt {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 14px;
+}
+
+.role-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
   margin-bottom: 32px;
+}
+
+.role-card {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px 14px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+  position: relative;
+}
+
+.role-card:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(46,125,50,0.18);
+}
+
+.role-number {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  width: 26px;
+  height: 26px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.role-icon-large {
+  font-size: 38px;
+  margin-bottom: 10px;
+}
+
+.role-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 6px;
+}
+
+.role-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ===== Form Section Label ===== */
+.form-section-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--primary);
+  border-radius: 6px;
+  padding: 6px 14px;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+/* ===== Name Row (คำนำหน้า + ชื่อ) ===== */
+.name-row {
+  display: flex;
+  gap: 8px;
+}
+
+.name-row select {
+  width: 110px;
+  flex-shrink: 0;
+  padding: 12px 10px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--white);
+  transition: border-color 0.2s;
+}
+
+.name-row select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.name-row input {
+  flex: 1;
+}
+
+/* ===== Site Footer ===== */
+.site-footer {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 18px 16px 32px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+@media (max-width: 420px) {
+  .role-cards { grid-template-columns: 1fr; }
+  .name-row { flex-direction: column; }
+  .name-row select { width: 100%; }
 }
 
 /* ===== Reflection Page ===== */
@@ -582,6 +721,230 @@ body {
   font-weight: 700;
   color: var(--primary-dark);
   margin: 24px 0 12px;
+}
+
+/* ===== Login / Register ===== */
+.auth-page .cover { padding-bottom: 12px; }
+
+/* ===== Role Card Selected ===== */
+.role-card-selected {
+  border-color: var(--primary) !important;
+  background: var(--primary-light) !important;
+  box-shadow: 0 0 0 3px rgba(46,125,50,0.25) !important;
+}
+
+/* ===== Upload Page ===== */
+.upload-section {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.upload-section-header {
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+}
+.upload-d1 { background: #2E7D32; }
+.upload-d2 { background: #1565C0; }
+.upload-d3 { background: #6A1B9A; }
+
+.upload-items { padding: 12px 16px; }
+
+.upload-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.upload-item:last-child { border-bottom: none; }
+.upload-item-done .upload-label { color: var(--primary); }
+
+.upload-label {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text);
+  min-width: 160px;
+}
+
+.upload-btn-label {
+  display: inline-block;
+  padding: 6px 14px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.upload-btn-label:hover { background: #C8E6C9; }
+
+input[type="file"] { display: none; }
+
+.upload-filename {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: 1;
+  min-width: 120px;
+  word-break: break-all;
+}
+
+.upload-progress-bar {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.upload-progress-text {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.upload-progress-track {
+  background: var(--border);
+  border-radius: 10px;
+  height: 8px;
+  overflow: hidden;
+}
+.upload-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 10px;
+  transition: width 0.3s;
+  width: 0%;
+}
+
+/* ===== File Link ===== */
+.file-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--primary-light);
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--primary-dark);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  transition: background 0.15s;
+}
+.file-link:hover { background: #C8E6C9; }
+
+/* ===== Eval / Search Page ===== */
+.filter-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 2px solid var(--border);
+  background: var(--white);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-btn.active, .filter-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.eval-card:hover {
+  box-shadow: 0 4px 16px rgba(46,125,50,0.15);
+  transform: translateY(-1px);
+  transition: all 0.15s;
+}
+
+/* ===== Eval Score Page ===== */
+.eval-score-card { border-left: 5px solid var(--primary); }
+.eval-domain-block { }
+.eval-domain-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 10px;
+}
+.eval-self-score {
+  font-size: 13px;
+  color: var(--text-muted);
+  background: var(--primary-light);
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-bottom: 14px;
+  display: inline-block;
+}
+
+/* Score Radio */
+.score-radio-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.score-radio-label { cursor: pointer; }
+.score-radio-label input { display: none; }
+.score-radio-box {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-align: center;
+  transition: all 0.15s;
+  cursor: pointer;
+  line-height: 1.2;
+}
+.score-radio-box small { font-size: 10px; font-weight: 600; }
+.score-radio-label:hover .score-radio-box {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+/* Progress bar done-line */
+.done-line { background: var(--primary) !important; }
+
+/* ===== Draft Banner & Toast ===== */
+.draft-banner {
+  background: #FFF8E1;
+  border: 1px solid #FFD54F;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #E65100;
+  margin-bottom: 16px;
+}
+
+.draft-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary-dark);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  z-index: 9999;
+  transition: opacity 0.4s;
 }
 
 /* ===== Print ===== */

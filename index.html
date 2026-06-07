@@ -3,86 +3,149 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SST-EM | แบบประเมินครูโรงเรียนขนาดเล็ก</title>
+  <title>ผู้รับการประเมิน | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+<main class="page">
 
-  <nav class="progress-bar">
-    <div class="progress-steps">
-      <div class="step active"><div class="step-dot">1</div></div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-dot">2</div></div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-dot">3</div></div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-dot">4</div></div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-dot">5</div></div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-dot">6</div></div>
+  <!-- Menu -->
+  <div id="section-menu">
+    <div class="page-header">
+      <div class="badge">ผู้รับการประเมิน</div>
+      <h1 id="greeting">สวัสดี</h1>
+      <p id="greeting-sub" style="font-size:14px; color:var(--text-muted);"></p>
     </div>
-  </nav>
 
-  <main class="page">
-    <div class="cover">
-      <div class="logo">🏫</div>
-      <h1>SST-EM</h1>
-      <p class="subtitle">แบบประเมินการจัดการศึกษาสำหรับครูในสถานศึกษาขนาดเล็ก<br/>Small School Teacher Evaluation Model</p>
+    <div class="role-cards">
+      <button class="role-card" onclick="showForm()">
+        <div class="role-icon-large">📝</div>
+        <div class="role-label">รับการประเมินใหม่</div>
+        <div class="role-sub">อัปโหลดเอกสารประกอบ</div>
+      </button>
+      <button class="role-card" onclick="window.location.href='my-results.html'">
+        <div class="role-icon-large">📊</div>
+        <div class="role-label">ดูผลประเมิน</div>
+        <div class="role-sub">ประวัติการประเมินทั้งหมด</div>
+      </button>
     </div>
+
+    <div style="text-align:center; margin-top:8px;">
+      <button class="btn btn-secondary" onclick="window.location.href='home.html'" style="font-size:14px; padding:8px 20px;">← เปลี่ยนบทบาท</button>
+    </div>
+  </div>
+
+  <!-- Info Form -->
+  <div id="section-form" style="display:none;">
+    <nav class="progress-bar" style="margin: -24px -16px 24px; position:static; box-shadow:none; border-bottom:1px solid var(--border);">
+      <div class="progress-steps">
+        <div class="step active"><div class="step-dot">1</div></div>
+        <div class="step-line"></div>
+        <div class="step"><div class="step-dot">2</div></div>
+        <div class="step-line"></div>
+        <div class="step"><div class="step-dot">3</div></div>
+      </div>
+    </nav>
 
     <div class="card">
       <div class="page-header" style="text-align:left; margin-bottom:20px;">
-        <div class="badge">ขั้นตอนที่ 1 จาก 6</div>
-        <h1>กรอกข้อมูลเบื้องต้น</h1>
-        <p>ข้อมูลนี้จะปรากฏในรายงานผลการประเมิน</p>
+        <div class="badge">ขั้นตอนที่ 1 จาก 3</div>
+        <h1>ตรวจสอบข้อมูลเบื้องต้น</h1>
+        <p>ข้อมูลดึงมาจากโปรไฟล์ของท่าน สามารถแก้ไขได้สำหรับการประเมินครั้งนี้</p>
       </div>
 
       <div id="error-msg" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
 
       <div class="form-group">
-        <label for="teacher-name">ชื่อ-นามสกุลครู</label>
-        <input type="text" id="teacher-name" placeholder="เช่น นางสาวสมใจ ใจดี" autocomplete="name" />
+        <label for="teacher-name">ชื่อ-นามสกุล</label>
+        <input type="text" id="teacher-name" placeholder="เช่น นางสาวสมใจ ใจดี" />
       </div>
-
       <div class="form-group">
-        <label for="school">ชื่อโรงเรียน</label>
+        <label for="grade">ชั้นที่สอน</label>
+        <select id="grade">
+          <option value="">-- เลือกชั้นที่สอน --</option>
+          <optgroup label="อนุบาล">
+            <option>อนุบาล 1</option><option>อนุบาล 2</option><option>อนุบาล 3</option>
+          </optgroup>
+          <optgroup label="ประถมศึกษา">
+            <option>ป.1</option><option>ป.2</option><option>ป.3</option>
+            <option>ป.4</option><option>ป.5</option><option>ป.6</option>
+          </optgroup>
+          <optgroup label="มัธยมศึกษาตอนต้น">
+            <option>ม.1</option><option>ม.2</option><option>ม.3</option>
+          </optgroup>
+          <optgroup label="มัธยมศึกษาตอนปลาย">
+            <option>ม.4</option><option>ม.5</option><option>ม.6</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="school">โรงเรียน</label>
         <input type="text" id="school" placeholder="เช่น โรงเรียนบ้านหนองเล็ก" />
       </div>
-
+      <div class="form-group">
+        <label for="district">สังกัด</label>
+        <input type="text" id="district" placeholder="เช่น สพป.กาฬสินธุ์ เขต 3" />
+      </div>
       <div class="form-group">
         <label for="semester">ภาคเรียน / ปีการศึกษา</label>
         <input type="text" id="semester" placeholder="เช่น ภาคเรียนที่ 1/2567" />
       </div>
 
-      <button class="btn btn-primary" onclick="startEval()">
-        เริ่มทำแบบประเมิน →
-      </button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showMenu()">← กลับ</button>
+        <button class="btn btn-primary" onclick="goToUpload()">ถัดไป: อัปโหลดเอกสาร →</button>
+      </div>
     </div>
-  </main>
+  </div>
 
-  <script src="js/state.js"></script>
-  <script>
-    const saved = State.load('sst_info');
-    if (saved) {
-      document.getElementById('teacher-name').value = saved.teacher_name || '';
-      document.getElementById('school').value = saved.school || '';
-      document.getElementById('semester').value = saved.semester || '';
-    }
+</main>
 
-    function startEval() {
-      const teacher_name = document.getElementById('teacher-name').value.trim();
-      const school = document.getElementById('school').value.trim();
-      const semester = document.getElementById('semester').value.trim();
-      const err = document.getElementById('error-msg');
-      if (!teacher_name || !school || !semester) {
-        err.classList.add('show');
-        return;
-      }
-      err.classList.remove('show');
-      State.save('sst_info', { teacher_name, school, semester });
-      window.location.href = 'domain1.html';
+<footer class="site-footer">
+  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
+</footer>
+
+<script src="js/state.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  const user = Auth.requireAuth();
+  if (!user) throw new Error('not auth');
+
+  document.getElementById('greeting').textContent    = `สวัสดี, ${user.display_name || ''}`;
+  document.getElementById('greeting-sub').textContent = [user.position, user.school].filter(Boolean).join(' · ');
+
+  function showForm() {
+    document.getElementById('section-menu').style.display = 'none';
+    document.getElementById('section-form').style.display = 'block';
+
+    // Pre-fill from profile
+    document.getElementById('teacher-name').value = user.display_name || '';
+    document.getElementById('grade').value         = user.grade        || '';
+    document.getElementById('school').value        = user.school       || '';
+    document.getElementById('district').value      = user.district     || '';
+    document.getElementById('semester').value      = user.semester     || '';
+  }
+
+  function showMenu() {
+    document.getElementById('section-form').style.display = 'none';
+    document.getElementById('section-menu').style.display = 'block';
+  }
+
+  function goToUpload() {
+    const teacher_name = document.getElementById('teacher-name').value.trim();
+    const grade        = document.getElementById('grade').value;
+    const school       = document.getElementById('school').value.trim();
+    const district     = document.getElementById('district').value.trim();
+    const semester     = document.getElementById('semester').value.trim();
+    const err          = document.getElementById('error-msg');
+
+    if (!teacher_name || !grade || !school || !district || !semester) {
+      err.classList.add('show'); return;
     }
-  </script>
+    err.classList.remove('show');
+    State.save('sst_info', { teacher_name, grade, school, district, semester });
+    window.location.href = 'upload.html';
+  }
+</script>
 </body>
 </html>

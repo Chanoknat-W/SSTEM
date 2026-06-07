@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>อัปโหลดเอกสาร | SST-EM</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line done-line"></div>
+      <div class="step active"><div class="step-dot">2</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">3</div></div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="badge">ขั้นตอนที่ 2 จาก 3</div>
+      <h1>อัปโหลดเอกสารประกอบ</h1>
+      <p>สามารถบันทึก draft และกลับมาแก้ไขได้ภายหลัง · ส่งต้องมีอย่างน้อย 1 ไฟล์ต่อด้าน</p>
+    </div>
+
+    <div id="draft-banner" style="display:none;" class="draft-banner">
+      📂 กำลังแก้ไข draft — ไฟล์ที่เคยบันทึกไว้แสดงด้านล่าง
+    </div>
+
+    <div id="error-msg" class="error-msg"></div>
+
+    <!-- ด้านที่ 1 -->
+    <div class="upload-section">
+      <div class="upload-section-header upload-d1">ด้านที่ 1 — การจัดการเรียนรู้</div>
+      <div class="upload-items">
+        <div class="upload-item" id="wrap-d1_1">
+          <div class="upload-label">1.1 แบบบันทึกการสะท้อนคิดและการประเมินการจัดการศึกษา</div>
+          <label class="upload-btn-label" for="file-d1_1">เลือกไฟล์</label>
+          <input type="file" id="file-d1_1" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d1_1')" />
+          <span class="upload-filename" id="name-d1_1">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d1_2">
+          <div class="upload-label">1.2 แบบสังเกตการสอน / ร่องรอยใบงานเด็ก</div>
+          <label class="upload-btn-label" for="file-d1_2">เลือกไฟล์</label>
+          <input type="file" id="file-d1_2" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d1_2')" />
+          <span class="upload-filename" id="name-d1_2">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d1_3">
+          <div class="upload-label">1.3 แบบสังเกตห้องเรียน / ภาพถ่ายสื่อ</div>
+          <label class="upload-btn-label" for="file-d1_3">เลือกไฟล์</label>
+          <input type="file" id="file-d1_3" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d1_3')" />
+          <span class="upload-filename" id="name-d1_3">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ด้านที่ 2 -->
+    <div class="upload-section">
+      <div class="upload-section-header upload-d2">ด้านที่ 2 — สถาบันและบริบท</div>
+      <div class="upload-items">
+        <div class="upload-item" id="wrap-d2_1">
+          <div class="upload-label">2.1 แบบประเมินการมีส่วนร่วมสำหรับชุมชน</div>
+          <label class="upload-btn-label" for="file-d2_1">เลือกไฟล์</label>
+          <input type="file" id="file-d2_1" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d2_1')" />
+          <span class="upload-filename" id="name-d2_1">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d2_2">
+          <div class="upload-label">2.2 บันทึกเชิญวิทยากร / ภาพถ่ายกิจกรรม</div>
+          <label class="upload-btn-label" for="file-d2_2">เลือกไฟล์</label>
+          <input type="file" id="file-d2_2" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d2_2')" />
+          <span class="upload-filename" id="name-d2_2">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d2_3">
+          <div class="upload-label">2.3 แบบสัมภาษณ์ตัวแทนกรรมการสถานศึกษา</div>
+          <label class="upload-btn-label" for="file-d2_3">เลือกไฟล์</label>
+          <input type="file" id="file-d2_3" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d2_3')" />
+          <span class="upload-filename" id="name-d2_3">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ด้านที่ 3 -->
+    <div class="upload-section">
+      <div class="upload-section-header upload-d3">ด้านที่ 3 — พฤติกรรมวิชาชีพ</div>
+      <div class="upload-items">
+        <div class="upload-item" id="wrap-d3_1">
+          <div class="upload-label">3.1 เกณฑ์รูบริค (Rubrics) ประเมินภาวะผู้นำทางวิชาการ</div>
+          <label class="upload-btn-label" for="file-d3_1">เลือกไฟล์</label>
+          <input type="file" id="file-d3_1" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d3_1')" />
+          <span class="upload-filename" id="name-d3_1">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d3_2">
+          <div class="upload-label">3.2 แบบบันทึก One-Page Reflector</div>
+          <label class="upload-btn-label" for="file-d3_2">เลือกไฟล์</label>
+          <input type="file" id="file-d3_2" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d3_2')" />
+          <span class="upload-filename" id="name-d3_2">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d3_3">
+          <div class="upload-label">3.3 แบบสังเกตพฤติกรรม / สัมภาษณ์เพื่อนครู</div>
+          <label class="upload-btn-label" for="file-d3_3">เลือกไฟล์</label>
+          <input type="file" id="file-d3_3" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d3_3')" />
+          <span class="upload-filename" id="name-d3_3">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d3_4">
+          <div class="upload-label">3.4 แบบสังเกตพฤติกรรมการทำงาน</div>
+          <label class="upload-btn-label" for="file-d3_4">เลือกไฟล์</label>
+          <input type="file" id="file-d3_4" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d3_4')" />
+          <span class="upload-filename" id="name-d3_4">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="upload-progress" class="upload-progress-bar" style="display:none;">
+      <div class="upload-progress-text" id="upload-progress-text">กำลังอัปโหลด...</div>
+      <div class="upload-progress-track"><div class="upload-progress-fill" id="upload-fill"></div></div>
+    </div>
+
+    <!-- Toast -->
+    <div id="draft-toast" class="draft-toast" style="display:none;">✅ บันทึก draft เรียบร้อยแล้ว</div>
+
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn btn-secondary" id="btn-draft" onclick="saveDraft()">บันทึก draft</button>
+      <button class="btn btn-primary"   id="btn-submit" onclick="doSubmit()">ส่งเอกสารสำหรับประเมิน →</button>
+    </div>
+  </main>
+
+  <script src="js/state.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/supabase.js"></script>
+  <script>
+    const user = Auth.requireAuth();
+    if (!user) throw new Error('not auth');
+
+    const ALL_KEYS = ['d1_1','d1_2','d1_3','d2_1','d2_2','d2_3','d3_1','d3_2','d3_3','d3_4'];
+    const newFiles    = {};   // files selected this session
+    let existingFiles = {};   // files already saved to Supabase
+    let currentEvalId = null;
+
+    // ---- Load existing draft ----
+    const urlId = new URLSearchParams(location.search).get('id');
+    const storedId = localStorage.getItem('sst_eval_id');
+    currentEvalId = urlId || storedId || null;
+
+    async function loadDraft() {
+      if (!currentEvalId) return;
+      try {
+        const row = await SupabaseClient.getEvaluation(currentEvalId);
+        if (!row || row.eval_status !== 'draft') { currentEvalId = null; return; }
+
+        existingFiles = row.files || {};
+        if (Object.keys(existingFiles).length) {
+          document.getElementById('draft-banner').style.display = 'block';
+          showExistingFiles();
+        }
+        // Restore info from DB if not in localStorage
+        if (!State.load('sst_info')) {
+          State.save('sst_info', {
+            teacher_name: row.teacher_name,
+            grade: row.grade, school: row.school,
+            district: row.district, semester: row.semester,
+          });
+        }
+      } catch { currentEvalId = null; }
+    }
+
+    function showExistingFiles() {
+      Object.entries(existingFiles).forEach(([key, val]) => {
+        const nameEl = document.getElementById(`name-${key}`);
+        const wrap   = document.getElementById(`wrap-${key}`);
+        if (!nameEl) return;
+        nameEl.innerHTML = `<a href="${val.url}" target="_blank" style="color:var(--primary); text-decoration:underline;">✓ ${val.name}</a>`;
+        wrap.classList.add('upload-item-done');
+      });
+    }
+
+    function onFileChange(input, key) {
+      const file   = input.files[0];
+      const nameEl = document.getElementById(`name-${key}`);
+      const wrap   = document.getElementById(`wrap-${key}`);
+      if (file) {
+        newFiles[key] = file;
+        nameEl.innerHTML = `<span style="color:var(--primary);">📎 ${file.name} <small style="color:var(--text-muted);">(ใหม่)</small></span>`;
+        wrap.classList.add('upload-item-done');
+      } else {
+        delete newFiles[key];
+        if (existingFiles[key]) {
+          nameEl.innerHTML = `<a href="${existingFiles[key].url}" target="_blank" style="color:var(--primary);">✓ ${existingFiles[key].name}</a>`;
+        } else {
+          nameEl.textContent = 'ยังไม่ได้เลือกไฟล์';
+          nameEl.style.color = '';
+          wrap.classList.remove('upload-item-done');
+        }
+      }
+    }
+
+    function hasFileForDomain(prefix) {
+      return ALL_KEYS.filter(k => k.startsWith(prefix))
+        .some(k => existingFiles[k] || newFiles[k]);
+    }
+
+    function validateDomains() {
+      if (!hasFileForDomain('d1')) return 'ด้านที่ 1: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
+      if (!hasFileForDomain('d2')) return 'ด้านที่ 2: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
+      if (!hasFileForDomain('d3')) return 'ด้านที่ 3: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
+      return null;
+    }
+
+    function setProgress(pct, text) {
+      document.getElementById('upload-progress').style.display = 'block';
+      document.getElementById('upload-progress-text').textContent = text;
+      document.getElementById('upload-fill').style.width = pct + '%';
+    }
+
+    function hideProgress() {
+      document.getElementById('upload-progress').style.display = 'none';
+    }
+
+    async function uploadNewFiles() {
+      const keys   = Object.keys(newFiles);
+      const merged = { ...existingFiles };
+      let done = 0;
+      for (const key of keys) {
+        const file = newFiles[key];
+        const ext  = file.name.split('.').pop();
+        const path = `${user.id}/${Date.now()}_${key}.${ext}`;
+        setProgress(Math.round((done / keys.length) * 85), `กำลังอัปโหลด ${key}...`);
+        const url = await SupabaseClient.uploadFile(file, path);
+        merged[key] = { name: file.name, url };
+        done++;
+      }
+      return merged;
+    }
+
+    // ---- Save Draft ----
+    async function saveDraft() {
+      const err  = document.getElementById('error-msg');
+      const btnD = document.getElementById('btn-draft');
+      const btnS = document.getElementById('btn-submit');
+      err.classList.remove('show');
+      btnD.disabled = true; btnS.disabled = true;
+      btnD.textContent = 'กำลังบันทึก...';
+
+      try {
+        const mergedFiles = Object.keys(newFiles).length
+          ? await uploadNewFiles()
+          : { ...existingFiles };
+        setProgress(95, 'กำลังบันทึก...');
+
+        if (currentEvalId) {
+          await SupabaseClient.updateEvaluation(currentEvalId, { files: mergedFiles, eval_status: 'draft' });
+        } else {
+          currentEvalId = await SupabaseClient.saveEvaluation(mergedFiles, 'draft');
+          localStorage.setItem('sst_eval_id', currentEvalId);
+        }
+
+        existingFiles = mergedFiles;
+        // Clear newFiles and refresh display
+        Object.keys(newFiles).forEach(k => delete newFiles[k]);
+        showExistingFiles();
+        hideProgress();
+
+        document.getElementById('draft-banner').style.display = 'block';
+        showToast();
+      } catch (e) {
+        err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+        err.classList.add('show');
+        hideProgress();
+      } finally {
+        btnD.disabled = false; btnS.disabled = false;
+        btnD.textContent = 'บันทึก draft';
+      }
+    }
+
+    // ---- Submit ----
+    async function doSubmit() {
+      const err  = document.getElementById('error-msg');
+      const btnD = document.getElementById('btn-draft');
+      const btnS = document.getElementById('btn-submit');
+      err.classList.remove('show');
+
+      const validErr = validateDomains();
+      if (validErr) {
+        err.textContent = validErr;
+        err.classList.add('show');
+        err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      btnD.disabled = true; btnS.disabled = true;
+      btnS.textContent = 'กำลังส่ง...';
+
+      try {
+        const mergedFiles = Object.keys(newFiles).length
+          ? await uploadNewFiles()
+          : { ...existingFiles };
+        setProgress(95, 'กำลังส่งเอกสาร...');
+
+        if (currentEvalId) {
+          await SupabaseClient.updateEvaluation(currentEvalId, { files: mergedFiles, eval_status: 'pending' });
+        } else {
+          currentEvalId = await SupabaseClient.saveEvaluation(mergedFiles, 'pending');
+        }
+        localStorage.setItem('sst_eval_id', currentEvalId);
+
+        setProgress(100, 'ส่งเรียบร้อย!');
+        setTimeout(() => { window.location.href = 'result.html'; }, 500);
+      } catch (e) {
+        err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+        err.classList.add('show');
+        hideProgress();
+        btnD.disabled = false; btnS.disabled = false;
+        btnS.textContent = 'ส่งเอกสารสำหรับประเมิน →';
+      }
+    }
+
+    function showToast() {
+      const t = document.getElementById('draft-toast');
+      t.style.display = 'block';
+      t.style.opacity = '1';
+      setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => { t.style.display = 'none'; }, 400);
+      }, 2500);
+    }
+
+    loadDraft();
+  </script>
+</body>
+</html>

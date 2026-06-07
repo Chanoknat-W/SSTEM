@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ผลการประเมินของฉัน | SST-EM</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<main class="page">
+  <div class="page-header">
+    <div class="badge">ผู้รับการประเมิน</div>
+    <h1>ผลการประเมินของฉัน</h1>
+    <p id="user-name" style="font-size:14px; color:var(--text-muted);"></p>
+  </div>
+
+  <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+    <a href="index.html" class="btn btn-primary" style="flex:1; text-decoration:none;">+ ทำแบบประเมินใหม่</a>
+    <button class="btn btn-secondary" onclick="Auth.logout()" style="flex:1;">ออกจากระบบ</button>
+  </div>
+
+  <div id="loading" class="card" style="text-align:center; color:var(--text-muted); padding:32px;">
+    กำลังโหลดข้อมูล...
+  </div>
+  <div id="results-list"></div>
+</main>
+
+<footer class="site-footer">
+  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
+</footer>
+
+<script src="js/auth.js"></script>
+<script src="js/supabase.js"></script>
+<script>
+  const user = Auth.requireAuth();
+  if (!user) throw new Error('not auth');
+  document.getElementById('user-name').textContent = user.display_name || user.email;
+
+  const STATUS_LABEL = {
+    draft:     { text: 'ยังไม่ส่ง',                    color: '#757575', bg: '#F5F5F5' },
+    pending:   { text: '🕐 รอรับการประเมิน',           color: '#E65100', bg: '#FFF3E0' },
+    evaluated: { text: '✅ ได้รับการประเมินแล้ว',       color: '#1B5E20', bg: '#E8F5E9' },
+  };
+
+  async function load() {
+    try {
+      const rows = await SupabaseClient.getMyEvaluations();
+      document.getElementById('loading').style.display = 'none';
+      const container = document.getElementById('results-list');
+
+      if (!rows.length) {
+        container.innerHTML = '<div class="card" style="text-align:center;color:var(--text-muted);padding:32px;">ยังไม่มีผลการประเมิน</div>';
+        return;
+      }
+
+      rows.forEach(row => {
+        const st = STATUS_LABEL[row.eval_status] || STATUS_LABEL.draft;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.marginBottom = '14px';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+            <div>
+              <div style="font-size:16px; font-weight:700; color:var(--primary-dark);">${row.teacher_name || '-'}</div>
+              <div style="font-size:13px; color:var(--text-muted);">${row.school || ''} ${row.grade ? '· ' + row.grade : ''} · ${row.semester || ''}</div>
+            </div>
+            <span style="padding:4px 12px; border-radius:20px; font-size:13px; font-weight:700;
+              background:${st.bg}; color:${st.color};">${st.text}</span>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px;">
+            ${['การจัดการเรียนรู้','สถาบันและบริบท','พฤติกรรมวิชาชีพ']
+              .map((d, i) => `<div style="text-align:center; background:var(--primary-light); border-radius:8px; padding:8px;">
+                <div style="font-size:11px; color:var(--text-muted);">ด้านที่ ${i+1}</div>
+                <div style="font-size:20px; font-weight:800; color:var(--primary-dark);">${[row.domain1_total,row.domain2_total,row.domain3_total][i] ?? '-'}</div>
+                <div style="font-size:11px; color:var(--text-muted);">/ 24</div>
+              </div>`).join('')}
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            ${row.eval_status === 'draft' ? `
+              <a href="upload.html?id=${row.id}" class="btn btn-secondary" style="flex:1; font-size:14px; text-decoration:none; text-align:center;">✏️ แก้ไขและส่งเอกสาร</a>
+            ` : row.eval_status === 'evaluated' ? `
+              <a href="eval-result.html?id=${row.id}&view=self" class="btn btn-primary" style="flex:1; font-size:14px; text-decoration:none; text-align:center;">ดูผลเปรียบเทียบ</a>
+            ` : `
+              <div style="flex:1; text-align:center; font-size:14px; color:var(--text-muted); padding:14px 0;">รอผู้ประเมินดำเนินการ</div>
+            `}
+          </div>`;
+        container.appendChild(card);
+      });
+    } catch (e) {
+      document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
