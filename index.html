@@ -3,36 +3,62 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SST-EM | ระบบประเมินครูโรงเรียนขนาดเล็ก</title>
+  <title>ผู้รับการประเมิน | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+<main class="page">
 
-  <nav class="progress-bar">
-    <div class="progress-steps">
-      <div class="step active"><div class="step-dot">1</div></div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-dot">2</div></div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-dot">3</div></div>
+  <!-- Menu -->
+  <div id="section-menu">
+    <div class="page-header">
+      <div class="badge">ผู้รับการประเมิน</div>
+      <h1 id="greeting">สวัสดี</h1>
+      <p id="greeting-sub" style="font-size:14px; color:var(--text-muted);"></p>
     </div>
-  </nav>
 
-  <main class="page">
+    <div class="role-cards">
+      <button class="role-card" onclick="showForm()">
+        <div class="role-icon-large">📝</div>
+        <div class="role-label">รับการประเมินใหม่</div>
+        <div class="role-sub">อัปโหลดเอกสารประกอบ</div>
+      </button>
+      <button class="role-card" onclick="window.location.href='my-results.html'">
+        <div class="role-icon-large">📊</div>
+        <div class="role-label">ดูผลประเมิน</div>
+        <div class="role-sub">ประวัติการประเมินทั้งหมด</div>
+      </button>
+    </div>
+
+    <div style="text-align:center; margin-top:8px;">
+      <button class="btn btn-secondary" onclick="window.location.href='home.html'" style="font-size:14px; padding:8px 20px;">← เปลี่ยนบทบาท</button>
+    </div>
+  </div>
+
+  <!-- Info Form -->
+  <div id="section-form" style="display:none;">
+    <nav class="progress-bar" style="margin: -24px -16px 24px; position:static; box-shadow:none; border-bottom:1px solid var(--border);">
+      <div class="progress-steps">
+        <div class="step active"><div class="step-dot">1</div></div>
+        <div class="step-line"></div>
+        <div class="step"><div class="step-dot">2</div></div>
+        <div class="step-line"></div>
+        <div class="step"><div class="step-dot">3</div></div>
+      </div>
+    </nav>
+
     <div class="card">
       <div class="page-header" style="text-align:left; margin-bottom:20px;">
-        <div class="badge">ผู้รับการประเมิน · ขั้นตอนที่ 1 จาก 3</div>
-        <h1>กรอกข้อมูลเบื้องต้น</h1>
-        <p>ข้อมูลนี้จะปรากฏในรายงานผลการประเมิน</p>
+        <div class="badge">ขั้นตอนที่ 1 จาก 3</div>
+        <h1>ตรวจสอบข้อมูลเบื้องต้น</h1>
+        <p>ข้อมูลดึงมาจากโปรไฟล์ของท่าน สามารถแก้ไขได้สำหรับการประเมินครั้งนี้</p>
       </div>
 
       <div id="error-msg" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
 
-      <div id="user-greeting" style="margin-bottom:16px; font-size:14px; color:var(--text-muted);"></div>
-
       <div class="form-group">
         <label for="teacher-name">ชื่อ-นามสกุล</label>
-        <input type="text" id="teacher-name" placeholder="เช่น นางสาวสมใจ ใจดี" autocomplete="name" />
+        <input type="text" id="teacher-name" placeholder="เช่น นางสาวสมใจ ใจดี" />
       </div>
       <div class="form-group">
         <label for="grade">ชั้นที่สอน</label>
@@ -66,51 +92,60 @@
         <input type="text" id="semester" placeholder="เช่น ภาคเรียนที่ 1/2567" />
       </div>
 
-      <div class="btn-row" style="margin-top:4px;">
-        <button class="btn btn-secondary" onclick="Auth.logout()">ออกจากระบบ</button>
-        <button class="btn btn-primary" onclick="startEval()">เริ่มระบบประเมิน →</button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showMenu()">← กลับ</button>
+        <button class="btn btn-primary" onclick="goToUpload()">ถัดไป: อัปโหลดเอกสาร →</button>
       </div>
     </div>
-  </main>
+  </div>
 
-  <footer class="site-footer">
-    พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
-  </footer>
+</main>
 
-  <script src="js/state.js"></script>
-  <script src="js/auth.js"></script>
-  <script>
-    const user = Auth.requireAuth('self');
-    if (!user) throw new Error('not auth');
+<footer class="site-footer">
+  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
+</footer>
 
-    document.getElementById('user-greeting').textContent =
-      'สวัสดี, ' + (user.display_name || user.email);
+<script src="js/state.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  const user = Auth.requireAuth();
+  if (!user) throw new Error('not auth');
 
-    const saved = State.load('sst_info');
-    if (saved) {
-      document.getElementById('teacher-name').value = saved.teacher_name || '';
-      document.getElementById('grade').value         = saved.grade        || '';
-      document.getElementById('school').value        = saved.school       || '';
-      document.getElementById('district').value      = saved.district     || '';
-      document.getElementById('semester').value      = saved.semester     || '';
+  document.getElementById('greeting').textContent    = `สวัสดี, ${user.display_name || ''}`;
+  document.getElementById('greeting-sub').textContent = [user.position, user.school].filter(Boolean).join(' · ');
+
+  function showForm() {
+    document.getElementById('section-menu').style.display = 'none';
+    document.getElementById('section-form').style.display = 'block';
+
+    // Pre-fill from profile
+    document.getElementById('teacher-name').value = user.display_name || '';
+    document.getElementById('grade').value         = user.grade        || '';
+    document.getElementById('school').value        = user.school       || '';
+    document.getElementById('district').value      = user.district     || '';
+    document.getElementById('semester').value      = user.semester     || '';
+  }
+
+  function showMenu() {
+    document.getElementById('section-form').style.display = 'none';
+    document.getElementById('section-menu').style.display = 'block';
+  }
+
+  function goToUpload() {
+    const teacher_name = document.getElementById('teacher-name').value.trim();
+    const grade        = document.getElementById('grade').value;
+    const school       = document.getElementById('school').value.trim();
+    const district     = document.getElementById('district').value.trim();
+    const semester     = document.getElementById('semester').value.trim();
+    const err          = document.getElementById('error-msg');
+
+    if (!teacher_name || !grade || !school || !district || !semester) {
+      err.classList.add('show'); return;
     }
-
-    function startEval() {
-      const teacher_name = document.getElementById('teacher-name').value.trim();
-      const grade        = document.getElementById('grade').value;
-      const school       = document.getElementById('school').value.trim();
-      const district     = document.getElementById('district').value.trim();
-      const semester     = document.getElementById('semester').value.trim();
-      const err = document.getElementById('error-msg');
-
-      if (!teacher_name || !grade || !school || !district || !semester) {
-        err.classList.add('show');
-        return;
-      }
-      err.classList.remove('show');
-      State.save('sst_info', { role:'self', teacher_name, grade, school, district, semester });
-      window.location.href = 'domain1.html';
-    }
-  </script>
+    err.classList.remove('show');
+    State.save('sst_info', { teacher_name, grade, school, district, semester });
+    window.location.href = 'upload.html';
+  }
+</script>
 </body>
 </html>

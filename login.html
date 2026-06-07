@@ -50,9 +50,7 @@
 <script>
   // redirect if already logged in
   (function () {
-    const user = Auth.getUser();
-    const token = Auth.getToken();
-    if (user && token) Auth.redirectByRole(user);
+    if (Auth.getUser() && Auth.getToken()) Auth.redirectAfterLogin();
   })();
 
   async function doLogin() {
@@ -72,8 +70,8 @@
     err.classList.remove('show');
 
     try {
-      const user = await Auth.login(email, password);
-      Auth.redirectByRole(user);
+      await Auth.login(email, password);
+      Auth.redirectAfterLogin();
     } catch (e) {
       err.textContent = e.message;
       err.classList.add('show');

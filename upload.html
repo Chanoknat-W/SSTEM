@@ -113,14 +113,14 @@
       <div class="upload-progress-track"><div class="upload-progress-fill" id="upload-fill"></div></div>
     </div>
 
-    <button class="btn btn-primary" id="btn-next" onclick="doUpload()">ถัดไป: ดูผลการประเมิน →</button>
+    <button class="btn btn-primary" id="btn-next" onclick="doUpload()">ส่งเอกสารสำหรับประเมิน →</button>
   </main>
 
   <script src="js/state.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/supabase.js"></script>
   <script>
-    const user = Auth.requireAuth('self');
+    const user = Auth.requireAuth();
     if (!user) throw new Error('not auth');
 
     const FILE_KEYS = ['d1_1','d1_2','d1_3','d2_1','d2_2','d2_3','d3_1','d3_2','d3_3','d3_4'];

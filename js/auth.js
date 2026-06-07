@@ -20,7 +20,8 @@ const Auth = {
     return user;
   },
 
-  async register(email, password, displayName, role) {
+  async register(email, password, profileData) {
+    // profileData: { display_name, position, grade, school, district, semester }
     const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
@@ -30,7 +31,7 @@ const Auth = {
     if (!res.ok) throw new Error(data.error_description || data.msg || 'สมัครสมาชิกไม่สำเร็จ');
     if (!data.access_token) throw new Error('กรุณาปิด "Enable email confirmations" ใน Supabase Dashboard ก่อน');
 
-    const token = data.access_token;
+    const token  = data.access_token;
     const userId = data.user.id;
 
     const profileRes = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
@@ -41,7 +42,7 @@ const Auth = {
         Authorization: `Bearer ${token}`,
         Prefer: 'return=minimal',
       },
-      body: JSON.stringify({ id: userId, display_name: displayName, role }),
+      body: JSON.stringify({ id: userId, ...profileData }),
     });
     if (!profileRes.ok) {
       const err = await profileRes.text();
@@ -50,9 +51,28 @@ const Auth = {
 
     localStorage.setItem('sst_token', token);
     localStorage.setItem('sst_refresh_token', data.refresh_token || '');
-    const user = { id: userId, email, display_name: displayName, role };
+    const user = { id: userId, email, ...profileData };
     localStorage.setItem('sst_user', JSON.stringify(user));
     return user;
+  },
+
+  async updateProfile(profileData) {
+    const user  = this.getUser();
+    const token = this.getToken();
+    const res   = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${token}`,
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify(profileData),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const updated = { ...user, ...profileData };
+    localStorage.setItem('sst_user', JSON.stringify(updated));
+    return updated;
   },
 
   async _fetchProfile(token, userId) {
@@ -68,7 +88,8 @@ const Auth = {
 
   logout() {
     ['sst_token','sst_refresh_token','sst_user',
-     'sst_info','sst_domain1','sst_domain2','sst_domain3','sst_eval_id']
+     'sst_info','sst_domain1','sst_domain2','sst_domain3','sst_eval_id',
+     'sst_eval_domain1','sst_eval_domain2','sst_eval_domain3','sst_eval_target_id']
       .forEach(k => localStorage.removeItem(k));
     window.location.href = 'login.html';
   },
@@ -80,19 +101,16 @@ const Auth = {
 
   getToken() { return localStorage.getItem('sst_token') || ''; },
 
-  requireAuth(requiredRole) {
-    const user = this.getUser();
+  // Just checks login — no role restriction
+  requireAuth() {
+    const user  = this.getUser();
     const token = this.getToken();
     if (!user || !token) { window.location.href = 'login.html'; return null; }
-    if (requiredRole && user.role !== requiredRole) {
-      window.location.href = user.role === 'self' ? 'index.html' : 'eval-search.html';
-      return null;
-    }
     return user;
   },
 
-  redirectByRole(user) {
-    if (user.role === 'eval') window.location.href = 'eval-search.html';
-    else window.location.href = 'index.html';
+  // After login always go to home.html
+  redirectAfterLogin() {
+    window.location.href = 'home.html';
   },
 };

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>หน้าหลัก | SST-EM</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<main class="page">
+  <div class="cover">
+    <img src="img/ksu-logo.svg" alt="มหาวิทยาลัยกาฬสินธุ์" class="univ-logo" onerror="this.style.display='none'" />
+    <div class="logo">🏫</div>
+    <h1>SST-EM</h1>
+    <p class="subtitle">
+      ระบบประเมินการจัดการศึกษาสำหรับครูในสถานศึกษาขนาดเล็ก<br/>
+      Small School Teacher Evaluation Model
+    </p>
+    <p class="dev-credit">พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> · มหาวิทยาลัยกาฬสินธุ์</p>
+  </div>
+
+  <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <div>
+        <div style="font-size:14px; color:var(--text-muted);">เข้าสู่ระบบในชื่อ</div>
+        <div id="user-name" style="font-size:16px; font-weight:700; color:var(--primary-dark);"></div>
+        <div id="user-info" style="font-size:13px; color:var(--text-muted);"></div>
+      </div>
+      <button class="btn btn-secondary" onclick="Auth.logout()" style="padding:8px 18px; font-size:14px;">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <p class="role-prompt">เลือกบทบาทที่ต้องการในครั้งนี้</p>
+
+  <div class="role-cards">
+    <button class="role-card" onclick="window.location.href='index.html'">
+      <div class="role-number">1</div>
+      <div class="role-icon-large">👨‍🏫</div>
+      <div class="role-label">ผู้รับการประเมิน</div>
+      <div class="role-sub">ส่งเอกสาร · ดูผลประเมิน</div>
+    </button>
+    <button class="role-card" onclick="window.location.href='eval-search.html'">
+      <div class="role-number">2</div>
+      <div class="role-icon-large">📋</div>
+      <div class="role-label">ผู้ประเมิน</div>
+      <div class="role-sub">ครู · ผู้อำนวยการ · ศึกษานิเทศก์</div>
+    </button>
+  </div>
+</main>
+
+<footer class="site-footer">
+  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
+</footer>
+
+<script src="js/auth.js"></script>
+<script>
+  const user = Auth.requireAuth();
+  if (!user) throw new Error('not auth');
+
+  document.getElementById('user-name').textContent = user.display_name || user.email;
+  const info = [user.position, user.school].filter(Boolean).join(' · ');
+  document.getElementById('user-info').textContent = info;
+</script>
+</body>
+</html>

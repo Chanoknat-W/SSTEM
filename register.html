@@ -22,10 +22,7 @@
 
     <div id="error-msg" class="error-msg"></div>
 
-    <div class="form-group">
-      <label for="display-name">ชื่อ-นามสกุล</label>
-      <input type="text" id="display-name" placeholder="เช่น นางสาวสมใจ ใจดี" autocomplete="name" />
-    </div>
+    <div class="form-section-label">ข้อมูลบัญชี</div>
     <div class="form-group">
       <label for="email">Email</label>
       <input type="email" id="email" placeholder="example@email.com" autocomplete="email" />
@@ -39,23 +36,50 @@
       <input type="password" id="confirm-password" placeholder="กรอกรหัสผ่านอีกครั้ง" autocomplete="new-password" />
     </div>
 
+    <div class="form-section-label" style="margin-top:8px;">ข้อมูลส่วนตัว</div>
     <div class="form-group">
-      <label>บทบาท</label>
-      <div class="role-cards" style="margin-bottom:0;">
-        <button type="button" class="role-card" id="card-self" onclick="selectRole('self')">
-          <div class="role-number" id="num-self">1</div>
-          <div class="role-icon-large">👨‍🏫</div>
-          <div class="role-label">ผู้รับการประเมิน</div>
-          <div class="role-sub">ครู</div>
-        </button>
-        <button type="button" class="role-card" id="card-eval" onclick="selectRole('eval')">
-          <div class="role-number" id="num-eval">2</div>
-          <div class="role-icon-large">📋</div>
-          <div class="role-label">ผู้ประเมิน</div>
-          <div class="role-sub">ครู · ผู้อำนวยการ · ศึกษานิเทศก์</div>
-        </button>
-      </div>
-      <input type="hidden" id="selected-role" value="" />
+      <label for="display-name">ชื่อ-นามสกุล</label>
+      <input type="text" id="display-name" placeholder="เช่น นางสาวสมใจ ใจดี" autocomplete="name" />
+    </div>
+    <div class="form-group">
+      <label for="position">ตำแหน่ง</label>
+      <select id="position">
+        <option value="">-- เลือกตำแหน่ง --</option>
+        <option>ครู</option>
+        <option>ผู้อำนวยการโรงเรียน</option>
+        <option>ศึกษานิเทศก์</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="grade">ชั้นที่สอน</label>
+      <select id="grade">
+        <option value="">-- เลือกชั้นที่สอน --</option>
+        <optgroup label="อนุบาล">
+          <option>อนุบาล 1</option><option>อนุบาล 2</option><option>อนุบาล 3</option>
+        </optgroup>
+        <optgroup label="ประถมศึกษา">
+          <option>ป.1</option><option>ป.2</option><option>ป.3</option>
+          <option>ป.4</option><option>ป.5</option><option>ป.6</option>
+        </optgroup>
+        <optgroup label="มัธยมศึกษาตอนต้น">
+          <option>ม.1</option><option>ม.2</option><option>ม.3</option>
+        </optgroup>
+        <optgroup label="มัธยมศึกษาตอนปลาย">
+          <option>ม.4</option><option>ม.5</option><option>ม.6</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="school">โรงเรียน</label>
+      <input type="text" id="school" placeholder="เช่น โรงเรียนบ้านหนองเล็ก" />
+    </div>
+    <div class="form-group">
+      <label for="district">สังกัด</label>
+      <input type="text" id="district" placeholder="เช่น สพป.กาฬสินธุ์ เขต 3" />
+    </div>
+    <div class="form-group">
+      <label for="semester">ภาคเรียน / ปีการศึกษา</label>
+      <input type="text" id="semester" placeholder="เช่น ภาคเรียนที่ 1/2567" />
     </div>
 
     <button class="btn btn-primary" id="btn-register" onclick="doRegister()">สมัครสมาชิก</button>
@@ -73,26 +97,22 @@
 
 <script src="js/auth.js"></script>
 <script>
-  let selectedRole = '';
-
-  function selectRole(role) {
-    selectedRole = role;
-    document.getElementById('selected-role').value = role;
-    document.getElementById('card-self').classList.toggle('role-card-selected', role === 'self');
-    document.getElementById('card-eval').classList.toggle('role-card-selected', role === 'eval');
-  }
-
   async function doRegister() {
-    const displayName = document.getElementById('display-name').value.trim();
     const email       = document.getElementById('email').value.trim();
     const password    = document.getElementById('password').value;
     const confirm     = document.getElementById('confirm-password').value;
+    const displayName = document.getElementById('display-name').value.trim();
+    const position    = document.getElementById('position').value;
+    const grade       = document.getElementById('grade').value;
+    const school      = document.getElementById('school').value.trim();
+    const district    = document.getElementById('district').value.trim();
+    const semester    = document.getElementById('semester').value.trim();
     const err         = document.getElementById('error-msg');
     const btn         = document.getElementById('btn-register');
 
     err.classList.remove('show');
 
-    if (!displayName || !email || !password || !confirm) {
+    if (!email || !password || !confirm || !displayName || !position || !school || !district || !semester) {
       err.textContent = 'กรุณากรอกข้อมูลให้ครบทุกช่อง';
       err.classList.add('show'); return;
     }
@@ -104,17 +124,13 @@
       err.textContent = 'รหัสผ่านไม่ตรงกัน';
       err.classList.add('show'); return;
     }
-    if (!selectedRole) {
-      err.textContent = 'กรุณาเลือกบทบาท';
-      err.classList.add('show'); return;
-    }
 
     btn.disabled = true;
     btn.textContent = 'กำลังสมัครสมาชิก...';
 
     try {
-      const user = await Auth.register(email, password, displayName, selectedRole);
-      Auth.redirectByRole(user);
+      await Auth.register(email, password, { display_name:displayName, position, grade, school, district, semester });
+      window.location.href = 'home.html';
     } catch (e) {
       err.textContent = e.message;
       err.classList.add('show');

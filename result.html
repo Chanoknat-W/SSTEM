@@ -58,7 +58,7 @@
   <script src="js/auth.js"></script>
   <script src="js/supabase.js"></script>
   <script>
-    const user = Auth.requireAuth('self');
+    const user = Auth.requireAuth();
     if (!user) throw new Error('not auth');
 
     const evalIdParam = new URLSearchParams(location.search).get('id');

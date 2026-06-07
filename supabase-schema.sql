@@ -10,9 +10,20 @@
 create table if not exists profiles (
   id           uuid references auth.users on delete cascade primary key,
   display_name text not null,
-  role         text not null check (role in ('self', 'eval')),
+  position     text,
+  grade        text,
+  school       text,
+  district     text,
+  semester     text,
   created_at   timestamptz default now()
 );
+
+-- Add columns if upgrading from previous version
+alter table profiles add column if not exists position text;
+alter table profiles add column if not exists grade    text;
+alter table profiles add column if not exists school   text;
+alter table profiles add column if not exists district text;
+alter table profiles add column if not exists semester text;
 
 alter table profiles enable row level security;
 
