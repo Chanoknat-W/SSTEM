@@ -1,6 +1,3 @@
-const SUPABASE_URL = 'https://otnrmfgquzjfidycehqo.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_wO5l7ypI7_u1tw8nt5ce-g_PMzAU-lM';
-
 const SupabaseClient = {
   _headers(token) {
     return {

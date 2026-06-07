@@ -26,7 +26,10 @@
         <div id="user-name" style="font-size:16px; font-weight:700; color:var(--primary-dark);"></div>
         <div id="user-info" style="font-size:13px; color:var(--text-muted);"></div>
       </div>
-      <button class="btn btn-secondary" onclick="Auth.logout()" style="padding:8px 18px; font-size:14px;">ออกจากระบบ</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-secondary" onclick="window.location.href='profile.html'" style="padding:8px 14px; font-size:14px;">✏️ แก้ไขข้อมูล</button>
+        <button class="btn btn-secondary" onclick="Auth.logout()" style="padding:8px 14px; font-size:14px;">ออกจากระบบ</button>
+      </div>
     </div>
   </div>
 
