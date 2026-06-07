@@ -86,11 +86,34 @@
   const user = Auth.requireAuth();
   if (!user) throw new Error('not auth');
 
-  // Pre-fill evaluator info from profile
-  document.getElementById('eval-name').value     = user.display_name || '';
-  document.getElementById('eval-position').value = user.position     || '';
-  document.getElementById('eval-school').value   = user.school       || '';
-  document.getElementById('eval-district').value = user.district     || '';
+  // Fetch fresh profile and pre-fill
+  (async () => {
+    try {
+      const res = await fetch(
+        `https://otnrmfgquzjfidycehqo.supabase.co/rest/v1/profiles?id=eq.${user.id}&select=*`,
+        {
+          headers: {
+            apikey: 'sb_publishable_wO5l7ypI7_u1tw8nt5ce-g_PMzAU-lM',
+            Authorization: `Bearer ${Auth.getToken()}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (data[0]) {
+        const p = { ...user, ...data[0] };
+        localStorage.setItem('sst_user', JSON.stringify(p));
+        document.getElementById('eval-name').value     = p.display_name || '';
+        document.getElementById('eval-position').value = p.position     || '';
+        document.getElementById('eval-school').value   = p.school       || '';
+        document.getElementById('eval-district').value = p.district     || '';
+        return;
+      }
+    } catch { /* fallback */ }
+    document.getElementById('eval-name').value     = user.display_name || '';
+    document.getElementById('eval-position').value = user.position     || '';
+    document.getElementById('eval-school').value   = user.school       || '';
+    document.getElementById('eval-district').value = user.district     || '';
+  })();
 
   let evalInfo = {};
   let allRows  = [];

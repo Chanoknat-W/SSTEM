@@ -114,16 +114,34 @@
   document.getElementById('greeting').textContent    = `สวัสดี, ${user.display_name || ''}`;
   document.getElementById('greeting-sub').textContent = [user.position, user.school].filter(Boolean).join(' · ');
 
-  function showForm() {
+  async function showForm() {
     document.getElementById('section-menu').style.display = 'none';
     document.getElementById('section-form').style.display = 'block';
 
-    // Pre-fill from profile
-    document.getElementById('teacher-name').value = user.display_name || '';
-    document.getElementById('grade').value         = user.grade        || '';
-    document.getElementById('school').value        = user.school       || '';
-    document.getElementById('district').value      = user.district     || '';
-    document.getElementById('semester').value      = user.semester     || '';
+    // Fetch fresh profile from Supabase to get latest data
+    let profile = user;
+    try {
+      const res = await fetch(
+        `https://otnrmfgquzjfidycehqo.supabase.co/rest/v1/profiles?id=eq.${user.id}&select=*`,
+        {
+          headers: {
+            apikey: 'sb_publishable_wO5l7ypI7_u1tw8nt5ce-g_PMzAU-lM',
+            Authorization: `Bearer ${Auth.getToken()}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (data[0]) {
+        profile = { ...user, ...data[0] };
+        localStorage.setItem('sst_user', JSON.stringify(profile));
+      }
+    } catch { /* ใช้ข้อมูล cache แทน */ }
+
+    document.getElementById('teacher-name').value = profile.display_name || '';
+    document.getElementById('grade').value         = profile.grade        || '';
+    document.getElementById('school').value        = profile.school       || '';
+    document.getElementById('district').value      = profile.district     || '';
+    document.getElementById('semester').value      = profile.semester     || '';
   }
 
   function showMenu() {
