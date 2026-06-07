@@ -77,7 +77,7 @@
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             ${row.eval_status === 'draft' ? `
-              <a href="result.html?id=${row.id}" class="btn btn-secondary" style="flex:1; font-size:14px; text-decoration:none; text-align:center;">ดูผลและส่งการประเมิน</a>
+              <a href="upload.html?id=${row.id}" class="btn btn-secondary" style="flex:1; font-size:14px; text-decoration:none; text-align:center;">✏️ แก้ไขและส่งเอกสาร</a>
             ` : row.eval_status === 'evaluated' ? `
               <a href="eval-result.html?id=${row.id}&view=self" class="btn btn-primary" style="flex:1; font-size:14px; text-decoration:none; text-align:center;">ดูผลเปรียบเทียบ</a>
             ` : `

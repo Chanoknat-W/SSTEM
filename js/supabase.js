@@ -10,8 +10,19 @@ const SupabaseClient = {
     };
   },
 
-  // Save evaluation (called from upload.html) — returns evaluation id
-  async saveEvaluation(filesJson) {
+  // Generic PATCH for an evaluation record
+  async updateEvaluation(evalId, data) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
+      method: 'PATCH',
+      headers: { ...this._headers(), Prefer: 'return=minimal' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(await res.text());
+  },
+
+  // Save evaluation — returns evaluation id
+  // status: 'draft' | 'pending'
+  async saveEvaluation(filesJson, status = 'draft') {
     const token = Auth.getToken();
     const user  = Auth.getUser();
     const info  = (typeof State !== 'undefined' ? State.load('sst_info') : null) || {};
@@ -42,7 +53,7 @@ const SupabaseClient = {
       total_score:     total,
       level:           levelMap(total),
       files:           filesJson || {},
-      eval_status:     'draft',
+      eval_status:     status,
     };
 
     const res = await fetch(`${SUPABASE_URL}/rest/v1/evaluations`, {

@@ -22,7 +22,11 @@
     <div class="page-header">
       <div class="badge">ขั้นตอนที่ 2 จาก 3</div>
       <h1>อัปโหลดเอกสารประกอบ</h1>
-      <p>แต่ละด้านต้องอัปโหลดอย่างน้อย 1 ไฟล์ · รับไฟล์ PDF / รูปภาพ / Word</p>
+      <p>สามารถบันทึก draft และกลับมาแก้ไขได้ภายหลัง · ส่งต้องมีอย่างน้อย 1 ไฟล์ต่อด้าน</p>
+    </div>
+
+    <div id="draft-banner" style="display:none;" class="draft-banner">
+      📂 กำลังแก้ไข draft — ไฟล์ที่เคยบันทึกไว้แสดงด้านล่าง
     </div>
 
     <div id="error-msg" class="error-msg"></div>
@@ -113,7 +117,13 @@
       <div class="upload-progress-track"><div class="upload-progress-fill" id="upload-fill"></div></div>
     </div>
 
-    <button class="btn btn-primary" id="btn-next" onclick="doUpload()">ส่งเอกสารสำหรับประเมิน →</button>
+    <!-- Toast -->
+    <div id="draft-toast" class="draft-toast" style="display:none;">✅ บันทึก draft เรียบร้อยแล้ว</div>
+
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn btn-secondary" id="btn-draft" onclick="saveDraft()">บันทึก draft</button>
+      <button class="btn btn-primary"   id="btn-submit" onclick="doSubmit()">ส่งเอกสารสำหรับประเมิน →</button>
+    </div>
   </main>
 
   <script src="js/state.js"></script>
@@ -123,33 +133,77 @@
     const user = Auth.requireAuth();
     if (!user) throw new Error('not auth');
 
-    const FILE_KEYS = ['d1_1','d1_2','d1_3','d2_1','d2_2','d2_3','d3_1','d3_2','d3_3','d3_4'];
-    const selectedFiles = {};
+    const ALL_KEYS = ['d1_1','d1_2','d1_3','d2_1','d2_2','d2_3','d3_1','d3_2','d3_3','d3_4'];
+    const newFiles    = {};   // files selected this session
+    let existingFiles = {};   // files already saved to Supabase
+    let currentEvalId = null;
+
+    // ---- Load existing draft ----
+    const urlId = new URLSearchParams(location.search).get('id');
+    const storedId = localStorage.getItem('sst_eval_id');
+    currentEvalId = urlId || storedId || null;
+
+    async function loadDraft() {
+      if (!currentEvalId) return;
+      try {
+        const row = await SupabaseClient.getEvaluation(currentEvalId);
+        if (!row || row.eval_status !== 'draft') { currentEvalId = null; return; }
+
+        existingFiles = row.files || {};
+        if (Object.keys(existingFiles).length) {
+          document.getElementById('draft-banner').style.display = 'block';
+          showExistingFiles();
+        }
+        // Restore info from DB if not in localStorage
+        if (!State.load('sst_info')) {
+          State.save('sst_info', {
+            teacher_name: row.teacher_name,
+            grade: row.grade, school: row.school,
+            district: row.district, semester: row.semester,
+          });
+        }
+      } catch { currentEvalId = null; }
+    }
+
+    function showExistingFiles() {
+      Object.entries(existingFiles).forEach(([key, val]) => {
+        const nameEl = document.getElementById(`name-${key}`);
+        const wrap   = document.getElementById(`wrap-${key}`);
+        if (!nameEl) return;
+        nameEl.innerHTML = `<a href="${val.url}" target="_blank" style="color:var(--primary); text-decoration:underline;">✓ ${val.name}</a>`;
+        wrap.classList.add('upload-item-done');
+      });
+    }
 
     function onFileChange(input, key) {
-      const file = input.files[0];
+      const file   = input.files[0];
       const nameEl = document.getElementById(`name-${key}`);
       const wrap   = document.getElementById(`wrap-${key}`);
       if (file) {
-        selectedFiles[key] = file;
-        nameEl.textContent = file.name;
-        nameEl.style.color = 'var(--primary)';
+        newFiles[key] = file;
+        nameEl.innerHTML = `<span style="color:var(--primary);">📎 ${file.name} <small style="color:var(--text-muted);">(ใหม่)</small></span>`;
         wrap.classList.add('upload-item-done');
       } else {
-        delete selectedFiles[key];
-        nameEl.textContent = 'ยังไม่ได้เลือกไฟล์';
-        nameEl.style.color = '';
-        wrap.classList.remove('upload-item-done');
+        delete newFiles[key];
+        if (existingFiles[key]) {
+          nameEl.innerHTML = `<a href="${existingFiles[key].url}" target="_blank" style="color:var(--primary);">✓ ${existingFiles[key].name}</a>`;
+        } else {
+          nameEl.textContent = 'ยังไม่ได้เลือกไฟล์';
+          nameEl.style.color = '';
+          wrap.classList.remove('upload-item-done');
+        }
       }
     }
 
-    function validate() {
-      const d1 = ['d1_1','d1_2','d1_3'].some(k => selectedFiles[k]);
-      const d2 = ['d2_1','d2_2','d2_3'].some(k => selectedFiles[k]);
-      const d3 = ['d3_1','d3_2','d3_3','d3_4'].some(k => selectedFiles[k]);
-      if (!d1) return 'ด้านที่ 1: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
-      if (!d2) return 'ด้านที่ 2: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
-      if (!d3) return 'ด้านที่ 3: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
+    function hasFileForDomain(prefix) {
+      return ALL_KEYS.filter(k => k.startsWith(prefix))
+        .some(k => existingFiles[k] || newFiles[k]);
+    }
+
+    function validateDomains() {
+      if (!hasFileForDomain('d1')) return 'ด้านที่ 1: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
+      if (!hasFileForDomain('d2')) return 'ด้านที่ 2: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
+      if (!hasFileForDomain('d3')) return 'ด้านที่ 3: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
       return null;
     }
 
@@ -159,11 +213,74 @@
       document.getElementById('upload-fill').style.width = pct + '%';
     }
 
-    async function doUpload() {
-      const err = document.getElementById('error-msg');
+    function hideProgress() {
+      document.getElementById('upload-progress').style.display = 'none';
+    }
+
+    async function uploadNewFiles() {
+      const keys   = Object.keys(newFiles);
+      const merged = { ...existingFiles };
+      let done = 0;
+      for (const key of keys) {
+        const file = newFiles[key];
+        const ext  = file.name.split('.').pop();
+        const path = `${user.id}/${Date.now()}_${key}.${ext}`;
+        setProgress(Math.round((done / keys.length) * 85), `กำลังอัปโหลด ${key}...`);
+        const url = await SupabaseClient.uploadFile(file, path);
+        merged[key] = { name: file.name, url };
+        done++;
+      }
+      return merged;
+    }
+
+    // ---- Save Draft ----
+    async function saveDraft() {
+      const err  = document.getElementById('error-msg');
+      const btnD = document.getElementById('btn-draft');
+      const btnS = document.getElementById('btn-submit');
+      err.classList.remove('show');
+      btnD.disabled = true; btnS.disabled = true;
+      btnD.textContent = 'กำลังบันทึก...';
+
+      try {
+        const mergedFiles = Object.keys(newFiles).length
+          ? await uploadNewFiles()
+          : { ...existingFiles };
+        setProgress(95, 'กำลังบันทึก...');
+
+        if (currentEvalId) {
+          await SupabaseClient.updateEvaluation(currentEvalId, { files: mergedFiles, eval_status: 'draft' });
+        } else {
+          currentEvalId = await SupabaseClient.saveEvaluation(mergedFiles, 'draft');
+          localStorage.setItem('sst_eval_id', currentEvalId);
+        }
+
+        existingFiles = mergedFiles;
+        // Clear newFiles and refresh display
+        Object.keys(newFiles).forEach(k => delete newFiles[k]);
+        showExistingFiles();
+        hideProgress();
+
+        document.getElementById('draft-banner').style.display = 'block';
+        showToast();
+      } catch (e) {
+        err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+        err.classList.add('show');
+        hideProgress();
+      } finally {
+        btnD.disabled = false; btnS.disabled = false;
+        btnD.textContent = 'บันทึก draft';
+      }
+    }
+
+    // ---- Submit ----
+    async function doSubmit() {
+      const err  = document.getElementById('error-msg');
+      const btnD = document.getElementById('btn-draft');
+      const btnS = document.getElementById('btn-submit');
       err.classList.remove('show');
 
-      const validErr = validate();
+      const validErr = validateDomains();
       if (validErr) {
         err.textContent = validErr;
         err.classList.add('show');
@@ -171,36 +288,44 @@
         return;
       }
 
-      const btn = document.getElementById('btn-next');
-      btn.disabled = true;
-
-      const keys = Object.keys(selectedFiles);
-      const filesJson = {};
-      let done = 0;
+      btnD.disabled = true; btnS.disabled = true;
+      btnS.textContent = 'กำลังส่ง...';
 
       try {
-        for (const key of keys) {
-          const file = selectedFiles[key];
-          const ext  = file.name.split('.').pop();
-          const path = `${user.id}/${Date.now()}_${key}.${ext}`;
-          setProgress(Math.round((done / keys.length) * 90), `กำลังอัปโหลด ${key}...`);
-          const url = await SupabaseClient.uploadFile(file, path);
-          filesJson[key] = { name: file.name, url };
-          done++;
-        }
+        const mergedFiles = Object.keys(newFiles).length
+          ? await uploadNewFiles()
+          : { ...existingFiles };
+        setProgress(95, 'กำลังส่งเอกสาร...');
 
-        setProgress(95, 'กำลังบันทึกข้อมูล...');
-        const evalId = await SupabaseClient.saveEvaluation(filesJson);
-        localStorage.setItem('sst_eval_id', evalId);
-        setProgress(100, 'เสร็จสิ้น!');
+        if (currentEvalId) {
+          await SupabaseClient.updateEvaluation(currentEvalId, { files: mergedFiles, eval_status: 'pending' });
+        } else {
+          currentEvalId = await SupabaseClient.saveEvaluation(mergedFiles, 'pending');
+        }
+        localStorage.setItem('sst_eval_id', currentEvalId);
+
+        setProgress(100, 'ส่งเรียบร้อย!');
         setTimeout(() => { window.location.href = 'result.html'; }, 500);
       } catch (e) {
         err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
         err.classList.add('show');
-        document.getElementById('upload-progress').style.display = 'none';
-        btn.disabled = false;
+        hideProgress();
+        btnD.disabled = false; btnS.disabled = false;
+        btnS.textContent = 'ส่งเอกสารสำหรับประเมิน →';
       }
     }
+
+    function showToast() {
+      const t = document.getElementById('draft-toast');
+      t.style.display = 'block';
+      t.style.opacity = '1';
+      setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => { t.style.display = 'none'; }, 400);
+      }, 2500);
+    }
+
+    loadDraft();
   </script>
 </body>
 </html>
