@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ผลเปรียบเทียบ | SST-EM</title>
+  <title>ผลการประเมิน | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -22,22 +22,31 @@
 <script>
   const params   = new URLSearchParams(location.search);
   const evalId   = params.get('id');
-  const viewMode = params.get('view');   // 'self' = teacher viewing own result
+  const viewMode = params.get('view'); // 'self' = teacher viewing
 
   if (!evalId) window.location.href = 'login.html';
 
-  // Allow both roles to view this page
   const user = Auth.getUser();
-  if (!user) { window.location.href = 'login.html'; }
+  if (!user) window.location.href = 'login.html';
 
-  const LEVEL_MAP = { 1:'ปรับปรุง', 2:'พอใช้', 3:'ดี', 4:'ดีมาก' };
   const DOMAIN_NAMES = ['การจัดการเรียนรู้','สถาบันและบริบท','พฤติกรรมวิชาชีพ'];
 
-  function domainLevelLabel(score) {
-    if (score >= 20) return 'ดีมาก';
-    if (score >= 15) return 'ดี';
-    if (score >= 10) return 'พอใช้';
-    return 'ปรับปรุง';
+  function calcTotal(answers) {
+    return Object.values(answers || {}).reduce((s, v) => s + (parseInt(v) || 0), 0);
+  }
+
+  function levelLabel(score) {
+    if (score >= 20) return { label:'ดีมาก', color:'#1B5E20', bg:'#E8F5E9' };
+    if (score >= 15) return { label:'ดี',     color:'#2E7D32', bg:'#F1F8E9' };
+    if (score >= 10) return { label:'พอใช้',  color:'#F57F17', bg:'#FFF8E1' };
+    return               { label:'ปรับปรุง', color:'#B71C1C', bg:'#FFEBEE' };
+  }
+
+  function totalLevelLabel(total) {
+    if (total >= 60) return { label:'ดีมาก', color:'#1B5E20', bg:'#E8F5E9' };
+    if (total >= 46) return { label:'ดี',     color:'#2E7D32', bg:'#F1F8E9' };
+    if (total >= 31) return { label:'พอใช้',  color:'#F57F17', bg:'#FFF8E1' };
+    return               { label:'ปรับปรุง', color:'#B71C1C', bg:'#FFEBEE' };
   }
 
   async function load() {
@@ -45,133 +54,137 @@
       const row = await SupabaseClient.getEvaluation(evalId);
       if (!row) throw new Error('ไม่พบข้อมูล');
 
-      // If coming from eval-score.html, load pending scores from localStorage
-      let scores = row.eval_scores;
-      let suggestions = row.eval_suggestions;
-      const pendingScores = localStorage.getItem('sst_eval_scores');
-      const pendingSuggest = localStorage.getItem('sst_eval_suggestions');
-      if (pendingScores) { scores = JSON.parse(pendingScores); suggestions = JSON.parse(pendingSuggest || '{}'); }
+      // Load pending answers (from eval domain pages) or existing saved answers
+      let d1Ans = JSON.parse(localStorage.getItem('sst_eval_domain1') || 'null');
+      let d2Ans = JSON.parse(localStorage.getItem('sst_eval_domain2') || 'null');
+      let d3Ans = JSON.parse(localStorage.getItem('sst_eval_domain3') || 'null');
+      let suggestions = JSON.parse(localStorage.getItem('sst_eval_suggestions') || 'null');
+
+      // If no pending answers, use saved ones from DB
+      if (!d1Ans && row.eval_scores) {
+        d1Ans = row.eval_scores.domain1 || null;
+        d2Ans = row.eval_scores.domain2 || null;
+        d3Ans = row.eval_scores.domain3 || null;
+        suggestions = row.eval_suggestions || {};
+      }
+
+      const d1Total = calcTotal(d1Ans);
+      const d2Total = calcTotal(d2Ans);
+      const d3Total = calcTotal(d3Ans);
+      const total   = d1Total + d2Total + d3Total;
+      const totalLv = totalLevelLabel(total);
+      const lv1 = levelLabel(d1Total);
+      const lv2 = levelLabel(d2Total);
+      const lv3 = levelLabel(d3Total);
 
       document.getElementById('loading').style.display = 'none';
       const content = document.getElementById('content');
       content.style.display = 'block';
-
-      const selfTotals = [row.domain1_total, row.domain2_total, row.domain3_total];
-      const evalScores = scores ? [scores.d1, scores.d2, scores.d3] : [null,null,null];
-      const evalSuggest = suggestions || {};
 
       content.innerHTML = `
         <!-- Header -->
         <div class="result-header" style="margin-bottom:20px;">
           <h2>${row.teacher_name || '-'}</h2>
           <div class="school-info">${row.school || ''} · ${row.grade || ''} · ${row.semester || ''}</div>
-          <div style="margin-top:8px; font-size:14px; opacity:0.85;">ผลเปรียบเทียบการประเมิน</div>
+          <div class="level-badge" style="background:${totalLv.bg}; color:${totalLv.color}; border:2px solid ${totalLv.color}; margin-top:12px;">${totalLv.label}</div>
+          <div><span class="total-score" style="font-size:40px; font-weight:800;">${total}</span><span class="score-max"> / 72 คะแนน</span></div>
         </div>
 
-        <!-- Comparison Table -->
-        <div class="card" style="margin-bottom:16px;">
-          <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:14px;">ตารางเปรียบเทียบคะแนน</h3>
-          <table style="width:100%; border-collapse:collapse; font-size:14px;">
-            <thead>
-              <tr style="background:var(--primary-light);">
-                <th style="padding:10px 12px; text-align:left;">ด้าน</th>
-                <th style="padding:10px 12px; text-align:center;">ตนเอง (/24)</th>
-                <th style="padding:10px 12px; text-align:center;">ผู้ประเมิน (1–4)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${DOMAIN_NAMES.map((d,i) => `
-                <tr style="border-bottom:1px solid var(--border);">
-                  <td style="padding:10px 12px; font-weight:600;">ด้านที่ ${i+1} ${d}</td>
-                  <td style="padding:10px 12px; text-align:center;">
-                    <strong>${selfTotals[i] ?? '-'}</strong>
-                    <span style="font-size:12px; color:var(--text-muted);"> (${domainLevelLabel(selfTotals[i])})</span>
-                  </td>
-                  <td style="padding:10px 12px; text-align:center;">
-                    ${evalScores[i] ? `<strong>${evalScores[i]}</strong> <span style="font-size:12px; color:var(--text-muted);">(${LEVEL_MAP[evalScores[i]]})</span>` : '<span style="color:var(--text-muted);">-</span>'}
-                  </td>
-                </tr>`).join('')}
-            </tbody>
-          </table>
+        <!-- Domain Scores -->
+        <div class="domain-scores" style="margin-bottom:20px;">
+          ${[{t:d1Total,lv:lv1},{t:d2Total,lv:lv2},{t:d3Total,lv:lv3}].map((d,i)=>`
+            <div class="domain-score-card" style="border-top:4px solid ${d.lv.color};">
+              <div class="label">ด้านที่ ${i+1}<br/>${DOMAIN_NAMES[i]}</div>
+              <div class="score" style="color:${d.lv.color};">${d.t}</div>
+              <div class="max">/ 24</div>
+              <div style="font-size:12px; font-weight:700; color:${d.lv.color}; margin-top:2px;">${d.lv.label}</div>
+            </div>`).join('')}
         </div>
 
-        <!-- Radar Chart -->
-        <div class="chart-container" style="margin-bottom:16px;">
+        <!-- Chart -->
+        <div class="chart-container" style="margin-bottom:20px;">
           <canvas id="radar-chart"></canvas>
         </div>
 
-        <!-- Suggestions -->
-        ${evalScores[0] ? `
-        <div class="card" style="margin-bottom:16px;">
-          <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:12px;">ข้อเสนอแนะจากผู้ประเมิน</h3>
-          ${DOMAIN_NAMES.map((d,i) => {
-            const key = ['d1','d2','d3'][i];
-            const text = evalSuggest[key];
-            return text ? `<div style="margin-bottom:12px;">
-              <div style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:4px;">ด้านที่ ${i+1} ${d}</div>
-              <div style="background:var(--primary-light); border-radius:6px; padding:8px 12px; font-size:14px;">${text}</div>
-            </div>` : '';
-          }).join('')}
-        </div>` : ''}
+        <!-- Suggestions form (evaluator) or display (teacher) -->
+        <div id="suggestions-area" style="margin-bottom:20px;"></div>
 
-        <!-- Evaluator info -->
+        <!-- Eval by -->
         ${row.eval_by_name ? `<div style="font-size:13px; color:var(--text-muted); text-align:center; margin-bottom:16px;">ประเมินโดย: ${row.eval_by_name}</div>` : ''}
 
-        <!-- Action Buttons -->
+        <!-- Actions -->
         <div class="btn-row no-print" id="action-btns"></div>
       `;
 
-      // Radar chart
-      const selfNormalized = selfTotals.map(s => s ?? 0);
-      const evalNormalized = evalScores.map(s => s ? s * 6 : 0);
-      const ctx = document.getElementById('radar-chart').getContext('2d');
-      new Chart(ctx, {
+      // Radar Chart
+      new Chart(document.getElementById('radar-chart').getContext('2d'), {
         type: 'radar',
         data: {
           labels: DOMAIN_NAMES.map((d,i) => `ด้านที่ ${i+1}\n${d}`),
-          datasets: [
-            {
-              label: 'ตนเอง (/24)',
-              data: selfNormalized,
-              backgroundColor: 'rgba(46,125,50,0.12)',
-              borderColor: '#2E7D32',
-              borderWidth: 2.5,
-              pointBackgroundColor: '#2E7D32',
-              pointRadius: 5,
-            },
-            {
-              label: 'ผู้ประเมิน (×6)',
-              data: evalNormalized,
-              backgroundColor: 'rgba(21,101,192,0.12)',
-              borderColor: '#1565C0',
-              borderWidth: 2.5,
-              borderDash: [5,3],
-              pointBackgroundColor: '#1565C0',
-              pointRadius: 5,
-            },
-          ],
+          datasets: [{
+            label: 'คะแนนผู้ประเมิน',
+            data: [d1Total, d2Total, d3Total],
+            backgroundColor: 'rgba(46,125,50,0.15)',
+            borderColor: '#2E7D32', borderWidth: 2.5,
+            pointBackgroundColor: '#2E7D32', pointRadius: 6,
+          }],
         },
         options: {
           responsive: true,
-          scales: { r: { min:0, max:24, ticks:{ stepSize:6 }, pointLabels:{ font:{size:12} } } },
-          plugins: { legend: { display: true, position: 'bottom' } },
+          scales: { r: { min:0, max:24, ticks:{stepSize:6}, pointLabels:{font:{size:13,weight:'600'}} } },
+          plugins: { legend:{display:false} },
         },
       });
 
-      // Buttons
+      // Suggestions
+      const suggestArea = document.getElementById('suggestions-area');
+      const alreadySaved = row.eval_status === 'evaluated' && !localStorage.getItem('sst_eval_domain1');
+
+      if (viewMode === 'self' || alreadySaved) {
+        // Read-only suggestions
+        const s = suggestions || {};
+        const hasAny = s.d1 || s.d2 || s.d3;
+        if (hasAny) {
+          suggestArea.innerHTML = `
+            <div class="card">
+              <h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-bottom:12px;">ข้อเสนอแนะจากผู้ประเมิน</h3>
+              ${DOMAIN_NAMES.map((d,i) => {
+                const k = ['d1','d2','d3'][i];
+                return s[k] ? `<div style="margin-bottom:12px;">
+                  <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:4px;">ด้านที่ ${i+1} ${d}</div>
+                  <div style="background:var(--primary-light);border-radius:6px;padding:8px 12px;font-size:14px;">${s[k]}</div>
+                </div>` : '';
+              }).join('')}
+            </div>`;
+        }
+      } else {
+        // Editable suggestions
+        suggestArea.innerHTML = `
+          <div class="card">
+            <h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-bottom:12px;">บันทึกข้อเสนอแนะ</h3>
+            ${DOMAIN_NAMES.map((d,i) => `
+              <div class="form-group">
+                <label>ด้านที่ ${i+1} — ${d}</label>
+                <textarea id="suggest-${['d1','d2','d3'][i]}" rows="2"
+                  placeholder="ข้อเสนอแนะสำหรับด้านที่ ${i+1}...">${(suggestions||{})[['d1','d2','d3'][i]]||''}</textarea>
+              </div>`).join('')}
+          </div>`;
+      }
+
+      // Action buttons
       const btnArea = document.getElementById('action-btns');
       if (viewMode === 'self') {
         btnArea.innerHTML = `
           <button class="btn btn-secondary" onclick="window.location.href='my-results.html'" style="flex:1;">← กลับ</button>
           <button class="btn btn-print" onclick="window.print()" style="flex:1;">🖨️ พิมพ์</button>`;
+      } else if (alreadySaved) {
+        btnArea.innerHTML = `
+          <button class="btn btn-secondary" onclick="window.location.href='eval-search.html'" style="flex:1;">← กลับรายชื่อ</button>
+          <button class="btn btn-print" onclick="window.print()" style="flex:1;">🖨️ พิมพ์</button>`;
       } else {
-        // Evaluator view — show Save button if not yet saved
-        const alreadySaved = row.eval_status === 'evaluated' && !pendingScores;
-        btnArea.innerHTML = alreadySaved
-          ? `<button class="btn btn-secondary" onclick="window.location.href='eval-search.html'" style="flex:1;">← กลับรายชื่อ</button>
-             <button class="btn btn-print" onclick="window.print()" style="flex:1;">🖨️ พิมพ์</button>`
-          : `<button class="btn btn-secondary" onclick="window.location.href='eval-score.html?id=${evalId}'" style="flex:1;">← แก้ไขคะแนน</button>
-             <button class="btn btn-primary" id="btn-save" onclick="doSave()" style="flex:1;">บันทึกผลการประเมิน</button>`;
+        btnArea.innerHTML = `
+          <button class="btn btn-secondary" onclick="window.location.href='eval-domain3.html'" style="flex:1;">← แก้ไขคำตอบ</button>
+          <button class="btn btn-primary" id="btn-save" onclick="doSave()" style="flex:1;">บันทึกผลการประเมิน</button>`;
       }
 
     } catch (e) {
@@ -184,17 +197,26 @@
     btn.disabled = true;
     btn.textContent = 'กำลังบันทึก...';
     try {
-      const scores     = JSON.parse(localStorage.getItem('sst_eval_scores') || '{}');
-      const suggestions = JSON.parse(localStorage.getItem('sst_eval_suggestions') || '{}');
-      await SupabaseClient.saveEvalScore(evalId, scores, suggestions);
-      localStorage.removeItem('sst_eval_scores');
-      localStorage.removeItem('sst_eval_suggestions');
+      const d1Ans = JSON.parse(localStorage.getItem('sst_eval_domain1') || '{}');
+      const d2Ans = JSON.parse(localStorage.getItem('sst_eval_domain2') || '{}');
+      const d3Ans = JSON.parse(localStorage.getItem('sst_eval_domain3') || '{}');
+      const suggestions = {
+        d1: document.getElementById('suggest-d1')?.value.trim() || '',
+        d2: document.getElementById('suggest-d2')?.value.trim() || '',
+        d3: document.getElementById('suggest-d3')?.value.trim() || '',
+      };
+      const scores = { domain1: d1Ans, domain2: d2Ans, domain3: d3Ans };
 
-      // Show success
+      await SupabaseClient.saveEvalScore(evalId, scores, suggestions);
+
+      // Clear eval localStorage
+      ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3',
+       'sst_eval_target_id','sst_eval_suggestions'].forEach(k => localStorage.removeItem(k));
+
       const btnArea = document.getElementById('action-btns');
       btnArea.innerHTML = `
-        <div style="text-align:center; padding:16px; background:var(--primary-light); border-radius:10px;
-          color:var(--primary-dark); font-weight:700; font-size:16px; flex:1;">
+        <div style="text-align:center;padding:16px;background:var(--primary-light);
+          border-radius:10px;color:var(--primary-dark);font-weight:700;font-size:16px;flex:1;">
           ✅ บันทึกผลการประเมินเรียบร้อยแล้ว
         </div>`;
       setTimeout(() => { window.location.href = 'eval-search.html'; }, 2000);

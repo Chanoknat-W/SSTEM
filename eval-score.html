@@ -3,233 +3,150 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ให้คะแนน | SST-EM</title>
+  <title>ตรวจเอกสาร | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-<main class="page">
-  <div class="page-header">
-    <div class="badge">ผู้ประเมิน</div>
-    <h1>ประเมินครู</h1>
-  </div>
 
-  <div id="loading" class="card" style="text-align:center; color:var(--text-muted); padding:32px;">กำลังโหลด...</div>
-  <div id="content" style="display:none;">
+  <nav class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line done-line"></div>
+      <div class="step active"><div class="step-dot">2</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">3</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">4</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">5</div></div>
+    </div>
+  </nav>
 
-    <!-- Teacher Info -->
-    <div class="card" id="teacher-info-card" style="margin-bottom:16px;">
-      <div id="teacher-info"></div>
+  <main class="page">
+    <div class="page-header">
+      <div class="badge">ผู้ประเมิน · ขั้นตอนที่ 2 จาก 5</div>
+      <h1>ตรวจสอบเอกสารประกอบ</h1>
     </div>
 
-    <!-- Files -->
-    <div class="card" id="files-card" style="margin-bottom:16px; display:none;">
-      <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:12px;">📎 เอกสารแนบ</h3>
-      <div id="files-list"></div>
-    </div>
+    <div id="loading" class="card" style="text-align:center; color:var(--text-muted); padding:32px;">กำลังโหลด...</div>
+    <div id="content" style="display:none;">
 
-    <!-- Self Scores -->
-    <div class="card" style="margin-bottom:16px;">
-      <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:12px;">คะแนนประเมินตนเองของครู</h3>
-      <div id="self-scores"></div>
-    </div>
+      <!-- Teacher Info -->
+      <div class="card" style="margin-bottom:16px;">
+        <div id="teacher-info"></div>
+      </div>
 
-    <!-- Eval Form -->
-    <div id="error-msg" class="error-msg"></div>
+      <!-- Files by Domain -->
+      <div id="files-d1" class="upload-section" style="margin-bottom:16px; display:none;">
+        <div class="upload-section-header upload-d1">ด้านที่ 1 — การจัดการเรียนรู้</div>
+        <div class="upload-items" id="files-d1-list"></div>
+      </div>
 
-    <div class="card eval-score-card" style="margin-bottom:16px;">
-      <div class="eval-domain-block">
-        <div class="eval-domain-title">ด้านที่ 1 — การจัดการเรียนรู้</div>
-        <div id="self-d1" class="eval-self-score"></div>
-        <div class="form-group" style="margin-bottom:8px;">
-          <label>คะแนนผู้ประเมิน</label>
-          <div class="score-radio-group" id="score-d1"></div>
-        </div>
-        <div class="form-group">
-          <label>ข้อเสนอแนะ</label>
-          <textarea id="suggest-d1" placeholder="บันทึกข้อเสนอแนะสำหรับด้านที่ 1..." rows="3"></textarea>
-        </div>
+      <div id="files-d2" class="upload-section" style="margin-bottom:16px; display:none;">
+        <div class="upload-section-header upload-d2">ด้านที่ 2 — สถาบันและบริบท</div>
+        <div class="upload-items" id="files-d2-list"></div>
+      </div>
+
+      <div id="files-d3" class="upload-section" style="margin-bottom:16px; display:none;">
+        <div class="upload-section-header upload-d3">ด้านที่ 3 — พฤติกรรมวิชาชีพ</div>
+        <div class="upload-items" id="files-d3-list"></div>
+      </div>
+
+      <div id="no-files" class="card" style="display:none; text-align:center; color:var(--text-muted); padding:20px;">
+        ยังไม่มีเอกสารแนบ
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="window.location.href='eval-search.html'">← กลับ</button>
+        <button class="btn btn-primary" onclick="startEval()">เริ่มตอบคำถามประเมิน →</button>
       </div>
     </div>
+  </main>
 
-    <div class="card eval-score-card" style="margin-bottom:16px;">
-      <div class="eval-domain-block">
-        <div class="eval-domain-title">ด้านที่ 2 — สถาบันและบริบท</div>
-        <div id="self-d2" class="eval-self-score"></div>
-        <div class="form-group" style="margin-bottom:8px;">
-          <label>คะแนนผู้ประเมิน</label>
-          <div class="score-radio-group" id="score-d2"></div>
-        </div>
-        <div class="form-group">
-          <label>ข้อเสนอแนะ</label>
-          <textarea id="suggest-d2" placeholder="บันทึกข้อเสนอแนะสำหรับด้านที่ 2..." rows="3"></textarea>
-        </div>
-      </div>
-    </div>
+  <footer class="site-footer">
+    พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
+  </footer>
 
-    <div class="card eval-score-card" style="margin-bottom:16px;">
-      <div class="eval-domain-block">
-        <div class="eval-domain-title">ด้านที่ 3 — พฤติกรรมวิชาชีพ</div>
-        <div id="self-d3" class="eval-self-score"></div>
-        <div class="form-group" style="margin-bottom:8px;">
-          <label>คะแนนผู้ประเมิน</label>
-          <div class="score-radio-group" id="score-d3"></div>
-        </div>
-        <div class="form-group">
-          <label>ข้อเสนอแนะ</label>
-          <textarea id="suggest-d3" placeholder="บันทึกข้อเสนอแนะสำหรับด้านที่ 3..." rows="3"></textarea>
-        </div>
-      </div>
-    </div>
+  <script src="js/auth.js"></script>
+  <script src="js/supabase.js"></script>
+  <script>
+    const user = Auth.requireAuth('eval');
+    if (!user) throw new Error('not auth');
 
-    <div class="btn-row">
-      <button class="btn btn-secondary" onclick="window.location.href='eval-search.html'">← กลับ</button>
-      <button class="btn btn-primary" id="btn-submit" onclick="doSubmit()">ดูผลเปรียบเทียบ →</button>
-    </div>
-  </div>
-</main>
+    const params = new URLSearchParams(location.search);
+    const evalId = params.get('id');
+    if (!evalId) window.location.href = 'eval-search.html';
 
-<footer class="site-footer">
-  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
-</footer>
+    const FILE_LABEL = {
+      d1_1:'1.1 แบบบันทึกการสะท้อนคิด',
+      d1_2:'1.2 แบบสังเกตการสอน / ร่องรอยใบงาน',
+      d1_3:'1.3 แบบสังเกตห้องเรียน / ภาพถ่ายสื่อ',
+      d2_1:'2.1 แบบประเมินการมีส่วนร่วมชุมชน',
+      d2_2:'2.2 บันทึกเชิญวิทยากร / ภาพถ่ายกิจกรรม',
+      d2_3:'2.3 แบบสัมภาษณ์ตัวแทนกรรมการสถานศึกษา',
+      d3_1:'3.1 เกณฑ์รูบริคภาวะผู้นำทางวิชาการ',
+      d3_2:'3.2 แบบบันทึก One-Page Reflector',
+      d3_3:'3.3 แบบสังเกตพฤติกรรม / สัมภาษณ์เพื่อนครู',
+      d3_4:'3.4 แบบสังเกตพฤติกรรมการทำงาน',
+    };
 
-<script src="js/auth.js"></script>
-<script src="js/supabase.js"></script>
-<script>
-  const user = Auth.requireAuth('eval');
-  if (!user) throw new Error('not auth');
+    function renderFiles(prefix, files, fileKeys) {
+      const domainKeys = fileKeys.filter(k => k.startsWith(prefix));
+      if (!domainKeys.length) return;
+      const section = document.getElementById(`files-${prefix}`);
+      const list    = document.getElementById(`files-${prefix}-list`);
+      section.style.display = 'block';
+      list.innerHTML = domainKeys.map(k => `
+        <div class="upload-item">
+          <div class="upload-label">${FILE_LABEL[k] || k}</div>
+          <a href="${files[k].url}" target="_blank" class="upload-btn-label">เปิดไฟล์</a>
+          <span class="upload-filename" style="color:var(--primary);">✓ ${files[k].name}</span>
+        </div>`).join('');
+    }
 
-  const params = new URLSearchParams(location.search);
-  const evalId = params.get('id');
-  if (!evalId) window.location.href = 'eval-search.html';
+    async function load() {
+      try {
+        const row = await SupabaseClient.getEvaluation(evalId);
+        if (!row) throw new Error('ไม่พบข้อมูล');
 
-  const LEVEL_MAP = { 1:'ปรับปรุง', 2:'พอใช้', 3:'ดี', 4:'ดีมาก' };
-  const SCORE_COLOR = { 1:'#B71C1C', 2:'#F57F17', 3:'#2E7D32', 4:'#1B5E20' };
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
 
-  function buildScoreRadio(domainId) {
-    const g = document.getElementById(`score-${domainId}`);
-    [1,2,3,4].forEach(v => {
-      const label = document.createElement('label');
-      label.className = 'score-radio-label';
-      label.innerHTML = `<input type="radio" name="score-${domainId}" value="${v}" onchange="onScoreChange('${domainId}',${v})" /><span class="score-radio-box">${v}<br><small>${LEVEL_MAP[v]}</small></span>`;
-      g.appendChild(label);
-    });
-  }
+        document.getElementById('teacher-info').innerHTML = `
+          <div style="font-size:18px; font-weight:700; color:var(--primary-dark); margin-bottom:6px;">${row.teacher_name || '-'}</div>
+          <div style="font-size:14px; color:var(--text-muted);">
+            ชั้นที่สอน: ${row.grade || '-'} &nbsp;·&nbsp;
+            โรงเรียน: ${row.school || '-'} &nbsp;·&nbsp;
+            สังกัด: ${row.district || '-'}
+          </div>
+          <div style="font-size:14px; color:var(--text-muted);">ภาคเรียน: ${row.semester || '-'}</div>`;
 
-  function onScoreChange(domainId, val) {
-    document.querySelectorAll(`#score-${domainId} .score-radio-box`).forEach((el, i) => {
-      el.style.background = (i+1) <= val ? SCORE_COLOR[val] : '';
-      el.style.color      = (i+1) <= val ? 'white' : '';
-    });
-  }
+        const files    = row.files || {};
+        const fileKeys = Object.keys(files);
 
-  function getScore(domainId) {
-    const checked = document.querySelector(`input[name="score-${domainId}"]:checked`);
-    return checked ? parseInt(checked.value) : null;
-  }
-
-  function domainLevelLabel(score) {
-    if (score >= 20) return 'ดีมาก';
-    if (score >= 15) return 'ดี';
-    if (score >= 10) return 'พอใช้';
-    return 'ปรับปรุง';
-  }
-
-  const FILE_LABEL = {
-    d1_1:'1.1 แบบบันทึกการสะท้อนคิด', d1_2:'1.2 แบบสังเกตการสอน', d1_3:'1.3 แบบสังเกตห้องเรียน',
-    d2_1:'2.1 แบบประเมินการมีส่วนร่วม', d2_2:'2.2 บันทึกเชิญวิทยากร', d2_3:'2.3 แบบสัมภาษณ์กรรมการ',
-    d3_1:'3.1 เกณฑ์รูบริค', d3_2:'3.2 One-Page Reflector', d3_3:'3.3 แบบสังเกตพฤติกรรม', d3_4:'3.4 แบบสังเกตพฤติกรรมการทำงาน',
-  };
-
-  async function load() {
-    try {
-      const row = await SupabaseClient.getEvaluation(evalId);
-      if (!row) throw new Error('ไม่พบข้อมูล');
-
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('content').style.display = 'block';
-
-      // Teacher info
-      document.getElementById('teacher-info').innerHTML = `
-        <div style="font-size:18px; font-weight:700; color:var(--primary-dark); margin-bottom:6px;">${row.teacher_name || '-'}</div>
-        <div style="font-size:14px; color:var(--text-muted);">ชั้นที่สอน: ${row.grade || '-'} &nbsp;·&nbsp; โรงเรียน: ${row.school || '-'} &nbsp;·&nbsp; สังกัด: ${row.district || '-'}</div>
-        <div style="font-size:14px; color:var(--text-muted);">ภาคเรียน: ${row.semester || '-'}</div>`;
-
-      // Files
-      const files = row.files || {};
-      const fileKeys = Object.keys(files);
-      if (fileKeys.length) {
-        document.getElementById('files-card').style.display = 'block';
-        document.getElementById('files-list').innerHTML = fileKeys.map(k =>
-          `<a href="${files[k].url}" target="_blank" class="file-link">
-            📄 ${FILE_LABEL[k] || k} <span style="font-size:11px; color:var(--text-muted);">${files[k].name}</span>
-          </a>`
-        ).join('');
-      }
-
-      // Self scores
-      const domainColors = ['#2E7D32','#1565C0','#6A1B9A'];
-      const domainTotals = [row.domain1_total, row.domain2_total, row.domain3_total];
-      document.getElementById('self-scores').innerHTML = `
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
-          ${['การจัดการเรียนรู้','สถาบันและบริบท','พฤติกรรมวิชาชีพ'].map((d,i) => `
-            <div style="text-align:center; background:var(--primary-light); border-radius:8px; padding:10px;">
-              <div style="font-size:11px; color:var(--text-muted);">ด้านที่ ${i+1}</div>
-              <div style="font-size:24px; font-weight:800; color:${domainColors[i]};">${domainTotals[i] ?? '-'}</div>
-              <div style="font-size:11px; color:var(--text-muted);">/ 24 · ${domainLevelLabel(domainTotals[i])}</div>
-            </div>`).join('')}
-        </div>`;
-
-      // Show existing eval scores if already evaluated
-      if (row.eval_status === 'evaluated' && row.eval_scores) {
-        const es = row.eval_scores;
-        ['d1','d2','d3'].forEach(d => {
-          if (es[d]) {
-            const radio = document.querySelector(`input[name="score-${d}"][value="${es[d]}"]`);
-            if (radio) { radio.checked = true; onScoreChange(d, es[d]); }
-          }
-        });
-        if (row.eval_suggestions) {
-          ['d1','d2','d3'].forEach(d => {
-            const ta = document.getElementById(`suggest-${d}`);
-            if (ta && row.eval_suggestions[d]) ta.value = row.eval_suggestions[d];
-          });
+        if (!fileKeys.length) {
+          document.getElementById('no-files').style.display = 'block';
+        } else {
+          renderFiles('d1', files, fileKeys);
+          renderFiles('d2', files, fileKeys);
+          renderFiles('d3', files, fileKeys);
         }
+
+        // Store target eval id for domain pages
+        localStorage.setItem('sst_eval_target_id', evalId);
+        // Clear previous eval answers
+        ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3'].forEach(k => localStorage.removeItem(k));
+
+      } catch (e) {
+        document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
       }
-
-      ['d1','d2','d3'].forEach((d,i) => {
-        buildScoreRadio(d);
-        const selfEl = document.getElementById(`self-${d}`);
-        selfEl.textContent = `คะแนนตนเอง: ${domainTotals[i] ?? '-'}/24 (${domainLevelLabel(domainTotals[i])})`;
-      });
-
-    } catch (e) {
-      document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
-    }
-  }
-
-  async function doSubmit() {
-    const err = document.getElementById('error-msg');
-    err.classList.remove('show');
-
-    const s1 = getScore('d1'), s2 = getScore('d2'), s3 = getScore('d3');
-    if (!s1 || !s2 || !s3) {
-      err.textContent = 'กรุณาให้คะแนนทุกด้านก่อนดำเนินการต่อ';
-      err.classList.add('show');
-      err.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
     }
 
-    // Save to localStorage for eval-result.html
-    localStorage.setItem('sst_eval_scores', JSON.stringify({ d1:s1, d2:s2, d3:s3 }));
-    localStorage.setItem('sst_eval_suggestions', JSON.stringify({
-      d1: document.getElementById('suggest-d1').value.trim(),
-      d2: document.getElementById('suggest-d2').value.trim(),
-      d3: document.getElementById('suggest-d3').value.trim(),
-    }));
-    window.location.href = `eval-result.html?id=${evalId}`;
-  }
+    function startEval() {
+      window.location.href = 'eval-domain1.html';
+    }
 
-  load();
-</script>
+    load();
+  </script>
 </body>
 </html>

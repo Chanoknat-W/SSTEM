@@ -12,88 +12,39 @@
   <nav class="progress-bar no-print">
     <div class="progress-steps">
       <div class="step done"><div class="step-dot">✓</div></div>
-      <div class="step-line"></div>
+      <div class="step-line done-line"></div>
       <div class="step done"><div class="step-dot">✓</div></div>
-      <div class="step-line"></div>
-      <div class="step done"><div class="step-dot">✓</div></div>
-      <div class="step-line"></div>
-      <div class="step done"><div class="step-dot">✓</div></div>
-      <div class="step-line"></div>
-      <div class="step done"><div class="step-dot">✓</div></div>
-      <div class="step-line"></div>
-      <div class="step active"><div class="step-dot">6</div></div>
+      <div class="step-line done-line"></div>
+      <div class="step active"><div class="step-dot">3</div></div>
     </div>
   </nav>
 
   <main class="page">
-    <!-- Result Header -->
-    <div class="result-header">
+    <!-- Teacher Info Header -->
+    <div class="result-header" id="result-header">
       <h2 id="teacher-name">ครู...</h2>
       <div class="school-info" id="school-info"></div>
-      <div class="level-badge" id="level-badge">—</div>
-      <div>
-        <span class="total-score" id="total-score">0</span>
-        <span class="score-max"> / 72 คะแนน</span>
-      </div>
     </div>
-
-    <!-- Domain Scores -->
-    <div class="domain-scores">
-      <div class="domain-score-card">
-        <div class="label">ด้านที่ 1<br/>การจัดการเรียนรู้</div>
-        <div class="score" id="d1-score">0</div>
-        <div class="max">/ 24</div>
-      </div>
-      <div class="domain-score-card">
-        <div class="label">ด้านที่ 2<br/>สถาบันและบริบท</div>
-        <div class="score" id="d2-score">0</div>
-        <div class="max">/ 24</div>
-      </div>
-      <div class="domain-score-card">
-        <div class="label">ด้านที่ 3<br/>พฤติกรรมวิชาชีพ</div>
-        <div class="score" id="d3-score">0</div>
-        <div class="max">/ 24</div>
-      </div>
-    </div>
-
-    <!-- Chart -->
-    <div class="chart-container">
-      <canvas id="radar-chart"></canvas>
-    </div>
-
-    <!-- Domain Feedback -->
-    <div id="domain-feedback"></div>
 
     <!-- Files -->
-    <div id="files-section" class="card" style="margin-bottom:20px; display:none;">
+    <div id="files-section" class="card" style="margin-bottom:16px; display:none;">
       <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:12px;">📎 เอกสารแนบ</h3>
       <div id="files-list"></div>
     </div>
 
-    <!-- Score Table -->
-    <div class="card" style="margin-bottom:20px;">
-      <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:12px;">เกณฑ์การประเมิน</h3>
-      <table style="width:100%; border-collapse:collapse; font-size:14px;">
-        <thead>
-          <tr style="background:var(--primary-light);">
-            <th style="padding:8px 12px; text-align:left;">ระดับ</th>
-            <th style="padding:8px 12px; text-align:center;">คะแนน</th>
-            <th style="padding:8px 12px; text-align:center;">ร้อยละ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td style="padding:8px 12px; border-bottom:1px solid var(--border);">ดีมาก</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">60–72</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">≥83%</td></tr>
-          <tr><td style="padding:8px 12px; border-bottom:1px solid var(--border);">ดี</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">46–59</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">64–82%</td></tr>
-          <tr><td style="padding:8px 12px; border-bottom:1px solid var(--border);">พอใช้</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">31–45</td><td style="padding:8px 12px; text-align:center; border-bottom:1px solid var(--border);">43–62%</td></tr>
-          <tr><td style="padding:8px 12px;">ปรับปรุง</td><td style="padding:8px 12px; text-align:center;">0–30</td><td style="padding:8px 12px; text-align:center;">≤42%</td></tr>
-        </tbody>
-      </table>
-    </div>
-
     <!-- Status & Submit -->
-    <div id="status-section" class="card" style="margin-bottom:20px; text-align:center;">
+    <div id="status-section" class="card" style="margin-bottom:16px; text-align:center; padding:24px;">
       <div id="status-badge" style="font-size:16px; font-weight:700; margin-bottom:12px;"></div>
       <div id="submit-area"></div>
+    </div>
+
+    <!-- Eval Result (shown when evaluated) -->
+    <div id="eval-result-section" style="display:none;">
+      <div class="domain-scores" id="eval-domain-scores" style="margin-bottom:16px;"></div>
+      <div class="chart-container" style="margin-bottom:16px;">
+        <canvas id="radar-chart"></canvas>
+      </div>
+      <div id="eval-suggestions-section"></div>
     </div>
 
     <!-- Actions -->
@@ -110,93 +61,49 @@
     const user = Auth.requireAuth('self');
     if (!user) throw new Error('not auth');
 
-    const urlParams = new URLSearchParams(location.search);
-    const evalIdParam = urlParams.get('id');
+    const evalIdParam = new URLSearchParams(location.search).get('id');
+    const evalId = localStorage.getItem('sst_eval_id') || evalIdParam;
+    const info   = State.load('sst_info');
 
-    // Load from localStorage (fresh flow) or fetch from Supabase (revisit)
-    const info = State.load('sst_info');
-    if (!info && !evalIdParam) { window.location.href = 'index.html'; }
+    if (!info && !evalId) window.location.href = 'index.html';
 
-    const d1 = State.load('sst_domain1') || {};
-    const d2 = State.load('sst_domain2') || {};
-    const d3 = State.load('sst_domain3') || {};
+    const FILE_LABEL = {
+      d1_1:'1.1 แบบบันทึกการสะท้อนคิด', d1_2:'1.2 แบบสังเกตการสอน', d1_3:'1.3 แบบสังเกตห้องเรียน',
+      d2_1:'2.1 แบบประเมินการมีส่วนร่วม', d2_2:'2.2 บันทึกเชิญวิทยากร', d2_3:'2.3 แบบสัมภาษณ์กรรมการ',
+      d3_1:'3.1 เกณฑ์รูบริค', d3_2:'3.2 One-Page Reflector',
+      d3_3:'3.3 แบบสังเกตพฤติกรรม', d3_4:'3.4 แบบสังเกตพฤติกรรมการทำงาน',
+    };
 
-    const d1Total = Object.values(d1).reduce((s, v) => s + (parseInt(v)||0), 0);
-    const d2Total = Object.values(d2).reduce((s, v) => s + (parseInt(v)||0), 0);
-    const d3Total = Object.values(d3).reduce((s, v) => s + (parseInt(v)||0), 0);
-    const total   = d1Total + d2Total + d3Total;
-    const level   = State.getLevel(total);
+    const DOMAIN_NAMES = ['การจัดการเรียนรู้','สถาบันและบริบท','พฤติกรรมวิชาชีพ'];
 
+    function calcTotal(answers) {
+      return Object.values(answers||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
+    }
+    function levelLabel(score) {
+      if (score>=20) return {label:'ดีมาก',color:'#1B5E20',bg:'#E8F5E9',icon:'✅'};
+      if (score>=15) return {label:'ดี',    color:'#2E7D32',bg:'#F1F8E9',icon:'✅'};
+      if (score>=10) return {label:'พอใช้', color:'#F57F17',bg:'#FFF8E1',icon:'⚠️'};
+      return              {label:'ปรับปรุง',color:'#B71C1C',bg:'#FFEBEE',icon:'❌'};
+    }
+    function totalLevelLabel(t) {
+      if (t>=60) return {label:'ดีมาก',color:'#1B5E20',bg:'#E8F5E9'};
+      if (t>=46) return {label:'ดี',    color:'#2E7D32',bg:'#F1F8E9'};
+      if (t>=31) return {label:'พอใช้', color:'#F57F17',bg:'#FFF8E1'};
+      return          {label:'ปรับปรุง',color:'#B71C1C',bg:'#FFEBEE'};
+    }
+
+    // Fill static teacher info from localStorage
     if (info) {
       document.getElementById('teacher-name').textContent = info.teacher_name || '';
       document.getElementById('school-info').textContent  =
-        `${info.grade || ''} · ${info.school || ''} · ${info.district || ''} · ${info.semester || ''}`;
+        `${info.grade||''} · ${info.school||''} · ${info.district||''} · ${info.semester||''}`;
     }
-    document.getElementById('total-score').textContent = total;
-    document.getElementById('d1-score').textContent    = d1Total;
-    document.getElementById('d2-score').textContent    = d2Total;
-    document.getElementById('d3-score').textContent    = d3Total;
 
-    const badge = document.getElementById('level-badge');
-    badge.textContent  = level.label;
-    badge.style.background = level.bg;
-    badge.style.color      = level.color;
-    badge.style.border     = `2px solid ${level.color}`;
-
-    // Radar Chart
-    new Chart(document.getElementById('radar-chart').getContext('2d'), {
-      type: 'radar',
-      data: {
-        labels: ['ด้านที่ 1\nการจัดการเรียนรู้','ด้านที่ 2\nสถาบันและบริบท','ด้านที่ 3\nพฤติกรรมวิชาชีพ'],
-        datasets: [{
-          label: 'คะแนนของท่าน',
-          data: [d1Total, d2Total, d3Total],
-          backgroundColor: 'rgba(46,125,50,0.15)',
-          borderColor: '#2E7D32', borderWidth: 2.5,
-          pointBackgroundColor: '#2E7D32', pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 6,
-        }],
-      },
-      options: {
-        responsive: true,
-        scales: { r: { min:0, max:24, ticks:{stepSize:6}, pointLabels:{font:{size:13,weight:'600'}} } },
-        plugins: { legend:{display:false}, tooltip:{callbacks:{label: c => ` ${c.raw} / 24 คะแนน`}} },
-      },
-    });
-
-    // Domain feedback
-    const domainMeta = [
-      { key:'domain1', label:'ด้านที่ 1 — การจัดการเรียนรู้', score:d1Total },
-      { key:'domain2', label:'ด้านที่ 2 — สถาบันและบริบท',    score:d2Total },
-      { key:'domain3', label:'ด้านที่ 3 — พฤติกรรมวิชาชีพ',  score:d3Total },
-    ];
-    const feedbackContainer = document.getElementById('domain-feedback');
-    feedbackContainer.innerHTML = '<p class="feedback-section-title">สรุปผลรายด้าน</p>';
-    domainMeta.forEach(({ key, label, score }) => {
-      const lv   = State.getDomainLevel(score);
-      const text = State.DOMAIN_FEEDBACK[key][lv.label];
-      const card = document.createElement('div');
-      card.className = 'domain-feedback-card';
-      card.style.borderLeftColor = lv.color;
-      card.innerHTML = `
-        <div class="domain-feedback-header">
-          <span class="domain-feedback-title">${label}</span>
-          <div class="domain-feedback-meta">
-            <span class="domain-feedback-score">${score} / 24 คะแนน</span>
-            <span class="domain-pass-badge" style="background:${lv.bg}; color:${lv.color};">${lv.icon} ${lv.label}</span>
-          </div>
-        </div>
-        <div class="domain-feedback-text">${text}</div>`;
-      feedbackContainer.appendChild(card);
-    });
-
-    // Status & submit
-    const evalId = localStorage.getItem('sst_eval_id') || evalIdParam;
     async function loadStatus() {
-      const statusBadge  = document.getElementById('status-badge');
-      const submitArea   = document.getElementById('submit-area');
-
+      const statusBadge = document.getElementById('status-badge');
+      const submitArea  = document.getElementById('submit-area');
       if (!evalId) {
-        statusBadge.innerHTML = '<span style="color:var(--text-muted);">— ยังไม่ได้บันทึกผล —</span>';
+        statusBadge.innerHTML = '<span style="color:var(--text-muted);">ยังไม่ได้บันทึกผล</span>';
         return;
       }
 
@@ -204,46 +111,115 @@
         const row = await SupabaseClient.getEvaluation(evalId);
         if (!row) return;
 
-        // Show files
+        // Fill teacher info from DB if not in localStorage
+        if (!info) {
+          document.getElementById('teacher-name').textContent = row.teacher_name || '';
+          document.getElementById('school-info').textContent  =
+            `${row.grade||''} · ${row.school||''} · ${row.district||''} · ${row.semester||''}`;
+        }
+
+        // Files
         const files = row.files || {};
         const fileKeys = Object.keys(files);
         if (fileKeys.length) {
           document.getElementById('files-section').style.display = 'block';
-          const FILE_LABEL = {
-            d1_1:'1.1 แบบบันทึกการสะท้อนคิด', d1_2:'1.2 แบบสังเกตการสอน', d1_3:'1.3 แบบสังเกตห้องเรียน',
-            d2_1:'2.1 แบบประเมินการมีส่วนร่วม', d2_2:'2.2 บันทึกเชิญวิทยากร', d2_3:'2.3 แบบสัมภาษณ์กรรมการ',
-            d3_1:'3.1 เกณฑ์รูบริค', d3_2:'3.2 One-Page Reflector', d3_3:'3.3 แบบสังเกตพฤติกรรม', d3_4:'3.4 แบบสังเกตพฤติกรรมการทำงาน',
-          };
           document.getElementById('files-list').innerHTML = fileKeys.map(k =>
             `<a href="${files[k].url}" target="_blank" class="file-link">📄 ${FILE_LABEL[k]||k}</a>`
           ).join('');
         }
 
+        // Status
         if (row.eval_status === 'draft') {
           statusBadge.innerHTML = '<span style="color:var(--text-muted);">ยังไม่ได้ส่งผลการประเมิน</span>';
-          submitArea.innerHTML = `<button class="btn btn-primary" style="max-width:300px; margin:0 auto;" onclick="doSubmit()">ส่งผลการประเมิน</button>`;
+          submitArea.innerHTML  = `<button class="btn btn-primary" style="max-width:280px;margin:0 auto;" onclick="doSubmit()">ส่งผลการประเมิน</button>`;
+
         } else if (row.eval_status === 'pending') {
           statusBadge.innerHTML = '<span style="color:#E65100; font-size:18px;">🕐 รอรับการประเมินจากผู้ประเมิน</span>';
-        } else if (row.eval_status === 'evaluated') {
+
+        } else if (row.eval_status === 'evaluated' && row.eval_scores) {
           statusBadge.innerHTML = '<span style="color:#1B5E20; font-size:18px;">✅ ได้รับการประเมินเรียบร้อยแล้ว</span>';
-          submitArea.innerHTML = `<a href="eval-result.html?id=${evalId}&view=self" class="btn btn-primary" style="max-width:300px; margin:0 auto; text-decoration:none; display:inline-flex;">ดูผลเปรียบเทียบ →</a>`;
+
+          // Show eval results
+          const d1 = calcTotal(row.eval_scores.domain1);
+          const d2 = calcTotal(row.eval_scores.domain2);
+          const d3 = calcTotal(row.eval_scores.domain3);
+          const tot = d1+d2+d3;
+          const tLv = totalLevelLabel(tot);
+
+          document.getElementById('eval-result-section').style.display = 'block';
+
+          // Domain score cards
+          const domainScores = document.getElementById('eval-domain-scores');
+          domainScores.innerHTML = [d1,d2,d3].map((s,i)=>{
+            const lv = levelLabel(s);
+            return `<div class="domain-score-card" style="border-top:4px solid ${lv.color};">
+              <div class="label">ด้านที่ ${i+1}<br/>${DOMAIN_NAMES[i]}</div>
+              <div class="score" style="color:${lv.color};">${s}</div>
+              <div class="max">/ 24</div>
+              <div style="font-size:12px;font-weight:700;color:${lv.color};margin-top:2px;">${lv.label}</div>
+            </div>`;
+          }).join('');
+
+          // Level badge in header
+          document.getElementById('result-header').insertAdjacentHTML('beforeend',
+            `<div class="level-badge" style="background:${tLv.bg};color:${tLv.color};border:2px solid ${tLv.color};margin-top:12px;">${tLv.label}</div>
+             <div><span style="font-size:40px;font-weight:800;">${tot}</span><span style="font-size:18px;opacity:.7;"> / 72 คะแนน</span></div>`);
+
+          // Radar chart
+          new Chart(document.getElementById('radar-chart').getContext('2d'), {
+            type: 'radar',
+            data: {
+              labels: DOMAIN_NAMES.map((d,i)=>`ด้านที่ ${i+1}\n${d}`),
+              datasets: [{
+                label:'คะแนนผู้ประเมิน', data:[d1,d2,d3],
+                backgroundColor:'rgba(46,125,50,0.15)', borderColor:'#2E7D32', borderWidth:2.5,
+                pointBackgroundColor:'#2E7D32', pointRadius:6,
+              }],
+            },
+            options: {
+              responsive:true,
+              scales:{r:{min:0,max:24,ticks:{stepSize:6},pointLabels:{font:{size:13,weight:'600'}}}},
+              plugins:{legend:{display:false}},
+            },
+          });
+
+          // Suggestions
+          const s = row.eval_suggestions || {};
+          const hasAny = s.d1||s.d2||s.d3;
+          if (hasAny) {
+            document.getElementById('eval-suggestions-section').innerHTML = `
+              <div class="card" style="margin-bottom:16px;">
+                <h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-bottom:12px;">ข้อเสนอแนะจากผู้ประเมิน</h3>
+                ${DOMAIN_NAMES.map((d,i)=>{
+                  const k=['d1','d2','d3'][i];
+                  return s[k]?`<div style="margin-bottom:12px;">
+                    <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:4px;">ด้านที่ ${i+1} ${d}</div>
+                    <div style="background:var(--primary-light);border-radius:6px;padding:8px 12px;font-size:14px;">${s[k]}</div>
+                  </div>`:'';
+                }).join('')}
+              </div>`;
+          }
+          if (row.eval_by_name) {
+            document.getElementById('eval-suggestions-section').insertAdjacentHTML('beforeend',
+              `<div style="font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:16px;">ประเมินโดย: ${row.eval_by_name}</div>`);
+          }
         }
-      } catch (e) {
-        statusBadge.innerHTML = `<span style="color:var(--text-muted); font-size:13px;">${e.message}</span>`;
+      } catch(e) {
+        statusBadge.innerHTML = `<span style="color:var(--text-muted);font-size:13px;">${e.message}</span>`;
       }
     }
 
     async function doSubmit() {
       const btn = document.querySelector('#submit-area button');
-      if (btn) { btn.disabled = true; btn.textContent = 'กำลังส่ง...'; }
+      if (btn) { btn.disabled=true; btn.textContent='กำลังส่ง...'; }
       try {
         await SupabaseClient.submitEvaluation(evalId);
         State.clearAll();
         localStorage.removeItem('sst_eval_id');
         loadStatus();
-      } catch (e) {
-        if (btn) { btn.disabled = false; btn.textContent = 'ส่งผลการประเมิน'; }
-        alert('เกิดข้อผิดพลาด: ' + e.message);
+      } catch(e) {
+        if (btn) { btn.disabled=false; btn.textContent='ส่งผลการประเมิน'; }
+        alert('เกิดข้อผิดพลาด: '+e.message);
       }
     }
 

@@ -99,9 +99,12 @@ const SupabaseClient = {
     return res.json();
   },
 
-  // Save evaluator's scores
+  // Save evaluator's scores (scores = {domain1:{...answers}, domain2:{...}, domain3:{...}})
   async saveEvalScore(evalId, scores, suggestions) {
     const user = Auth.getUser();
+    const d1   = Object.values(scores.domain1||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
+    const d2   = Object.values(scores.domain2||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
+    const d3   = Object.values(scores.domain3||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
     const res  = await fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
       method: 'PATCH',
       headers: { ...this._headers(), Prefer: 'return=minimal' },
@@ -111,6 +114,10 @@ const SupabaseClient = {
         eval_by:          user?.id,
         eval_by_name:     user?.display_name,
         eval_status:      'evaluated',
+        domain1_total:    d1,
+        domain2_total:    d2,
+        domain3_total:    d3,
+        total_score:      d1+d2+d3,
       }),
     });
     if (!res.ok) throw new Error(await res.text());
