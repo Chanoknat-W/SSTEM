@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SST-EM | ระบบประเมินครูโรงเรียนขนาดเล็ก</title>
+  <title>SST-EM | แบบประเมินครูโรงเรียนขนาดเล็ก</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <nav class="progress-bar" id="progress-nav" style="display:none">
+  <nav class="progress-bar">
     <div class="progress-steps">
       <div class="step active"><div class="step-dot">1</div></div>
       <div class="step-line"></div>
@@ -25,140 +25,49 @@
   </nav>
 
   <main class="page">
-
-    <!-- ===== SECTION 1: Landing ===== -->
-    <div id="section-landing">
-      <div class="cover">
-        <img src="img/ksu-logo.svg" alt="มหาวิทยาลัยกาฬสินธุ์" class="univ-logo"
-             onerror="this.style.display='none'" />
-        <div class="logo">🏫</div>
-        <h1>SST-EM</h1>
-        <p class="subtitle">
-          ระบบประเมินการจัดการศึกษาสำหรับครูในสถานศึกษาขนาดเล็ก<br/>
-          Small School Teacher Evaluation Model
-        </p>
-        <p class="dev-credit">พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> · มหาวิทยาลัยกาฬสินธุ์</p>
-      </div>
-
-      <p class="role-prompt">กรุณาเลือกบทบาทของท่าน</p>
-
-      <div class="role-cards">
-        <button class="role-card" onclick="selectRole('self')">
-          <div class="role-number">1</div>
-          <div class="role-icon-large">👨‍🏫</div>
-          <div class="role-label">ผู้รับการประเมิน</div>
-          <div class="role-sub">ครู</div>
-        </button>
-        <button class="role-card" onclick="selectRole('eval')">
-          <div class="role-number">2</div>
-          <div class="role-icon-large">📋</div>
-          <div class="role-label">ผู้ประเมิน</div>
-          <div class="role-sub">ครู · ผู้อำนวยการโรงเรียน · ศึกษานิเทศก์</div>
-        </button>
-      </div>
+    <div class="cover">
+      <div class="logo">🏫</div>
+      <h1>SST-EM</h1>
+      <p class="subtitle">แบบประเมินการจัดการศึกษาสำหรับครูในสถานศึกษาขนาดเล็ก<br/>Small School Teacher Evaluation Model</p>
     </div>
 
-    <!-- ===== SECTION 2: Info Form ===== -->
-    <div id="section-form" style="display:none">
-      <div class="card">
-        <div class="page-header" style="text-align:left; margin-bottom:20px;">
-          <div class="badge" id="form-badge">ขั้นตอนที่ 1 จาก 6</div>
-          <h1 id="form-title">กรอกข้อมูลเบื้องต้น</h1>
-          <p id="form-desc">ข้อมูลนี้จะปรากฏในรายงานผลการประเมิน</p>
-        </div>
-
-        <div id="error-msg" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
-
-        <!-- ผู้ประเมิน fields (role = eval) -->
-        <div id="eval-fields" style="display:none">
-          <div class="form-group">
-            <label for="eval-position">ตำแหน่งผู้ประเมิน</label>
-            <select id="eval-position">
-              <option value="">-- เลือกตำแหน่ง --</option>
-              <option value="ครู">ครู</option>
-              <option value="ผู้อำนวยการโรงเรียน">ผู้อำนวยการโรงเรียน</option>
-              <option value="ศึกษานิเทศก์">ศึกษานิเทศก์</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="eval-name">ชื่อ-นามสกุลผู้ประเมิน</label>
-            <input type="text" id="eval-name" placeholder="เช่น นางสาวสมใจ ใจดี" autocomplete="name" />
-          </div>
-        </div>
-
-        <!-- ชื่อครูที่รับการประเมิน / ชื่อครู -->
-        <div class="form-group">
-          <label for="teacher-name" id="teacher-name-label">ชื่อ-นามสกุลครู</label>
-          <input type="text" id="teacher-name" placeholder="เช่น นางสาวสมใจ ใจดี" autocomplete="name" />
-        </div>
-
-        <div class="form-group">
-          <label for="school">ชื่อโรงเรียน</label>
-          <input type="text" id="school" placeholder="เช่น โรงเรียนบ้านหนองเล็ก" />
-        </div>
-
-        <div class="form-group">
-          <label for="semester">ภาคเรียน / ปีการศึกษา</label>
-          <input type="text" id="semester" placeholder="เช่น ภาคเรียนที่ 1/2567" />
-        </div>
-
-        <div class="btn-row" style="margin-top:4px;">
-          <button class="btn btn-secondary" onclick="backToLanding()">← เปลี่ยนบทบาท</button>
-          <button class="btn btn-primary" onclick="startEval()">เริ่มระบบประเมิน →</button>
-        </div>
+    <div class="card">
+      <div class="page-header" style="text-align:left; margin-bottom:20px;">
+        <div class="badge">ขั้นตอนที่ 1 จาก 6</div>
+        <h1>กรอกข้อมูลเบื้องต้น</h1>
+        <p>ข้อมูลนี้จะปรากฏในรายงานผลการประเมิน</p>
       </div>
-    </div>
 
+      <div id="error-msg" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
+
+      <div class="form-group">
+        <label for="teacher-name">ชื่อ-นามสกุลครู</label>
+        <input type="text" id="teacher-name" placeholder="เช่น นางสาวสมใจ ใจดี" autocomplete="name" />
+      </div>
+
+      <div class="form-group">
+        <label for="school">ชื่อโรงเรียน</label>
+        <input type="text" id="school" placeholder="เช่น โรงเรียนบ้านหนองเล็ก" />
+      </div>
+
+      <div class="form-group">
+        <label for="semester">ภาคเรียน / ปีการศึกษา</label>
+        <input type="text" id="semester" placeholder="เช่น ภาคเรียนที่ 1/2567" />
+      </div>
+
+      <button class="btn btn-primary" onclick="startEval()">
+        เริ่มทำแบบประเมิน →
+      </button>
+    </div>
   </main>
-
-  <footer class="site-footer">
-    พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
-  </footer>
 
   <script src="js/state.js"></script>
   <script>
-    let currentRole = '';
-
-    function selectRole(role) {
-      currentRole = role;
-
-      document.getElementById('section-landing').style.display = 'none';
-      document.getElementById('section-form').style.display = 'block';
-      document.getElementById('progress-nav').style.display = 'block';
-
-      if (role === 'eval') {
-        document.getElementById('eval-fields').style.display = 'block';
-        document.getElementById('form-title').textContent = 'ข้อมูลผู้ประเมิน';
-        document.getElementById('form-desc').textContent = 'กรอกข้อมูลผู้ประเมินและครูที่รับการประเมิน';
-        document.getElementById('teacher-name-label').textContent = 'ชื่อ-นามสกุลครูที่รับการประเมิน';
-        document.getElementById('teacher-name').placeholder = 'ชื่อ-นามสกุลครูที่ท่านประเมิน';
-      } else {
-        document.getElementById('eval-fields').style.display = 'none';
-        document.getElementById('form-title').textContent = 'กรอกข้อมูลเบื้องต้น';
-        document.getElementById('form-desc').textContent = 'ข้อมูลนี้จะปรากฏในรายงานผลการประเมิน';
-        document.getElementById('teacher-name-label').textContent = 'ชื่อ-นามสกุลครู';
-        document.getElementById('teacher-name').placeholder = 'เช่น นางสาวสมใจ ใจดี';
-      }
-
-      // pre-fill saved data
-      const saved = State.load('sst_info');
-      if (saved) {
-        document.getElementById('teacher-name').value = saved.teacher_name || '';
-        document.getElementById('school').value = saved.school || '';
-        document.getElementById('semester').value = saved.semester || '';
-        if (role === 'eval') {
-          document.getElementById('eval-name').value = saved.eval_name || '';
-          document.getElementById('eval-position').value = saved.eval_position || '';
-        }
-      }
-    }
-
-    function backToLanding() {
-      currentRole = '';
-      document.getElementById('section-form').style.display = 'none';
-      document.getElementById('section-landing').style.display = 'block';
-      document.getElementById('progress-nav').style.display = 'none';
-      document.getElementById('error-msg').classList.remove('show');
+    const saved = State.load('sst_info');
+    if (saved) {
+      document.getElementById('teacher-name').value = saved.teacher_name || '';
+      document.getElementById('school').value = saved.school || '';
+      document.getElementById('semester').value = saved.semester || '';
     }
 
     function startEval() {
@@ -166,33 +75,12 @@
       const school = document.getElementById('school').value.trim();
       const semester = document.getElementById('semester').value.trim();
       const err = document.getElementById('error-msg');
-
-      let eval_name = '';
-      let eval_position = '';
-
-      if (currentRole === 'eval') {
-        eval_name = document.getElementById('eval-name').value.trim();
-        eval_position = document.getElementById('eval-position').value.trim();
-        if (!eval_name || !eval_position || !teacher_name || !school || !semester) {
-          err.classList.add('show');
-          return;
-        }
-      } else {
-        if (!teacher_name || !school || !semester) {
-          err.classList.add('show');
-          return;
-        }
+      if (!teacher_name || !school || !semester) {
+        err.classList.add('show');
+        return;
       }
-
       err.classList.remove('show');
-      State.save('sst_info', {
-        role: currentRole,
-        teacher_name,
-        school,
-        semester,
-        eval_name,
-        eval_position,
-      });
+      State.save('sst_info', { teacher_name, school, semester });
       window.location.href = 'domain1.html';
     }
   </script>
