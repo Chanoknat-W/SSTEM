@@ -131,8 +131,16 @@
     const level = State.getLevel(total);
 
     // Fill UI
-    document.getElementById('teacher-name').textContent = info.teacher_name;
-    document.getElementById('school-info').textContent = `${info.school}  |  ${info.semester}`;
+    if (info.role === 'eval') {
+      document.getElementById('teacher-name').textContent =
+        `${info.teacher_title}${info.teacher_name}`;
+      document.getElementById('school-info').textContent =
+        `${info.teacher_school}  |  ${info.teacher_district}  |  ${info.semester}`;
+    } else {
+      document.getElementById('teacher-name').textContent = info.teacher_name;
+      document.getElementById('school-info').textContent =
+        `${info.grade}  |  ${info.school}  |  ${info.district}  |  ${info.semester}`;
+    }
     document.getElementById('total-score').textContent = total;
     document.getElementById('d1-score').textContent = d1Total;
     document.getElementById('d2-score').textContent = d2Total;
