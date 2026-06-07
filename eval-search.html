@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เลือกครู | SST-EM</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<main class="page">
+  <div class="page-header">
+    <div class="badge">ผู้ประเมิน</div>
+    <h1>รายชื่อครูที่รอการประเมิน</h1>
+    <p id="eval-name" style="font-size:14px; color:var(--text-muted);"></p>
+  </div>
+
+  <div style="display:flex; gap:10px; margin-bottom:16px;">
+    <input type="text" id="search" placeholder="ค้นหาชื่อ / โรงเรียน..." oninput="doSearch()"
+      style="flex:1; padding:10px 14px; border:2px solid var(--border); border-radius:8px;
+             font-size:15px; font-family:inherit;" />
+    <button class="btn btn-secondary" onclick="Auth.logout()" style="white-space:nowrap; padding:10px 16px; font-size:14px;">ออกจากระบบ</button>
+  </div>
+
+  <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+    <button class="filter-btn active" id="filter-all"      onclick="setFilter('all')">ทั้งหมด</button>
+    <button class="filter-btn"        id="filter-pending"  onclick="setFilter('pending')">🕐 รอประเมิน</button>
+    <button class="filter-btn"        id="filter-evaluated" onclick="setFilter('evaluated')">✅ ประเมินแล้ว</button>
+  </div>
+
+  <div id="loading" style="text-align:center; color:var(--text-muted); padding:32px;">กำลังโหลด...</div>
+  <div id="list"></div>
+</main>
+
+<footer class="site-footer">
+  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
+</footer>
+
+<script src="js/auth.js"></script>
+<script src="js/supabase.js"></script>
+<script>
+  const user = Auth.requireAuth('eval');
+  if (!user) throw new Error('not auth');
+  document.getElementById('eval-name').textContent = user.display_name || user.email;
+
+  let allRows = [];
+  let currentFilter = 'all';
+
+  const STATUS_LABEL = {
+    pending:   { text: '🕐 รอประเมิน',     color: '#E65100', bg: '#FFF3E0' },
+    evaluated: { text: '✅ ประเมินแล้ว',    color: '#1B5E20', bg: '#E8F5E9' },
+  };
+
+  async function load(search) {
+    try {
+      allRows = await SupabaseClient.getPendingEvaluations(search || '');
+      render();
+    } catch (e) {
+      document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+    }
+  }
+
+  function render() {
+    document.getElementById('loading').style.display = 'none';
+    const list = document.getElementById('list');
+    const rows = currentFilter === 'all'
+      ? allRows
+      : allRows.filter(r => r.eval_status === currentFilter);
+
+    if (!rows.length) {
+      list.innerHTML = '<div class="card" style="text-align:center;color:var(--text-muted);padding:32px;">ไม่พบรายชื่อครู</div>';
+      return;
+    }
+
+    list.innerHTML = rows.map(row => {
+      const st = STATUS_LABEL[row.eval_status] || { text: row.eval_status, color: '#757575', bg: '#F5F5F5' };
+      return `
+        <div class="card eval-card" onclick="window.location.href='eval-score.html?id=${row.id}'" style="cursor:pointer; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+            <div>
+              <div style="font-size:16px; font-weight:700; color:var(--primary-dark);">${row.teacher_name || '-'}</div>
+              <div style="font-size:13px; color:var(--text-muted); margin-top:2px;">
+                ${row.school || '-'} ${row.grade ? '· ' + row.grade : ''} · ${row.semester || '-'}
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${row.district || ''}</div>
+            </div>
+            <span style="padding:4px 12px; border-radius:20px; font-size:13px; font-weight:700;
+              background:${st.bg}; color:${st.color}; white-space:nowrap;">${st.text}</span>
+          </div>
+          <div style="margin-top:10px; font-size:13px; color:var(--primary); font-weight:600;">คะแนนรวม: ${row.total_score ?? '-'} / 72 · ระดับ: ${row.level || '-'}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function setFilter(f) {
+    currentFilter = f;
+    ['all','pending','evaluated'].forEach(k => {
+      document.getElementById(`filter-${k}`).classList.toggle('active', k === f);
+    });
+    render();
+  }
+
+  let searchTimer;
+  function doSearch() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => load(document.getElementById('search').value.trim()), 400);
+  }
+
+  load();
+</script>
+</body>
+</html>

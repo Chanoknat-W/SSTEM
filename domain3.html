@@ -6,7 +6,7 @@
   <title>ด้านที่ 3 | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body data-domain="domain3" data-next="reflect.html">
+<body data-domain="domain3" data-next="upload.html">
 
   <nav class="progress-bar">
     <div class="progress-steps">
@@ -35,11 +35,13 @@
 
     <div id="questions-container"></div>
 
-    <button class="btn btn-primary" id="btn-next">ถัดไป: สะท้อนคิด →</button>
+    <button class="btn btn-primary" id="btn-next">ถัดไป: อัปโหลดเอกสาร →</button>
   </main>
 
   <script src="js/questions.js"></script>
   <script src="js/state.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/domain-page.js"></script>
+  <script>Auth.requireAuth('self');</script>
 </body>
 </html>

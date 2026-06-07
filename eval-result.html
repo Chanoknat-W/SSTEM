@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ผลเปรียบเทียบ | SST-EM</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<main class="page">
+  <div id="loading" class="card" style="text-align:center; color:var(--text-muted); padding:32px;">กำลังโหลด...</div>
+  <div id="content" style="display:none;"></div>
+</main>
+
+<footer class="site-footer">
+  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
+</footer>
+
+<script src="js/auth.js"></script>
+<script src="js/supabase.js"></script>
+<script>
+  const params   = new URLSearchParams(location.search);
+  const evalId   = params.get('id');
+  const viewMode = params.get('view');   // 'self' = teacher viewing own result
+
+  if (!evalId) window.location.href = 'login.html';
+
+  // Allow both roles to view this page
+  const user = Auth.getUser();
+  if (!user) { window.location.href = 'login.html'; }
+
+  const LEVEL_MAP = { 1:'ปรับปรุง', 2:'พอใช้', 3:'ดี', 4:'ดีมาก' };
+  const DOMAIN_NAMES = ['การจัดการเรียนรู้','สถาบันและบริบท','พฤติกรรมวิชาชีพ'];
+
+  function domainLevelLabel(score) {
+    if (score >= 20) return 'ดีมาก';
+    if (score >= 15) return 'ดี';
+    if (score >= 10) return 'พอใช้';
+    return 'ปรับปรุง';
+  }
+
+  async function load() {
+    try {
+      const row = await SupabaseClient.getEvaluation(evalId);
+      if (!row) throw new Error('ไม่พบข้อมูล');
+
+      // If coming from eval-score.html, load pending scores from localStorage
+      let scores = row.eval_scores;
+      let suggestions = row.eval_suggestions;
+      const pendingScores = localStorage.getItem('sst_eval_scores');
+      const pendingSuggest = localStorage.getItem('sst_eval_suggestions');
+      if (pendingScores) { scores = JSON.parse(pendingScores); suggestions = JSON.parse(pendingSuggest || '{}'); }
+
+      document.getElementById('loading').style.display = 'none';
+      const content = document.getElementById('content');
+      content.style.display = 'block';
+
+      const selfTotals = [row.domain1_total, row.domain2_total, row.domain3_total];
+      const evalScores = scores ? [scores.d1, scores.d2, scores.d3] : [null,null,null];
+      const evalSuggest = suggestions || {};
+
+      content.innerHTML = `
+        <!-- Header -->
+        <div class="result-header" style="margin-bottom:20px;">
+          <h2>${row.teacher_name || '-'}</h2>
+          <div class="school-info">${row.school || ''} · ${row.grade || ''} · ${row.semester || ''}</div>
+          <div style="margin-top:8px; font-size:14px; opacity:0.85;">ผลเปรียบเทียบการประเมิน</div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="card" style="margin-bottom:16px;">
+          <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:14px;">ตารางเปรียบเทียบคะแนน</h3>
+          <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead>
+              <tr style="background:var(--primary-light);">
+                <th style="padding:10px 12px; text-align:left;">ด้าน</th>
+                <th style="padding:10px 12px; text-align:center;">ตนเอง (/24)</th>
+                <th style="padding:10px 12px; text-align:center;">ผู้ประเมิน (1–4)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${DOMAIN_NAMES.map((d,i) => `
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:10px 12px; font-weight:600;">ด้านที่ ${i+1} ${d}</td>
+                  <td style="padding:10px 12px; text-align:center;">
+                    <strong>${selfTotals[i] ?? '-'}</strong>
+                    <span style="font-size:12px; color:var(--text-muted);"> (${domainLevelLabel(selfTotals[i])})</span>
+                  </td>
+                  <td style="padding:10px 12px; text-align:center;">
+                    ${evalScores[i] ? `<strong>${evalScores[i]}</strong> <span style="font-size:12px; color:var(--text-muted);">(${LEVEL_MAP[evalScores[i]]})</span>` : '<span style="color:var(--text-muted);">-</span>'}
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Radar Chart -->
+        <div class="chart-container" style="margin-bottom:16px;">
+          <canvas id="radar-chart"></canvas>
+        </div>
+
+        <!-- Suggestions -->
+        ${evalScores[0] ? `
+        <div class="card" style="margin-bottom:16px;">
+          <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:12px;">ข้อเสนอแนะจากผู้ประเมิน</h3>
+          ${DOMAIN_NAMES.map((d,i) => {
+            const key = ['d1','d2','d3'][i];
+            const text = evalSuggest[key];
+            return text ? `<div style="margin-bottom:12px;">
+              <div style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:4px;">ด้านที่ ${i+1} ${d}</div>
+              <div style="background:var(--primary-light); border-radius:6px; padding:8px 12px; font-size:14px;">${text}</div>
+            </div>` : '';
+          }).join('')}
+        </div>` : ''}
+
+        <!-- Evaluator info -->
+        ${row.eval_by_name ? `<div style="font-size:13px; color:var(--text-muted); text-align:center; margin-bottom:16px;">ประเมินโดย: ${row.eval_by_name}</div>` : ''}
+
+        <!-- Action Buttons -->
+        <div class="btn-row no-print" id="action-btns"></div>
+      `;
+
+      // Radar chart
+      const selfNormalized = selfTotals.map(s => s ?? 0);
+      const evalNormalized = evalScores.map(s => s ? s * 6 : 0);
+      const ctx = document.getElementById('radar-chart').getContext('2d');
+      new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: DOMAIN_NAMES.map((d,i) => `ด้านที่ ${i+1}\n${d}`),
+          datasets: [
+            {
+              label: 'ตนเอง (/24)',
+              data: selfNormalized,
+              backgroundColor: 'rgba(46,125,50,0.12)',
+              borderColor: '#2E7D32',
+              borderWidth: 2.5,
+              pointBackgroundColor: '#2E7D32',
+              pointRadius: 5,
+            },
+            {
+              label: 'ผู้ประเมิน (×6)',
+              data: evalNormalized,
+              backgroundColor: 'rgba(21,101,192,0.12)',
+              borderColor: '#1565C0',
+              borderWidth: 2.5,
+              borderDash: [5,3],
+              pointBackgroundColor: '#1565C0',
+              pointRadius: 5,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: { r: { min:0, max:24, ticks:{ stepSize:6 }, pointLabels:{ font:{size:12} } } },
+          plugins: { legend: { display: true, position: 'bottom' } },
+        },
+      });
+
+      // Buttons
+      const btnArea = document.getElementById('action-btns');
+      if (viewMode === 'self') {
+        btnArea.innerHTML = `
+          <button class="btn btn-secondary" onclick="window.location.href='my-results.html'" style="flex:1;">← กลับ</button>
+          <button class="btn btn-print" onclick="window.print()" style="flex:1;">🖨️ พิมพ์</button>`;
+      } else {
+        // Evaluator view — show Save button if not yet saved
+        const alreadySaved = row.eval_status === 'evaluated' && !pendingScores;
+        btnArea.innerHTML = alreadySaved
+          ? `<button class="btn btn-secondary" onclick="window.location.href='eval-search.html'" style="flex:1;">← กลับรายชื่อ</button>
+             <button class="btn btn-print" onclick="window.print()" style="flex:1;">🖨️ พิมพ์</button>`
+          : `<button class="btn btn-secondary" onclick="window.location.href='eval-score.html?id=${evalId}'" style="flex:1;">← แก้ไขคะแนน</button>
+             <button class="btn btn-primary" id="btn-save" onclick="doSave()" style="flex:1;">บันทึกผลการประเมิน</button>`;
+      }
+
+    } catch (e) {
+      document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+    }
+  }
+
+  async function doSave() {
+    const btn = document.getElementById('btn-save');
+    btn.disabled = true;
+    btn.textContent = 'กำลังบันทึก...';
+    try {
+      const scores     = JSON.parse(localStorage.getItem('sst_eval_scores') || '{}');
+      const suggestions = JSON.parse(localStorage.getItem('sst_eval_suggestions') || '{}');
+      await SupabaseClient.saveEvalScore(evalId, scores, suggestions);
+      localStorage.removeItem('sst_eval_scores');
+      localStorage.removeItem('sst_eval_suggestions');
+
+      // Show success
+      const btnArea = document.getElementById('action-btns');
+      btnArea.innerHTML = `
+        <div style="text-align:center; padding:16px; background:var(--primary-light); border-radius:10px;
+          color:var(--primary-dark); font-weight:700; font-size:16px; flex:1;">
+          ✅ บันทึกผลการประเมินเรียบร้อยแล้ว
+        </div>`;
+      setTimeout(() => { window.location.href = 'eval-search.html'; }, 2000);
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = 'บันทึกผลการประเมิน';
+      alert('เกิดข้อผิดพลาด: ' + e.message);
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>

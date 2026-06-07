@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <nav class="progress-bar" id="progress-nav" style="display:none">
+  <nav class="progress-bar">
     <div class="progress-steps">
       <div class="step active"><div class="step-dot">1</div></div>
       <div class="step-line"></div>
@@ -25,172 +25,58 @@
   </nav>
 
   <main class="page">
-
-    <!-- ===== LANDING ===== -->
-    <div id="section-landing">
-      <div class="cover">
-        <img src="img/ksu-logo.svg" alt="มหาวิทยาลัยกาฬสินธุ์" class="univ-logo"
-             onerror="this.style.display='none'" />
-        <div class="logo">🏫</div>
-        <h1>SST-EM</h1>
-        <p class="subtitle">
-          ระบบประเมินการจัดการศึกษาสำหรับครูในสถานศึกษาขนาดเล็ก<br/>
-          Small School Teacher Evaluation Model
-        </p>
-        <p class="dev-credit">พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> · มหาวิทยาลัยกาฬสินธุ์</p>
+    <div class="card">
+      <div class="page-header" style="text-align:left; margin-bottom:20px;">
+        <div class="badge">ผู้รับการประเมิน · ขั้นตอนที่ 1 จาก 6</div>
+        <h1>กรอกข้อมูลเบื้องต้น</h1>
+        <p>ข้อมูลนี้จะปรากฏในรายงานผลการประเมิน</p>
       </div>
 
-      <p class="role-prompt">กรุณาเลือกบทบาทของท่าน</p>
+      <div id="error-msg" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
 
-      <div class="role-cards">
-        <button class="role-card" onclick="selectRole('self')">
-          <div class="role-number">1</div>
-          <div class="role-icon-large">👨‍🏫</div>
-          <div class="role-label">ผู้รับการประเมิน</div>
-          <div class="role-sub">ครู</div>
-        </button>
-        <button class="role-card" onclick="selectRole('eval')">
-          <div class="role-number">2</div>
-          <div class="role-icon-large">📋</div>
-          <div class="role-label">ผู้ประเมิน</div>
-          <div class="role-sub">ครู · ผู้อำนวยการโรงเรียน · ศึกษานิเทศก์</div>
-        </button>
+      <div id="user-greeting" style="margin-bottom:16px; font-size:14px; color:var(--text-muted);"></div>
+
+      <div class="form-group">
+        <label for="teacher-name">ชื่อ-นามสกุล</label>
+        <input type="text" id="teacher-name" placeholder="เช่น นางสาวสมใจ ใจดี" autocomplete="name" />
       </div>
-    </div>
+      <div class="form-group">
+        <label for="grade">ชั้นที่สอน</label>
+        <select id="grade">
+          <option value="">-- เลือกชั้นที่สอน --</option>
+          <optgroup label="อนุบาล">
+            <option>อนุบาล 1</option><option>อนุบาล 2</option><option>อนุบาล 3</option>
+          </optgroup>
+          <optgroup label="ประถมศึกษา">
+            <option>ป.1</option><option>ป.2</option><option>ป.3</option>
+            <option>ป.4</option><option>ป.5</option><option>ป.6</option>
+          </optgroup>
+          <optgroup label="มัธยมศึกษาตอนต้น">
+            <option>ม.1</option><option>ม.2</option><option>ม.3</option>
+          </optgroup>
+          <optgroup label="มัธยมศึกษาตอนปลาย">
+            <option>ม.4</option><option>ม.5</option><option>ม.6</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="school">โรงเรียน</label>
+        <input type="text" id="school" placeholder="เช่น โรงเรียนบ้านหนองเล็ก" />
+      </div>
+      <div class="form-group">
+        <label for="district">สังกัด</label>
+        <input type="text" id="district" placeholder="เช่น สพป.กาฬสินธุ์ เขต 3" />
+      </div>
+      <div class="form-group">
+        <label for="semester">ภาคเรียน / ปีการศึกษา</label>
+        <input type="text" id="semester" placeholder="เช่น ภาคเรียนที่ 1/2567" />
+      </div>
 
-    <!-- ===== FORM: ผู้รับการประเมิน ===== -->
-    <div id="section-self" style="display:none">
-      <div class="card">
-        <div class="page-header" style="text-align:left; margin-bottom:20px;">
-          <div class="badge">ผู้รับการประเมิน · ครู</div>
-          <h1>กรอกข้อมูลเบื้องต้น</h1>
-          <p>ข้อมูลนี้จะปรากฏในรายงานผลการประเมิน</p>
-        </div>
-        <div id="error-self" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
-
-        <div class="form-group">
-          <label for="self-name">ชื่อ-นามสกุล</label>
-          <input type="text" id="self-name" placeholder="เช่น นางสาวสมใจ ใจดี" autocomplete="name" />
-        </div>
-        <div class="form-group">
-          <label for="self-grade">ชั้นที่สอน</label>
-          <select id="self-grade">
-            <option value="">-- เลือกชั้นที่สอน --</option>
-            <optgroup label="อนุบาล">
-              <option>อนุบาล 1</option>
-              <option>อนุบาล 2</option>
-              <option>อนุบาล 3</option>
-            </optgroup>
-            <optgroup label="ประถมศึกษา">
-              <option>ป.1</option>
-              <option>ป.2</option>
-              <option>ป.3</option>
-              <option>ป.4</option>
-              <option>ป.5</option>
-              <option>ป.6</option>
-            </optgroup>
-            <optgroup label="มัธยมศึกษาตอนต้น">
-              <option>ม.1</option>
-              <option>ม.2</option>
-              <option>ม.3</option>
-            </optgroup>
-            <optgroup label="มัธยมศึกษาตอนปลาย">
-              <option>ม.4</option>
-              <option>ม.5</option>
-              <option>ม.6</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="self-school">โรงเรียน</label>
-          <input type="text" id="self-school" placeholder="เช่น โรงเรียนบ้านหนองเล็ก" />
-        </div>
-        <div class="form-group">
-          <label for="self-district">สังกัด</label>
-          <input type="text" id="self-district" placeholder="เช่น สพป.กาฬสินธุ์ เขต 3" />
-        </div>
-        <div class="form-group">
-          <label for="self-semester">ภาคเรียน / ปีการศึกษา</label>
-          <input type="text" id="self-semester" placeholder="เช่น ภาคเรียนที่ 1/2567" />
-        </div>
-
-        <div class="btn-row" style="margin-top:4px;">
-          <button class="btn btn-secondary" onclick="backToLanding()">← เปลี่ยนบทบาท</button>
-          <button class="btn btn-primary" onclick="submitSelf()">เริ่มระบบประเมิน →</button>
-        </div>
+      <div class="btn-row" style="margin-top:4px;">
+        <button class="btn btn-secondary" onclick="Auth.logout()">ออกจากระบบ</button>
+        <button class="btn btn-primary" onclick="startEval()">เริ่มระบบประเมิน →</button>
       </div>
     </div>
-
-    <!-- ===== FORM: ผู้ประเมิน ===== -->
-    <div id="section-eval" style="display:none">
-      <div class="card">
-        <div class="page-header" style="text-align:left; margin-bottom:20px;">
-          <div class="badge">ผู้ประเมิน</div>
-          <h1>กรอกข้อมูลเบื้องต้น</h1>
-          <p>ข้อมูลผู้ประเมินและผู้รับการประเมิน</p>
-        </div>
-        <div id="error-eval" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
-
-        <div class="form-section-label">ข้อมูลผู้ประเมิน</div>
-        <div class="form-group">
-          <label for="eval-name">ชื่อ-นามสกุล</label>
-          <input type="text" id="eval-name" placeholder="ชื่อ-นามสกุลผู้ประเมิน" autocomplete="name" />
-        </div>
-        <div class="form-group">
-          <label for="eval-position">ตำแหน่ง</label>
-          <select id="eval-position">
-            <option value="">-- เลือกตำแหน่ง --</option>
-            <option>ครู</option>
-            <option>ผู้อำนวยการโรงเรียน</option>
-            <option>ศึกษานิเทศก์</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="eval-school">โรงเรียน</label>
-          <input type="text" id="eval-school" placeholder="โรงเรียนของผู้ประเมิน" />
-        </div>
-        <div class="form-group">
-          <label for="eval-district">สังกัด</label>
-          <input type="text" id="eval-district" placeholder="เช่น สพป.กาฬสินธุ์ เขต 3" />
-        </div>
-
-        <div class="form-section-label" style="margin-top:8px;">ข้อมูลผู้รับการประเมิน</div>
-        <div class="form-group">
-          <label>ชื่อ-นามสกุล</label>
-          <div class="name-row">
-            <select id="teacher-title">
-              <option value="">คำนำหน้า</option>
-              <option>นาย</option>
-              <option>นาง</option>
-              <option>นางสาว</option>
-            </select>
-            <input type="text" id="teacher-name" placeholder="ชื่อ-นามสกุลครู" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="teacher-position">ตำแหน่ง</label>
-          <input type="text" id="teacher-position" placeholder="เช่น ครูชำนาญการ" />
-        </div>
-        <div class="form-group">
-          <label for="teacher-school">โรงเรียน</label>
-          <input type="text" id="teacher-school" placeholder="โรงเรียนของครูที่รับการประเมิน" />
-        </div>
-        <div class="form-group">
-          <label for="teacher-district">สังกัด</label>
-          <input type="text" id="teacher-district" placeholder="เช่น สพป.กาฬสินธุ์ เขต 3" />
-        </div>
-        <div class="form-group">
-          <label for="eval-semester">ภาคเรียน / ปีการศึกษา</label>
-          <input type="text" id="eval-semester" placeholder="เช่น ภาคเรียนที่ 1/2567" />
-        </div>
-
-        <div class="btn-row" style="margin-top:4px;">
-          <button class="btn btn-secondary" onclick="backToLanding()">← เปลี่ยนบทบาท</button>
-          <button class="btn btn-primary" onclick="submitEval()">เริ่มระบบประเมิน →</button>
-        </div>
-      </div>
-    </div>
-
   </main>
 
   <footer class="site-footer">
@@ -198,95 +84,37 @@
   </footer>
 
   <script src="js/state.js"></script>
+  <script src="js/auth.js"></script>
   <script>
-    function selectRole(role) {
-      document.getElementById('section-landing').style.display = 'none';
-      document.getElementById('progress-nav').style.display = 'block';
+    const user = Auth.requireAuth('self');
+    if (!user) throw new Error('not auth');
 
-      const saved = State.load('sst_info');
+    document.getElementById('user-greeting').textContent =
+      'สวัสดี, ' + (user.display_name || user.email);
 
-      if (role === 'self') {
-        document.getElementById('section-self').style.display = 'block';
-        if (saved && saved.role === 'self') {
-          document.getElementById('self-name').value    = saved.teacher_name || '';
-          document.getElementById('self-grade').value   = saved.grade        || '';
-          document.getElementById('self-school').value  = saved.school       || '';
-          document.getElementById('self-district').value = saved.district    || '';
-          document.getElementById('self-semester').value = saved.semester    || '';
-        }
-      } else {
-        document.getElementById('section-eval').style.display = 'block';
-        if (saved && saved.role === 'eval') {
-          document.getElementById('eval-name').value       = saved.eval_name       || '';
-          document.getElementById('eval-position').value   = saved.eval_position   || '';
-          document.getElementById('eval-school').value     = saved.eval_school     || '';
-          document.getElementById('eval-district').value   = saved.eval_district   || '';
-          document.getElementById('teacher-title').value   = saved.teacher_title   || '';
-          document.getElementById('teacher-name').value    = saved.teacher_name    || '';
-          document.getElementById('teacher-position').value = saved.teacher_position || '';
-          document.getElementById('teacher-school').value  = saved.teacher_school  || '';
-          document.getElementById('teacher-district').value = saved.teacher_district || '';
-          document.getElementById('eval-semester').value   = saved.semester        || '';
-        }
-      }
+    const saved = State.load('sst_info');
+    if (saved) {
+      document.getElementById('teacher-name').value = saved.teacher_name || '';
+      document.getElementById('grade').value         = saved.grade        || '';
+      document.getElementById('school').value        = saved.school       || '';
+      document.getElementById('district').value      = saved.district     || '';
+      document.getElementById('semester').value      = saved.semester     || '';
     }
 
-    function backToLanding() {
-      document.getElementById('section-self').style.display = 'none';
-      document.getElementById('section-eval').style.display = 'none';
-      document.getElementById('section-landing').style.display = 'block';
-      document.getElementById('progress-nav').style.display = 'none';
-      document.getElementById('error-self').classList.remove('show');
-      document.getElementById('error-eval').classList.remove('show');
-    }
-
-    function submitSelf() {
-      const teacher_name = document.getElementById('self-name').value.trim();
-      const grade        = document.getElementById('self-grade').value;
-      const school       = document.getElementById('self-school').value.trim();
-      const district     = document.getElementById('self-district').value.trim();
-      const semester     = document.getElementById('self-semester').value.trim();
-      const err = document.getElementById('error-self');
+    function startEval() {
+      const teacher_name = document.getElementById('teacher-name').value.trim();
+      const grade        = document.getElementById('grade').value;
+      const school       = document.getElementById('school').value.trim();
+      const district     = document.getElementById('district').value.trim();
+      const semester     = document.getElementById('semester').value.trim();
+      const err = document.getElementById('error-msg');
 
       if (!teacher_name || !grade || !school || !district || !semester) {
         err.classList.add('show');
-        err.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
       err.classList.remove('show');
-      State.save('sst_info', { role: 'self', teacher_name, grade, school, district, semester });
-      window.location.href = 'domain1.html';
-    }
-
-    function submitEval() {
-      const eval_name        = document.getElementById('eval-name').value.trim();
-      const eval_position    = document.getElementById('eval-position').value;
-      const eval_school      = document.getElementById('eval-school').value.trim();
-      const eval_district    = document.getElementById('eval-district').value.trim();
-      const teacher_title    = document.getElementById('teacher-title').value;
-      const teacher_name     = document.getElementById('teacher-name').value.trim();
-      const teacher_position = document.getElementById('teacher-position').value.trim();
-      const teacher_school   = document.getElementById('teacher-school').value.trim();
-      const teacher_district = document.getElementById('teacher-district').value.trim();
-      const semester         = document.getElementById('eval-semester').value.trim();
-      const err = document.getElementById('error-eval');
-
-      if (!eval_name || !eval_position || !eval_school || !eval_district ||
-          !teacher_title || !teacher_name || !teacher_position ||
-          !teacher_school || !teacher_district || !semester) {
-        err.classList.add('show');
-        err.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-      err.classList.remove('show');
-      State.save('sst_info', {
-        role: 'eval',
-        eval_name, eval_position, eval_school, eval_district,
-        teacher_title, teacher_name, teacher_position,
-        teacher_school, teacher_district,
-        school: teacher_school,
-        semester,
-      });
+      State.save('sst_info', { role:'self', teacher_name, grade, school, district, semester });
       window.location.href = 'domain1.html';
     }
   </script>

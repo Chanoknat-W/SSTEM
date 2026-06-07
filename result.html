@@ -61,29 +61,14 @@
       <canvas id="radar-chart"></canvas>
     </div>
 
-    <!-- Reflection -->
-    <div class="reflection-result">
-      <h3>การสะท้อนคิด P-A-R-I</h3>
-      <div class="reflect-item">
-        <div class="reflect-q">🟢 สิ่งที่ทำได้ดีในภาคเรียนนี้</div>
-        <div class="reflect-a" id="r-good">—</div>
-      </div>
-      <div class="reflect-item">
-        <div class="reflect-q">🟠 ปัญหา/อุปสรรคที่พบ</div>
-        <div class="reflect-a" id="r-problem">—</div>
-      </div>
-      <div class="reflect-item">
-        <div class="reflect-q">🔵 สิ่งที่เด็กได้รับเกินความคาดหมาย</div>
-        <div class="reflect-a" id="r-surprise">—</div>
-      </div>
-      <div class="reflect-item">
-        <div class="reflect-q">🟣 สิ่งที่จะปรับปรุงในภาคเรียนหน้า</div>
-        <div class="reflect-a" id="r-improve">—</div>
-      </div>
-    </div>
-
     <!-- Domain Feedback -->
     <div id="domain-feedback"></div>
+
+    <!-- Files -->
+    <div id="files-section" class="card" style="margin-bottom:20px; display:none;">
+      <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin-bottom:12px;">📎 เอกสารแนบ</h3>
+      <div id="files-list"></div>
+    </div>
 
     <!-- Score Table -->
     <div class="card" style="margin-bottom:20px;">
@@ -91,9 +76,9 @@
       <table style="width:100%; border-collapse:collapse; font-size:14px;">
         <thead>
           <tr style="background:var(--primary-light);">
-            <th style="padding:8px 12px; text-align:left; border-radius:6px 0 0 0;">ระดับ</th>
+            <th style="padding:8px 12px; text-align:left;">ระดับ</th>
             <th style="padding:8px 12px; text-align:center;">คะแนน</th>
-            <th style="padding:8px 12px; text-align:center; border-radius:0 6px 0 0;">ร้อยละ</th>
+            <th style="padding:8px 12px; text-align:center;">ร้อยละ</th>
           </tr>
         </thead>
         <tbody>
@@ -105,137 +90,170 @@
       </table>
     </div>
 
+    <!-- Status & Submit -->
+    <div id="status-section" class="card" style="margin-bottom:20px; text-align:center;">
+      <div id="status-badge" style="font-size:16px; font-weight:700; margin-bottom:12px;"></div>
+      <div id="submit-area"></div>
+    </div>
+
     <!-- Actions -->
     <div class="btn-row no-print">
       <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์รายงาน</button>
-      <button class="btn btn-secondary" onclick="startNew()">ทำแบบประเมินใหม่</button>
+      <button class="btn btn-secondary" onclick="goToMyResults()">ประวัติการประเมิน</button>
     </div>
   </main>
 
   <script src="js/state.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/supabase.js"></script>
   <script>
-    // Redirect guard
-    const info = State.load('sst_info');
-    if (!info) { window.location.href = 'index.html'; }
+    const user = Auth.requireAuth('self');
+    if (!user) throw new Error('not auth');
 
-    // Load data
+    const urlParams = new URLSearchParams(location.search);
+    const evalIdParam = urlParams.get('id');
+
+    // Load from localStorage (fresh flow) or fetch from Supabase (revisit)
+    const info = State.load('sst_info');
+    if (!info && !evalIdParam) { window.location.href = 'index.html'; }
+
     const d1 = State.load('sst_domain1') || {};
     const d2 = State.load('sst_domain2') || {};
     const d3 = State.load('sst_domain3') || {};
-    const reflection = State.load('sst_reflection') || {};
 
-    const d1Total = Object.values(d1).reduce((s, v) => s + (parseInt(v) || 0), 0);
-    const d2Total = Object.values(d2).reduce((s, v) => s + (parseInt(v) || 0), 0);
-    const d3Total = Object.values(d3).reduce((s, v) => s + (parseInt(v) || 0), 0);
-    const total = d1Total + d2Total + d3Total;
-    const level = State.getLevel(total);
+    const d1Total = Object.values(d1).reduce((s, v) => s + (parseInt(v)||0), 0);
+    const d2Total = Object.values(d2).reduce((s, v) => s + (parseInt(v)||0), 0);
+    const d3Total = Object.values(d3).reduce((s, v) => s + (parseInt(v)||0), 0);
+    const total   = d1Total + d2Total + d3Total;
+    const level   = State.getLevel(total);
 
-    // Fill UI
-    if (info.role === 'eval') {
-      document.getElementById('teacher-name').textContent =
-        `${info.teacher_title}${info.teacher_name}`;
-      document.getElementById('school-info').textContent =
-        `${info.teacher_school}  |  ${info.teacher_district}  |  ${info.semester}`;
-    } else {
-      document.getElementById('teacher-name').textContent = info.teacher_name;
-      document.getElementById('school-info').textContent =
-        `${info.grade}  |  ${info.school}  |  ${info.district}  |  ${info.semester}`;
+    if (info) {
+      document.getElementById('teacher-name').textContent = info.teacher_name || '';
+      document.getElementById('school-info').textContent  =
+        `${info.grade || ''} · ${info.school || ''} · ${info.district || ''} · ${info.semester || ''}`;
     }
     document.getElementById('total-score').textContent = total;
-    document.getElementById('d1-score').textContent = d1Total;
-    document.getElementById('d2-score').textContent = d2Total;
-    document.getElementById('d3-score').textContent = d3Total;
+    document.getElementById('d1-score').textContent    = d1Total;
+    document.getElementById('d2-score').textContent    = d2Total;
+    document.getElementById('d3-score').textContent    = d3Total;
 
     const badge = document.getElementById('level-badge');
-    badge.textContent = level.label;
+    badge.textContent  = level.label;
     badge.style.background = level.bg;
-    badge.style.color = level.color;
-    badge.style.border = `2px solid ${level.color}`;
-
-    // Reflection
-    const fill = (id, val) => { document.getElementById(id).textContent = val || '—'; };
-    fill('r-good', reflection.good);
-    fill('r-problem', reflection.problem);
-    fill('r-surprise', reflection.surprise);
-    fill('r-improve', reflection.improve);
+    badge.style.color      = level.color;
+    badge.style.border     = `2px solid ${level.color}`;
 
     // Radar Chart
-    const ctx = document.getElementById('radar-chart').getContext('2d');
-    new Chart(ctx, {
+    new Chart(document.getElementById('radar-chart').getContext('2d'), {
       type: 'radar',
       data: {
-        labels: ['ด้านที่ 1\nการจัดการเรียนรู้', 'ด้านที่ 2\nสถาบันและบริบท', 'ด้านที่ 3\nพฤติกรรมวิชาชีพ'],
+        labels: ['ด้านที่ 1\nการจัดการเรียนรู้','ด้านที่ 2\nสถาบันและบริบท','ด้านที่ 3\nพฤติกรรมวิชาชีพ'],
         datasets: [{
           label: 'คะแนนของท่าน',
           data: [d1Total, d2Total, d3Total],
-          backgroundColor: 'rgba(46, 125, 50, 0.15)',
-          borderColor: '#2E7D32',
-          borderWidth: 2.5,
-          pointBackgroundColor: '#2E7D32',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 6,
+          backgroundColor: 'rgba(46,125,50,0.15)',
+          borderColor: '#2E7D32', borderWidth: 2.5,
+          pointBackgroundColor: '#2E7D32', pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 6,
         }],
       },
       options: {
         responsive: true,
-        scales: {
-          r: {
-            min: 0,
-            max: 24,
-            ticks: { stepSize: 6, font: { size: 12 } },
-            pointLabels: { font: { size: 13, weight: '600' } },
-            grid: { color: 'rgba(0,0,0,0.08)' },
-          },
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => ` ${ctx.raw} / 24 คะแนน`,
-            },
-          },
-        },
+        scales: { r: { min:0, max:24, ticks:{stepSize:6}, pointLabels:{font:{size:13,weight:'600'}} } },
+        plugins: { legend:{display:false}, tooltip:{callbacks:{label: c => ` ${c.raw} / 24 คะแนน`}} },
       },
     });
 
-    // Render domain feedback
+    // Domain feedback
     const domainMeta = [
-      { key: 'domain1', label: 'ด้านที่ 1 — การจัดการเรียนรู้', score: d1Total },
-      { key: 'domain2', label: 'ด้านที่ 2 — สถาบันและบริบท',    score: d2Total },
-      { key: 'domain3', label: 'ด้านที่ 3 — พฤติกรรมวิชาชีพ',  score: d3Total },
+      { key:'domain1', label:'ด้านที่ 1 — การจัดการเรียนรู้', score:d1Total },
+      { key:'domain2', label:'ด้านที่ 2 — สถาบันและบริบท',    score:d2Total },
+      { key:'domain3', label:'ด้านที่ 3 — พฤติกรรมวิชาชีพ',  score:d3Total },
     ];
-
     const feedbackContainer = document.getElementById('domain-feedback');
     feedbackContainer.innerHTML = '<p class="feedback-section-title">สรุปผลรายด้าน</p>';
-
     domainMeta.forEach(({ key, label, score }) => {
-      const lv = State.getDomainLevel(score);
+      const lv   = State.getDomainLevel(score);
       const text = State.DOMAIN_FEEDBACK[key][lv.label];
-
       const card = document.createElement('div');
       card.className = 'domain-feedback-card';
       card.style.borderLeftColor = lv.color;
-
       card.innerHTML = `
         <div class="domain-feedback-header">
           <span class="domain-feedback-title">${label}</span>
           <div class="domain-feedback-meta">
             <span class="domain-feedback-score">${score} / 24 คะแนน</span>
-            <span class="domain-pass-badge" style="background:${lv.bg}; color:${lv.color};">
-              ${lv.icon} ${lv.label}
-            </span>
+            <span class="domain-pass-badge" style="background:${lv.bg}; color:${lv.color};">${lv.icon} ${lv.label}</span>
           </div>
         </div>
-        <div class="domain-feedback-text">${text}</div>
-      `;
+        <div class="domain-feedback-text">${text}</div>`;
       feedbackContainer.appendChild(card);
     });
 
-    function startNew() {
-      State.clearAll();
-      window.location.href = 'index.html';
+    // Status & submit
+    const evalId = localStorage.getItem('sst_eval_id') || evalIdParam;
+    async function loadStatus() {
+      const statusBadge  = document.getElementById('status-badge');
+      const submitArea   = document.getElementById('submit-area');
+
+      if (!evalId) {
+        statusBadge.innerHTML = '<span style="color:var(--text-muted);">— ยังไม่ได้บันทึกผล —</span>';
+        return;
+      }
+
+      try {
+        const row = await SupabaseClient.getEvaluation(evalId);
+        if (!row) return;
+
+        // Show files
+        const files = row.files || {};
+        const fileKeys = Object.keys(files);
+        if (fileKeys.length) {
+          document.getElementById('files-section').style.display = 'block';
+          const FILE_LABEL = {
+            d1_1:'1.1 แบบบันทึกการสะท้อนคิด', d1_2:'1.2 แบบสังเกตการสอน', d1_3:'1.3 แบบสังเกตห้องเรียน',
+            d2_1:'2.1 แบบประเมินการมีส่วนร่วม', d2_2:'2.2 บันทึกเชิญวิทยากร', d2_3:'2.3 แบบสัมภาษณ์กรรมการ',
+            d3_1:'3.1 เกณฑ์รูบริค', d3_2:'3.2 One-Page Reflector', d3_3:'3.3 แบบสังเกตพฤติกรรม', d3_4:'3.4 แบบสังเกตพฤติกรรมการทำงาน',
+          };
+          document.getElementById('files-list').innerHTML = fileKeys.map(k =>
+            `<a href="${files[k].url}" target="_blank" class="file-link">📄 ${FILE_LABEL[k]||k}</a>`
+          ).join('');
+        }
+
+        if (row.eval_status === 'draft') {
+          statusBadge.innerHTML = '<span style="color:var(--text-muted);">ยังไม่ได้ส่งผลการประเมิน</span>';
+          submitArea.innerHTML = `<button class="btn btn-primary" style="max-width:300px; margin:0 auto;" onclick="doSubmit()">ส่งผลการประเมิน</button>`;
+        } else if (row.eval_status === 'pending') {
+          statusBadge.innerHTML = '<span style="color:#E65100; font-size:18px;">🕐 รอรับการประเมินจากผู้ประเมิน</span>';
+        } else if (row.eval_status === 'evaluated') {
+          statusBadge.innerHTML = '<span style="color:#1B5E20; font-size:18px;">✅ ได้รับการประเมินเรียบร้อยแล้ว</span>';
+          submitArea.innerHTML = `<a href="eval-result.html?id=${evalId}&view=self" class="btn btn-primary" style="max-width:300px; margin:0 auto; text-decoration:none; display:inline-flex;">ดูผลเปรียบเทียบ →</a>`;
+        }
+      } catch (e) {
+        statusBadge.innerHTML = `<span style="color:var(--text-muted); font-size:13px;">${e.message}</span>`;
+      }
     }
+
+    async function doSubmit() {
+      const btn = document.querySelector('#submit-area button');
+      if (btn) { btn.disabled = true; btn.textContent = 'กำลังส่ง...'; }
+      try {
+        await SupabaseClient.submitEvaluation(evalId);
+        State.clearAll();
+        localStorage.removeItem('sst_eval_id');
+        loadStatus();
+      } catch (e) {
+        if (btn) { btn.disabled = false; btn.textContent = 'ส่งผลการประเมิน'; }
+        alert('เกิดข้อผิดพลาด: ' + e.message);
+      }
+    }
+
+    function goToMyResults() {
+      State.clearAll();
+      localStorage.removeItem('sst_eval_id');
+      window.location.href = 'my-results.html';
+    }
+
+    loadStatus();
   </script>
 </body>
 </html>

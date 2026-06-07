@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>อัปโหลดเอกสาร | SST-EM</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="progress-bar">
+    <div class="progress-steps">
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line done-line"></div>
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line done-line"></div>
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line done-line"></div>
+      <div class="step done"><div class="step-dot">✓</div></div>
+      <div class="step-line done-line"></div>
+      <div class="step active"><div class="step-dot">5</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">6</div></div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <div class="badge">ขั้นตอนที่ 5 จาก 6</div>
+      <h1>อัปโหลดเอกสารประกอบ</h1>
+      <p>แต่ละด้านต้องอัปโหลดอย่างน้อย 1 ไฟล์ · รับไฟล์ PDF / รูปภาพ / Word</p>
+    </div>
+
+    <div id="error-msg" class="error-msg"></div>
+
+    <!-- ด้านที่ 1 -->
+    <div class="upload-section">
+      <div class="upload-section-header upload-d1">ด้านที่ 1 — การจัดการเรียนรู้</div>
+      <div class="upload-items">
+        <div class="upload-item" id="wrap-d1_1">
+          <div class="upload-label">1.1 แบบบันทึกการสะท้อนคิดและการประเมินการจัดการศึกษา</div>
+          <label class="upload-btn-label" for="file-d1_1">เลือกไฟล์</label>
+          <input type="file" id="file-d1_1" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d1_1')" />
+          <span class="upload-filename" id="name-d1_1">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d1_2">
+          <div class="upload-label">1.2 แบบสังเกตการสอน / ร่องรอยใบงานเด็ก</div>
+          <label class="upload-btn-label" for="file-d1_2">เลือกไฟล์</label>
+          <input type="file" id="file-d1_2" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d1_2')" />
+          <span class="upload-filename" id="name-d1_2">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d1_3">
+          <div class="upload-label">1.3 แบบสังเกตห้องเรียน / ภาพถ่ายสื่อ</div>
+          <label class="upload-btn-label" for="file-d1_3">เลือกไฟล์</label>
+          <input type="file" id="file-d1_3" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d1_3')" />
+          <span class="upload-filename" id="name-d1_3">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ด้านที่ 2 -->
+    <div class="upload-section">
+      <div class="upload-section-header upload-d2">ด้านที่ 2 — สถาบันและบริบท</div>
+      <div class="upload-items">
+        <div class="upload-item" id="wrap-d2_1">
+          <div class="upload-label">2.1 แบบประเมินการมีส่วนร่วมสำหรับชุมชน</div>
+          <label class="upload-btn-label" for="file-d2_1">เลือกไฟล์</label>
+          <input type="file" id="file-d2_1" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d2_1')" />
+          <span class="upload-filename" id="name-d2_1">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d2_2">
+          <div class="upload-label">2.2 บันทึกเชิญวิทยากร / ภาพถ่ายกิจกรรม</div>
+          <label class="upload-btn-label" for="file-d2_2">เลือกไฟล์</label>
+          <input type="file" id="file-d2_2" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d2_2')" />
+          <span class="upload-filename" id="name-d2_2">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d2_3">
+          <div class="upload-label">2.3 แบบสัมภาษณ์ตัวแทนกรรมการสถานศึกษา</div>
+          <label class="upload-btn-label" for="file-d2_3">เลือกไฟล์</label>
+          <input type="file" id="file-d2_3" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d2_3')" />
+          <span class="upload-filename" id="name-d2_3">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ด้านที่ 3 -->
+    <div class="upload-section">
+      <div class="upload-section-header upload-d3">ด้านที่ 3 — พฤติกรรมวิชาชีพ</div>
+      <div class="upload-items">
+        <div class="upload-item" id="wrap-d3_1">
+          <div class="upload-label">3.1 เกณฑ์รูบริค (Rubrics) ประเมินภาวะผู้นำทางวิชาการ</div>
+          <label class="upload-btn-label" for="file-d3_1">เลือกไฟล์</label>
+          <input type="file" id="file-d3_1" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d3_1')" />
+          <span class="upload-filename" id="name-d3_1">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d3_2">
+          <div class="upload-label">3.2 แบบบันทึก One-Page Reflector</div>
+          <label class="upload-btn-label" for="file-d3_2">เลือกไฟล์</label>
+          <input type="file" id="file-d3_2" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d3_2')" />
+          <span class="upload-filename" id="name-d3_2">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d3_3">
+          <div class="upload-label">3.3 แบบสังเกตพฤติกรรม / สัมภาษณ์เพื่อนครู</div>
+          <label class="upload-btn-label" for="file-d3_3">เลือกไฟล์</label>
+          <input type="file" id="file-d3_3" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d3_3')" />
+          <span class="upload-filename" id="name-d3_3">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+        <div class="upload-item" id="wrap-d3_4">
+          <div class="upload-label">3.4 แบบสังเกตพฤติกรรมการทำงาน</div>
+          <label class="upload-btn-label" for="file-d3_4">เลือกไฟล์</label>
+          <input type="file" id="file-d3_4" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileChange(this,'d3_4')" />
+          <span class="upload-filename" id="name-d3_4">ยังไม่ได้เลือกไฟล์</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="upload-progress" class="upload-progress-bar" style="display:none;">
+      <div class="upload-progress-text" id="upload-progress-text">กำลังอัปโหลด...</div>
+      <div class="upload-progress-track"><div class="upload-progress-fill" id="upload-fill"></div></div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-next" onclick="doUpload()">ถัดไป: ดูผลการประเมิน →</button>
+  </main>
+
+  <script src="js/state.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/supabase.js"></script>
+  <script>
+    const user = Auth.requireAuth('self');
+    if (!user) throw new Error('not auth');
+
+    const FILE_KEYS = ['d1_1','d1_2','d1_3','d2_1','d2_2','d2_3','d3_1','d3_2','d3_3','d3_4'];
+    const selectedFiles = {};
+
+    function onFileChange(input, key) {
+      const file = input.files[0];
+      const nameEl = document.getElementById(`name-${key}`);
+      const wrap   = document.getElementById(`wrap-${key}`);
+      if (file) {
+        selectedFiles[key] = file;
+        nameEl.textContent = file.name;
+        nameEl.style.color = 'var(--primary)';
+        wrap.classList.add('upload-item-done');
+      } else {
+        delete selectedFiles[key];
+        nameEl.textContent = 'ยังไม่ได้เลือกไฟล์';
+        nameEl.style.color = '';
+        wrap.classList.remove('upload-item-done');
+      }
+    }
+
+    function validate() {
+      const d1 = ['d1_1','d1_2','d1_3'].some(k => selectedFiles[k]);
+      const d2 = ['d2_1','d2_2','d2_3'].some(k => selectedFiles[k]);
+      const d3 = ['d3_1','d3_2','d3_3','d3_4'].some(k => selectedFiles[k]);
+      if (!d1) return 'ด้านที่ 1: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
+      if (!d2) return 'ด้านที่ 2: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
+      if (!d3) return 'ด้านที่ 3: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
+      return null;
+    }
+
+    function setProgress(pct, text) {
+      document.getElementById('upload-progress').style.display = 'block';
+      document.getElementById('upload-progress-text').textContent = text;
+      document.getElementById('upload-fill').style.width = pct + '%';
+    }
+
+    async function doUpload() {
+      const err = document.getElementById('error-msg');
+      err.classList.remove('show');
+
+      const validErr = validate();
+      if (validErr) {
+        err.textContent = validErr;
+        err.classList.add('show');
+        err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      const btn = document.getElementById('btn-next');
+      btn.disabled = true;
+
+      const keys = Object.keys(selectedFiles);
+      const filesJson = {};
+      let done = 0;
+
+      try {
+        for (const key of keys) {
+          const file = selectedFiles[key];
+          const ext  = file.name.split('.').pop();
+          const path = `${user.id}/${Date.now()}_${key}.${ext}`;
+          setProgress(Math.round((done / keys.length) * 90), `กำลังอัปโหลด ${key}...`);
+          const url = await SupabaseClient.uploadFile(file, path);
+          filesJson[key] = { name: file.name, url };
+          done++;
+        }
+
+        setProgress(95, 'กำลังบันทึกข้อมูล...');
+        const evalId = await SupabaseClient.saveEvaluation(filesJson);
+        localStorage.setItem('sst_eval_id', evalId);
+        setProgress(100, 'เสร็จสิ้น!');
+        setTimeout(() => { window.location.href = 'result.html'; }, 500);
+      } catch (e) {
+        err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+        err.classList.add('show');
+        document.getElementById('upload-progress').style.display = 'none';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
