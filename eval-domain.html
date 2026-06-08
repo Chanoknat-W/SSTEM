@@ -61,10 +61,10 @@
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px;" id="summary-domain-scores"></div>
       <div class="summary-total" id="summary-total"></div>
     </div>
-    <div class="form-group">
-      <label for="suggestions">ข้อเสนอแนะ <span style="color:var(--text-muted); font-weight:400;">(ไม่บังคับ)</span></label>
-      <textarea id="suggestions" rows="4" placeholder="ระบุข้อเสนอแนะสำหรับครู..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:14px; font-family:inherit; box-sizing:border-box;"></textarea>
-    </div>
+
+    <!-- Per-domain feedback + suggestion -->
+    <div id="domain-feedback-list"></div>
+
     <div id="save-error" class="error-msg"></div>
     <div class="btn-row">
       <button class="btn btn-secondary" onclick="hideSummary()">← แก้ไขคำตอบ</button>
@@ -216,21 +216,47 @@
     const total = d1 + d2 + d3;
     const level = total >= 60 ? 'ดีมาก' : total >= 46 ? 'ดี' : total >= 31 ? 'พอใช้' : 'ควรปรับปรุง';
 
+    const domainScores = [d1, d2, d3];
+    const domainLabels = ['การจัดการเรียนรู้', 'เครือข่ายและบริบท', 'สมรรถนะและภาวะผู้นำ'];
+    const domainKeys   = ['domain1', 'domain2', 'domain3'];
+
     document.getElementById('summary-domain-scores').innerHTML =
-      [['การจัดการเรียนรู้', d1], ['เครือข่ายและบริบท', d2], ['สมรรถนะและภาวะผู้นำ', d3]]
-        .map(([label, score], i) => `
-          <div class="summary-domain-card">
+      domainLabels.map((label, i) => {
+        const fb = getDomainFeedback(domainKeys[i], domainScores[i]);
+        return `
+          <div class="summary-domain-card" style="border-top:3px solid ${fb.color};">
             <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">ด้านที่ ${i+1}</div>
             <div style="font-size:11px; color:var(--text-muted); margin-bottom:6px;">${label}</div>
-            <div style="font-size:30px; font-weight:800; color:var(--primary-dark);">${score}</div>
-            <div style="font-size:11px; color:var(--text-muted);">/ 24</div>
-          </div>`).join('');
+            <div style="font-size:30px; font-weight:800; color:${fb.color};">${domainScores[i]}</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">/ 24</div>
+            <div style="font-size:11px; font-weight:700; color:${fb.color};">${fb.label}</div>
+          </div>`;
+      }).join('');
 
     document.getElementById('summary-total').innerHTML = `
       <div style="font-size:13px; opacity:.85;">คะแนนรวมทั้งหมด</div>
       <div style="font-size:44px; font-weight:900; line-height:1.1;">${total}</div>
       <div style="font-size:13px; opacity:.85;">/ 72 คะแนน</div>
       <div style="font-size:17px; font-weight:700; margin-top:8px;">ระดับ: ${level}</div>`;
+
+    // Domain feedback + suggestion textarea
+    document.getElementById('domain-feedback-list').innerHTML = domainKeys.map((dk, i) => {
+      const fb = getDomainFeedback(dk, domainScores[i]);
+      return `
+        <div class="card" style="margin-bottom:14px; border-left:4px solid ${fb.color};">
+          <div style="font-size:14px; font-weight:700; color:${fb.color}; margin-bottom:6px;">
+            ด้านที่ ${i+1} — ${domainLabels[i]}
+          </div>
+          <div style="background:${fb.bg}; border-radius:6px; padding:10px 12px; font-size:13px; color:#333; margin-bottom:12px;">
+            💡 ${fb.text}
+          </div>
+          <label style="font-size:13px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">
+            คำแนะนำเพิ่มเติมจากผู้ประเมิน <span style="font-weight:400;">(ไม่บังคับ)</span>
+          </label>
+          <textarea id="suggest-d${i+1}" rows="2" placeholder="ระบุคำแนะนำสำหรับด้านที่ ${i+1}..."
+            style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-family:inherit; box-sizing:border-box; resize:vertical;"></textarea>
+        </div>`;
+    }).join('');
 
     ['domain1','domain2','domain3'].forEach(d => {
       document.getElementById('panel-' + d).style.display = 'none';
@@ -252,7 +278,11 @@
     btn.textContent = 'กำลังบันทึก...';
     err.classList.remove('show');
     try {
-      const suggestions = document.getElementById('suggestions').value.trim();
+      const suggestions = {
+        d1: document.getElementById('suggest-d1')?.value.trim() || '',
+        d2: document.getElementById('suggest-d2')?.value.trim() || '',
+        d3: document.getElementById('suggest-d3')?.value.trim() || '',
+      };
       await SupabaseClient.saveEvalScore(evalId, answers, suggestions);
       ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3','sst_eval_target_id'].forEach(k => localStorage.removeItem(k));
       window.location.href = 'eval-result.html?id=' + evalId;
@@ -262,6 +292,31 @@
       btn.disabled = false;
       btn.textContent = 'บันทึกผลการประเมิน';
     }
+  }
+
+  const DOMAIN_FEEDBACK = {
+    domain1: [
+      { min:20, label:'ดีมาก',       color:'#1B5E20', bg:'#E8F5E9', text:'ครูแสดงทักษะการจัดการเรียนรู้แบบบูรณาการสำหรับชั้นเรียนหลายระดับในระดับสูง ขอแนะนำให้แบ่งปันแนวทางเป็นแบบอย่างแก่เพื่อนครู' },
+      { min:15, label:'ดี',          color:'#2E7D32', bg:'#F1F8E9', text:'ครูมีทักษะการจัดการเรียนรู้ดี ปรับกิจกรรมได้เหมาะสม ควรพัฒนาการออกแบบกิจกรรมบูรณาการทุกชั้นเรียนให้มากขึ้น' },
+      { min:10, label:'พอใช้',       color:'#F57F17', bg:'#FFF8E1', text:'ครูมีพื้นฐานการจัดการเรียนรู้ แต่ยังมีโอกาสพัฒนาการนำบริบทท้องถิ่นและการวางแผนบูรณาการ แนะนำให้ศึกษาเทคนิค Multi-grade Teaching เพิ่มเติม' },
+      { min: 0, label:'ควรปรับปรุง', color:'#B71C1C', bg:'#FFEBEE', text:'ครูควรได้รับการพัฒนาทักษะการจัดการเรียนรู้ในชั้นเรียนขนาดเล็กอย่างเป็นระบบ แนะนำให้เข้าร่วมการอบรมและศึกษาดูงานโรงเรียนที่มีบริบทคล้ายกัน' },
+    ],
+    domain2: [
+      { min:20, label:'ดีมาก',       color:'#1B5E20', bg:'#E8F5E9', text:'ครูสร้างความสัมพันธ์กับชุมชนและเครือข่ายได้ดีเยี่ยม ควรขยายเครือข่ายไปยังโรงเรียนใกล้เคียงและหน่วยงานในพื้นที่เพิ่มเติม' },
+      { min:15, label:'ดี',          color:'#2E7D32', bg:'#F1F8E9', text:'ครูมีการสื่อสารกับชุมชนและผู้ปกครองดี ควรเพิ่มความถี่ในการเชิญภูมิปัญญาท้องถิ่นมาร่วมกิจกรรมการเรียนรู้' },
+      { min:10, label:'พอใช้',       color:'#F57F17', bg:'#FFF8E1', text:'ครูเริ่มสร้างความสัมพันธ์กับชุมชนแต่ยังจำกัด ควรกำหนดแผนการมีส่วนร่วมชุมชนอย่างชัดเจนในแต่ละภาคเรียน' },
+      { min: 0, label:'ควรปรับปรุง', color:'#B71C1C', bg:'#FFEBEE', text:'ครูควรเริ่มสร้างความสัมพันธ์กับชุมชนและผู้ปกครองอย่างเป็นระบบ แนะนำให้จัดประชุมผู้ปกครองและหาทางดึงทรัพยากรชุมชนมาใช้ในการเรียนรู้' },
+    ],
+    domain3: [
+      { min:20, label:'ดีมาก',       color:'#1B5E20', bg:'#E8F5E9', text:'ครูแสดงภาวะผู้นำทางวิชาชีพระดับสูง มีการสะท้อนคิดและพัฒนาตนเองต่อเนื่อง เหมาะที่จะเป็นที่ปรึกษาหรือผู้นำ PLC' },
+      { min:15, label:'ดี',          color:'#2E7D32', bg:'#F1F8E9', text:'ครูมีสมรรถนะวิชาชีพและทัศนคติที่ดี ควรเพิ่มบทบาทในวง PLC และแบ่งปันนวัตกรรมกับเพื่อนครูมากขึ้น' },
+      { min:10, label:'พอใช้',       color:'#F57F17', bg:'#FFF8E1', text:'ครูมีพื้นฐานสมรรถนะวิชาชีพ แต่ยังมีพื้นที่ในการพัฒนา ควรเข้าร่วม PLC อย่างสม่ำเสมอและแสวงหาความรู้ด้วยตนเอง' },
+      { min: 0, label:'ควรปรับปรุง', color:'#B71C1C', bg:'#FFEBEE', text:'ครูควรพัฒนาสมรรถนะวิชาชีพและทักษะการสะท้อนคิด แนะนำให้เข้ารับการอบรม เข้าร่วม PLC และศึกษาแนวทางรับมือกับความท้าทายในโรงเรียนขนาดเล็ก' },
+    ],
+  };
+
+  function getDomainFeedback(dk, score) {
+    return DOMAIN_FEEDBACK[dk].find(f => score >= f.min);
   }
 
   const FILE_LABEL = {
