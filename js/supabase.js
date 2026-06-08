@@ -1,4 +1,20 @@
 const SupabaseClient = {
+  async _fetch(url, options) {
+    let res = await fetch(url, options);
+    if (res.status === 401 || res.status === 403) {
+      const text = await res.text();
+      if (text.includes('expired') || text.includes('JWT')) {
+        const ok = await Auth.refreshToken();
+        if (ok) {
+          const newOpts = { ...options, headers: { ...options.headers, Authorization: `Bearer ${Auth.getToken()}` } };
+          return fetch(url, newOpts);
+        }
+      }
+      return new Response(text, { status: res.status, statusText: res.statusText });
+    }
+    return res;
+  },
+
   _headers(token) {
     return {
       'Content-Type': 'application/json',
@@ -9,7 +25,7 @@ const SupabaseClient = {
 
   // Generic PATCH for an evaluation record
   async updateEvaluation(evalId, data) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
+    const res = await this._fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
       method: 'PATCH',
       headers: { ...this._headers(), Prefer: 'return=minimal' },
       body: JSON.stringify(data),
@@ -53,7 +69,7 @@ const SupabaseClient = {
       eval_status:     status,
     };
 
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/evaluations`, {
+    const res = await this._fetch(`${SUPABASE_URL}/rest/v1/evaluations`, {
       method: 'POST',
       headers: { ...this._headers(token), Prefer: 'return=representation' },
       body: JSON.stringify(payload),
@@ -65,7 +81,7 @@ const SupabaseClient = {
 
   // Update evaluation status: draft → pending
   async submitEvaluation(evalId) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
+    const res = await this._fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
       method: 'PATCH',
       headers: { ...this._headers(), Prefer: 'return=minimal' },
       body: JSON.stringify({ eval_status: 'pending' }),
@@ -76,7 +92,7 @@ const SupabaseClient = {
   // Get teacher's own evaluations
   async getMyEvaluations() {
     const user = Auth.getUser();
-    const res  = await fetch(
+    const res  = await this._fetch(
       `${SUPABASE_URL}/rest/v1/evaluations?user_id=eq.${user.id}&order=created_at.desc&select=*`,
       { headers: this._headers() }
     );
@@ -86,7 +102,7 @@ const SupabaseClient = {
 
   // Get a single evaluation by id
   async getEvaluation(evalId) {
-    const res = await fetch(
+    const res = await this._fetch(
       `${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}&select=*`,
       { headers: this._headers() }
     );
@@ -102,7 +118,7 @@ const SupabaseClient = {
       const q = encodeURIComponent(`%${search}%`);
       url += `&or=(teacher_name.ilike.${q},school.ilike.${q})`;
     }
-    const res = await fetch(url, { headers: this._headers() });
+    const res = await this._fetch(url, { headers: this._headers() });
     if (!res.ok) throw new Error(await res.text());
     return res.json();
   },
@@ -113,7 +129,7 @@ const SupabaseClient = {
     const d1   = Object.values(scores.domain1||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
     const d2   = Object.values(scores.domain2||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
     const d3   = Object.values(scores.domain3||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
-    const res  = await fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
+    const res  = await this._fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
       method: 'PATCH',
       headers: { ...this._headers(), Prefer: 'return=minimal' },
       body: JSON.stringify({

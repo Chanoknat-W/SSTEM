@@ -101,6 +101,23 @@ const Auth = {
 
   getToken() { return localStorage.getItem('sst_token') || ''; },
 
+  async refreshToken() {
+    const refreshTok = localStorage.getItem('sst_refresh_token');
+    if (!refreshTok) return false;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+        body: JSON.stringify({ refresh_token: refreshTok }),
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      localStorage.setItem('sst_token', data.access_token);
+      if (data.refresh_token) localStorage.setItem('sst_refresh_token', data.refresh_token);
+      return true;
+    } catch { return false; }
+  },
+
   // Just checks login — no role restriction
   requireAuth() {
     const user  = this.getUser();
