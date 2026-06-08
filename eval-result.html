@@ -136,40 +136,41 @@
         },
       });
 
-      // Suggestions
+      // Suggestions — read-only always
       const suggestArea = document.getElementById('suggestions-area');
-      const alreadySaved = row.eval_status === 'evaluated' && !localStorage.getItem('sst_eval_domain1');
-
-      if (viewMode === 'self' || alreadySaved) {
-        // Read-only suggestions
-        const s = suggestions || {};
-        const hasAny = s.d1 || s.d2 || s.d3;
-        if (hasAny) {
+      const s = row.eval_suggestions;
+      if (s) {
+        const text = typeof s === 'string' ? s : (s.d1 || s.d2 || s.d3 ? [s.d1,s.d2,s.d3].filter(Boolean).join('\n') : '');
+        if (text) {
           suggestArea.innerHTML = `
             <div class="card">
               <h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-bottom:12px;">ข้อเสนอแนะจากผู้ประเมิน</h3>
-              ${DOMAIN_NAMES.map((d,i) => {
-                const k = ['d1','d2','d3'][i];
-                return s[k] ? `<div style="margin-bottom:12px;">
-                  <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:4px;">ด้านที่ ${i+1} ${d}</div>
-                  <div style="background:var(--primary-light);border-radius:6px;padding:8px 12px;font-size:14px;">${s[k]}</div>
-                </div>` : '';
-              }).join('')}
+              <div style="background:var(--primary-light);border-radius:8px;padding:12px 16px;font-size:14px;white-space:pre-wrap;">${text}</div>
             </div>`;
         }
-      } else {
-        // Editable suggestions
-        suggestArea.innerHTML = `
-          <div class="card">
-            <h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-bottom:12px;">บันทึกข้อเสนอแนะ</h3>
-            ${DOMAIN_NAMES.map((d,i) => `
-              <div class="form-group">
-                <label>ด้านที่ ${i+1} — ${d}</label>
-                <textarea id="suggest-${['d1','d2','d3'][i]}" rows="2"
-                  placeholder="ข้อเสนอแนะสำหรับด้านที่ ${i+1}...">${(suggestions||{})[['d1','d2','d3'][i]]||''}</textarea>
-              </div>`).join('')}
-          </div>`;
       }
+
+      // Criteria table
+      const criteriaHtml = `
+        <div class="card" style="margin-bottom:20px;">
+          <h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-bottom:12px;">เกณฑ์การประเมิน</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            <thead>
+              <tr style="background:var(--primary-light);">
+                <th style="padding:8px 12px;text-align:left;border-radius:6px 0 0 0;">ระดับ</th>
+                <th style="padding:8px 12px;text-align:center;">คะแนนรวม</th>
+                <th style="padding:8px 12px;text-align:center;border-radius:0 6px 0 0;">ร้อยละ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);">ดีมาก</td><td style="padding:8px 12px;text-align:center;border-bottom:1px solid var(--border);">60–72</td><td style="padding:8px 12px;text-align:center;border-bottom:1px solid var(--border);">≥ 83%</td></tr>
+              <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);">ดี</td><td style="padding:8px 12px;text-align:center;border-bottom:1px solid var(--border);">46–59</td><td style="padding:8px 12px;text-align:center;border-bottom:1px solid var(--border);">64–82%</td></tr>
+              <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);">พอใช้</td><td style="padding:8px 12px;text-align:center;border-bottom:1px solid var(--border);">31–45</td><td style="padding:8px 12px;text-align:center;border-bottom:1px solid var(--border);">43–62%</td></tr>
+              <tr><td style="padding:8px 12px;">ควรปรับปรุง</td><td style="padding:8px 12px;text-align:center;">0–30</td><td style="padding:8px 12px;text-align:center;">≤ 42%</td></tr>
+            </tbody>
+          </table>
+        </div>`;
+      document.getElementById('suggestions-area').insertAdjacentHTML('afterend', criteriaHtml);
 
       // Action buttons
       const btnArea = document.getElementById('action-btns');
@@ -177,53 +178,14 @@
         btnArea.innerHTML = `
           <button class="btn btn-secondary" onclick="window.location.href='my-results.html'" style="flex:1;">← กลับ</button>
           <button class="btn btn-print" onclick="window.print()" style="flex:1;">🖨️ พิมพ์</button>`;
-      } else if (alreadySaved) {
+      } else {
         btnArea.innerHTML = `
           <button class="btn btn-secondary" onclick="window.location.href='eval-search.html'" style="flex:1;">← กลับรายชื่อ</button>
           <button class="btn btn-print" onclick="window.print()" style="flex:1;">🖨️ พิมพ์</button>`;
-      } else {
-        btnArea.innerHTML = `
-          <button class="btn btn-secondary" onclick="window.location.href='eval-domain3.html'" style="flex:1;">← แก้ไขคำตอบ</button>
-          <button class="btn btn-primary" id="btn-save" onclick="doSave()" style="flex:1;">บันทึกผลการประเมิน</button>`;
       }
 
     } catch (e) {
       document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
-    }
-  }
-
-  async function doSave() {
-    const btn = document.getElementById('btn-save');
-    btn.disabled = true;
-    btn.textContent = 'กำลังบันทึก...';
-    try {
-      const d1Ans = JSON.parse(localStorage.getItem('sst_eval_domain1') || '{}');
-      const d2Ans = JSON.parse(localStorage.getItem('sst_eval_domain2') || '{}');
-      const d3Ans = JSON.parse(localStorage.getItem('sst_eval_domain3') || '{}');
-      const suggestions = {
-        d1: document.getElementById('suggest-d1')?.value.trim() || '',
-        d2: document.getElementById('suggest-d2')?.value.trim() || '',
-        d3: document.getElementById('suggest-d3')?.value.trim() || '',
-      };
-      const scores = { domain1: d1Ans, domain2: d2Ans, domain3: d3Ans };
-
-      await SupabaseClient.saveEvalScore(evalId, scores, suggestions);
-
-      // Clear eval localStorage
-      ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3',
-       'sst_eval_target_id','sst_eval_suggestions'].forEach(k => localStorage.removeItem(k));
-
-      const btnArea = document.getElementById('action-btns');
-      btnArea.innerHTML = `
-        <div style="text-align:center;padding:16px;background:var(--primary-light);
-          border-radius:10px;color:var(--primary-dark);font-weight:700;font-size:16px;flex:1;">
-          ✅ บันทึกผลการประเมินเรียบร้อยแล้ว
-        </div>`;
-      setTimeout(() => { window.location.href = 'eval-search.html'; }, 2000);
-    } catch (e) {
-      btn.disabled = false;
-      btn.textContent = 'บันทึกผลการประเมิน';
-      alert('เกิดข้อผิดพลาด: ' + e.message);
     }
   }
 
