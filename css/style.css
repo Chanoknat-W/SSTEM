@@ -2,9 +2,9 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --primary: #7ca3d5;
-  --primary-dark: #4a7ab5;
-  --primary-light: #eaf1fb;
+  --primary: #3a72b8;
+  --primary-dark: #1e4d8c;
+  --primary-light: #deeaf9;
   --accent: #F57F17;
   --accent-light: #FFF8E1;
   --text: #212121;
