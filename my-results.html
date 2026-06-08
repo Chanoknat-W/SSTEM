@@ -64,6 +64,8 @@
             <div>
               <div style="font-size:16px; font-weight:700; color:var(--primary-dark);">${row.teacher_name || '-'}</div>
               <div style="font-size:13px; color:var(--text-muted);">${row.school || ''} ${row.grade ? '· ' + row.grade : ''} · ${row.semester || ''}</div>
+              ${row.submitted_at ? `<div style="font-size:12px; color:var(--text-muted);">📤 ส่งเมื่อ ${new Date(row.submitted_at).toLocaleString('th-TH')}</div>` : ''}
+              ${row.evaluated_at ? `<div style="font-size:12px; color:var(--text-muted);">✅ ประเมินเมื่อ ${new Date(row.evaluated_at).toLocaleString('th-TH')}</div>` : ''}
             </div>
             <span style="padding:4px 12px; border-radius:20px; font-size:13px; font-weight:700;
               background:${st.bg}; color:${st.color};">${st.text}</span>

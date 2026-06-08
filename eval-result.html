@@ -116,6 +116,8 @@
         <div class="result-header" style="margin-bottom:20px;">
           <h2>${row.teacher_name || '-'}</h2>
           <div class="school-info">${row.school || ''} · ${row.grade || ''} · ${row.semester || ''}</div>
+          ${row.submitted_at ? `<div style="font-size:13px; color:var(--text-muted); margin-top:4px;">📤 ส่งเมื่อ ${new Date(row.submitted_at).toLocaleString('th-TH')}</div>` : ''}
+          ${row.evaluated_at ? `<div style="font-size:13px; color:var(--text-muted);">✅ ประเมินเมื่อ ${new Date(row.evaluated_at).toLocaleString('th-TH')}</div>` : ''}
           <div class="level-badge" style="background:${totalLv.bg}; color:${totalLv.color}; border:2px solid ${totalLv.color}; margin-top:12px;">${totalLv.label}</div>
           <div><span class="total-score" style="font-size:40px; font-weight:800;">${total}</span><span class="score-max"> / 72 คะแนน</span></div>
         </div>

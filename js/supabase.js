@@ -25,10 +25,12 @@ const SupabaseClient = {
 
   // Generic PATCH for an evaluation record
   async updateEvaluation(evalId, data) {
+    const patch = { ...data };
+    if (patch.eval_status === 'pending') patch.submitted_at = new Date().toISOString();
     const res = await this._fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
       method: 'PATCH',
       headers: { ...this._headers(), Prefer: 'return=minimal' },
-      body: JSON.stringify(data),
+      body: JSON.stringify(patch),
     });
     if (!res.ok) throw new Error(await res.text());
   },
@@ -67,6 +69,7 @@ const SupabaseClient = {
       level:           levelMap(total),
       files:           filesJson || {},
       eval_status:     status,
+      ...(status === 'pending' ? { submitted_at: new Date().toISOString() } : {}),
     };
 
     const res = await this._fetch(`${SUPABASE_URL}/rest/v1/evaluations`, {
@@ -138,6 +141,7 @@ const SupabaseClient = {
         eval_by:          user?.id,
         eval_by_name:     user?.display_name,
         eval_status:      'evaluated',
+        evaluated_at:     new Date().toISOString(),
         domain1_total:    d1,
         domain2_total:    d2,
         domain3_total:    d3,
