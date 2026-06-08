@@ -2,9 +2,9 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --primary: #2E7D32;
-  --primary-dark: #1B5E20;
-  --primary-light: #E8F5E9;
+  --primary: #7ca3d5;
+  --primary-dark: #4a7ab5;
+  --primary-light: #eaf1fb;
   --accent: #F57F17;
   --accent-light: #FFF8E1;
   --text: #212121;
@@ -17,7 +17,7 @@
 
 body {
   font-family: 'Sarabun', 'Leelawadee UI', 'Noto Sans Thai', 'Thonburi', sans-serif;
-  background: #F5F7F5;
+  background: #f0f4fa;
   color: var(--text);
   min-height: 100vh;
   font-size: 16px;
