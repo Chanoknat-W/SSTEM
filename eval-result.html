@@ -225,10 +225,12 @@
       const btnArea = document.getElementById('action-btns');
       if (viewMode === 'self') {
         btnArea.innerHTML = `
+          <button class="btn btn-secondary" onclick="window.location.href='home.html'">🏠 หน้าหลัก</button>
           <button class="btn btn-secondary" onclick="window.location.href='my-results.html'" style="flex:1;">← กลับ</button>
           <button class="btn btn-print" onclick="window.print()" style="flex:1;">🖨️ พิมพ์</button>`;
       } else {
         btnArea.innerHTML = `
+          <button class="btn btn-secondary" onclick="window.location.href='home.html'">🏠 หน้าหลัก</button>
           <button class="btn btn-secondary" onclick="window.location.href='eval-search.html'" style="flex:1;">← กลับรายชื่อ</button>
           <button class="btn btn-print" onclick="window.print()" style="flex:1;">🖨️ พิมพ์</button>`;
       }
