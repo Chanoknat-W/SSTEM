@@ -57,6 +57,7 @@
   <!-- Bottom actions -->
   <div id="bottom-actions" class="btn-row" style="margin-top:8px;">
     <button class="btn btn-secondary" id="btn-back">← กลับ</button>
+    <button class="btn btn-secondary" id="btn-next">ถัดไป →</button>
     <button class="btn btn-primary" id="btn-summary" onclick="showSummary()" style="display:none;">สรุปคะแนน →</button>
   </div>
 
@@ -156,15 +157,38 @@
     document.getElementById('btn-summary').style.display = allDone ? '' : 'none';
   }
 
+  const TAB_ORDER = ['domain1','domain2','domain3'];
   let currentTab = 'domain1';
+
   function switchTab(dk) {
-    ['domain1','domain2','domain3'].forEach(d => {
+    TAB_ORDER.forEach(d => {
       document.getElementById('panel-' + d).style.display = d === dk ? 'block' : 'none';
       document.getElementById('tab-btn-' + d).classList.toggle('active', d === dk);
     });
     document.getElementById('panel-summary').style.display = 'none';
     document.getElementById('bottom-actions').style.display = '';
     currentTab = dk;
+    updateNavButtons();
+  }
+
+  function updateNavButtons() {
+    const idx = TAB_ORDER.indexOf(currentTab);
+    const btnBack = document.getElementById('btn-back');
+    const btnNext = document.getElementById('btn-next');
+    if (idx === 0) {
+      btnBack.textContent = '← กลับ';
+      btnBack.onclick = () => { window.location.href = 'eval-score.html?id=' + evalId; };
+    } else {
+      btnBack.textContent = '← ด้านที่ ' + idx;
+      btnBack.onclick = () => switchTab(TAB_ORDER[idx - 1]);
+    }
+    if (idx < TAB_ORDER.length - 1) {
+      btnNext.style.display = '';
+      btnNext.textContent = 'ด้านที่ ' + (idx + 2) + ' →';
+      btnNext.onclick = () => switchTab(TAB_ORDER[idx + 1]);
+    } else {
+      btnNext.style.display = 'none';
+    }
   }
 
   function showSummary() {
@@ -224,6 +248,7 @@
 
   updateTabStatus();
   checkAllAnswered();
+  updateNavButtons();
 </script>
 </body>
 </html>
