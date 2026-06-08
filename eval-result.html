@@ -169,26 +169,34 @@
       const domainKeys   = ['domain1','domain2','domain3'];
       const suggestKeys  = ['d1','d2','d3'];
 
-      suggestArea.innerHTML = `
+      // Auto feedback section
+      const autoFeedbackHtml = `
         <h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-bottom:12px;">ผลการประเมินรายด้าน</h3>
         ${domainKeys.map((dk, i) => {
           const fb = getDomainFeedback(dk, domainScores[i]);
-          const evalNote = isObj ? s[suggestKeys[i]] : (i === 0 ? s : '');
           return `
             <div style="border:1px solid var(--border); border-left:4px solid ${fb.color}; border-radius:8px; padding:14px; margin-bottom:12px;">
               <div style="font-size:13px; font-weight:700; color:${fb.color}; margin-bottom:8px;">
                 ด้านที่ ${i+1} — ${DOMAIN_NAMES[i]}
                 <span style="float:right; font-size:12px; background:${fb.bg}; color:${fb.color}; padding:2px 8px; border-radius:10px;">${fb.label}</span>
               </div>
-              <div style="background:${fb.bg}; border-radius:6px; padding:8px 12px; font-size:13px; color:#333; margin-bottom:${evalNote ? '10px' : '0'};">
+              <div style="background:${fb.bg}; border-radius:6px; padding:8px 12px; font-size:13px; color:#333;">
                 💡 ${fb.text}
               </div>
-              ${evalNote ? `
-                <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px; margin-top:10px;">คำแนะนำจากผู้ประเมิน</div>
-                <div style="background:var(--primary-light); border-radius:6px; padding:8px 12px; font-size:13px;">${evalNote}</div>
-              ` : ''}
             </div>`;
         }).join('')}`;
+
+      // Evaluator suggestions section
+      const evalNotes = suggestKeys.map((k, i) => ({ i, text: isObj ? s[k] : (i === 0 ? s : '') })).filter(n => n.text);
+      const evalSuggestHtml = evalNotes.length ? `
+        <h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-top:20px;margin-bottom:12px;">คำแนะนำจากผู้ประเมิน</h3>
+        ${evalNotes.map(({ i, text }) => `
+          <div style="margin-bottom:10px;">
+            <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:4px;">ด้านที่ ${i+1} — ${DOMAIN_NAMES[i]}</div>
+            <div style="background:var(--primary-light);border-radius:6px;padding:8px 12px;font-size:14px;">${text}</div>
+          </div>`).join('')}` : '';
+
+      suggestArea.innerHTML = autoFeedbackHtml + evalSuggestHtml;
 
       // Criteria table
       const criteriaHtml = `
