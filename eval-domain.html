@@ -239,24 +239,27 @@
       <div style="font-size:13px; opacity:.85;">/ 72 คะแนน</div>
       <div style="font-size:17px; font-weight:700; margin-top:8px;">ระดับ: ${level}</div>`;
 
-    // Domain feedback + suggestion textarea
-    document.getElementById('domain-feedback-list').innerHTML = domainKeys.map((dk, i) => {
-      const fb = getDomainFeedback(dk, domainScores[i]);
-      return `
-        <div class="card" style="margin-bottom:14px; border-left:4px solid ${fb.color};">
-          <div style="font-size:14px; font-weight:700; color:${fb.color}; margin-bottom:6px;">
-            ด้านที่ ${i+1} — ${domainLabels[i]}
-          </div>
-          <div style="background:${fb.bg}; border-radius:6px; padding:10px 12px; font-size:13px; color:#333; margin-bottom:12px;">
-            💡 ${fb.text}
-          </div>
-          <label style="font-size:13px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">
-            คำแนะนำเพิ่มเติมจากผู้ประเมิน <span style="font-weight:400;">(ไม่บังคับ)</span>
-          </label>
-          <textarea id="suggest-d${i+1}" rows="2" placeholder="ระบุคำแนะนำสำหรับด้านที่ ${i+1}..."
-            style="width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-family:inherit; box-sizing:border-box; resize:vertical;"></textarea>
-        </div>`;
-    }).join('');
+    // Domain feedback (auto)
+    document.getElementById('domain-feedback-list').innerHTML =
+      domainKeys.map((dk, i) => {
+        const fb = getDomainFeedback(dk, domainScores[i]);
+        return `
+          <div class="card" style="margin-bottom:12px; border-left:4px solid ${fb.color};">
+            <div style="font-size:14px; font-weight:700; color:${fb.color}; margin-bottom:6px;">
+              ด้านที่ ${i+1} — ${domainLabels[i]}
+            </div>
+            <div style="background:${fb.bg}; border-radius:6px; padding:10px 12px; font-size:13px; color:#333;">
+              💡 ${fb.text}
+            </div>
+          </div>`;
+      }).join('') + `
+      <div class="card" style="margin-bottom:14px;">
+        <label style="font-size:14px; font-weight:700; color:var(--primary-dark); display:block; margin-bottom:8px;">
+          คำแนะนำเพิ่มเติมจากผู้ประเมิน <span style="font-size:13px; font-weight:400; color:var(--text-muted);">(ไม่บังคับ)</span>
+        </label>
+        <textarea id="suggestions" rows="4" placeholder="ระบุคำแนะนำเพิ่มเติมสำหรับครู..."
+          style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:14px; font-family:inherit; box-sizing:border-box; resize:vertical;"></textarea>
+      </div>`;
 
     ['domain1','domain2','domain3'].forEach(d => {
       document.getElementById('panel-' + d).style.display = 'none';
@@ -278,11 +281,7 @@
     btn.textContent = 'กำลังบันทึก...';
     err.classList.remove('show');
     try {
-      const suggestions = {
-        d1: document.getElementById('suggest-d1')?.value.trim() || '',
-        d2: document.getElementById('suggest-d2')?.value.trim() || '',
-        d3: document.getElementById('suggest-d3')?.value.trim() || '',
-      };
+      const suggestions = document.getElementById('suggestions')?.value.trim() || '';
       await SupabaseClient.saveEvalScore(evalId, answers, suggestions);
       ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3','sst_eval_target_id'].forEach(k => localStorage.removeItem(k));
       window.location.href = 'eval-result.html?id=' + evalId;

@@ -186,15 +186,11 @@
             </div>`;
         }).join('')}`;
 
-      // Evaluator suggestions section
-      const evalNotes = suggestKeys.map((k, i) => ({ i, text: isObj ? s[k] : (i === 0 ? s : '') })).filter(n => n.text);
-      const evalSuggestHtml = evalNotes.length ? `
+      // Evaluator suggestions section (single block)
+      const evalText = typeof s === 'string' ? s : (isObj ? [s.d1,s.d2,s.d3].filter(Boolean).join('\n') : '');
+      const evalSuggestHtml = evalText ? `
         <h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-top:20px;margin-bottom:12px;">คำแนะนำจากผู้ประเมิน</h3>
-        ${evalNotes.map(({ i, text }) => `
-          <div style="margin-bottom:10px;">
-            <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:4px;">ด้านที่ ${i+1} — ${DOMAIN_NAMES[i]}</div>
-            <div style="background:var(--primary-light);border-radius:6px;padding:8px 12px;font-size:14px;">${text}</div>
-          </div>`).join('')}` : '';
+        <div style="background:var(--primary-light);border-radius:8px;padding:12px 16px;font-size:14px;white-space:pre-wrap;">${evalText}</div>` : '';
 
       suggestArea.innerHTML = autoFeedbackHtml + evalSuggestHtml;
 
