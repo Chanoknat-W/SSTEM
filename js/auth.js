@@ -59,15 +59,15 @@ const Auth = {
   async updateProfile(profileData) {
     const user  = this.getUser();
     const token = this.getToken();
-    const res   = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}`, {
-      method: 'PATCH',
+    const res   = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${token}`,
-        Prefer: 'return=minimal',
+        Prefer: 'resolution=merge-duplicates,return=minimal',
       },
-      body: JSON.stringify(profileData),
+      body: JSON.stringify({ id: user.id, ...profileData }),
     });
     if (!res.ok) throw new Error(await res.text());
     const updated = { ...user, ...profileData };
