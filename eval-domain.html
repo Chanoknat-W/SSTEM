@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ประเมินครู | SST-EM</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .domain-tabs { display:flex; border-bottom:2px solid var(--border); margin-bottom:20px; }
+    .domain-tab { flex:1; padding:12px 4px; background:none; border:none; border-bottom:3px solid transparent; margin-bottom:-2px; font-size:13px; font-weight:600; color:var(--text-muted); cursor:pointer; transition:.2s; }
+    .domain-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+    .domain-tab.done { color:var(--primary-dark); }
+    .domain-tab.done::after { content:' ✓'; }
+    .summary-domain-card { text-align:center; background:var(--primary-light); border-radius:10px; padding:14px 8px; }
+    .summary-total { text-align:center; padding:20px; background:var(--primary); border-radius:12px; color:#fff; margin-bottom:16px; }
+  </style>
+</head>
+<body>
+<main class="page">
+
+  <div class="page-header">
+    <div class="badge">ผู้ประเมิน</div>
+    <h1>ตอบคำถามประเมิน</h1>
+    <p>สามารถสลับด้านได้อิสระ เมื่อตอบครบ 3 ด้านจะปรากฏปุ่มสรุปคะแนน</p>
+  </div>
+
+  <!-- Tab buttons -->
+  <div class="domain-tabs">
+    <button class="domain-tab active" id="tab-btn-domain1" onclick="switchTab('domain1')">ด้านที่ 1</button>
+    <button class="domain-tab" id="tab-btn-domain2" onclick="switchTab('domain2')">ด้านที่ 2</button>
+    <button class="domain-tab" id="tab-btn-domain3" onclick="switchTab('domain3')">ด้านที่ 3</button>
+  </div>
+
+  <!-- Domain panels -->
+  <div id="panel-domain1"></div>
+  <div id="panel-domain2" style="display:none;"></div>
+  <div id="panel-domain3" style="display:none;"></div>
+
+  <!-- Summary panel -->
+  <div id="panel-summary" style="display:none;">
+    <div class="card" style="margin-bottom:16px;">
+      <h2 style="font-size:18px; font-weight:700; color:var(--primary-dark); margin-bottom:16px;">สรุปคะแนนการประเมิน</h2>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px;" id="summary-domain-scores"></div>
+      <div class="summary-total" id="summary-total"></div>
+    </div>
+    <div class="form-group">
+      <label for="suggestions">ข้อเสนอแนะ <span style="color:var(--text-muted); font-weight:400;">(ไม่บังคับ)</span></label>
+      <textarea id="suggestions" rows="4" placeholder="ระบุข้อเสนอแนะสำหรับครู..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:14px; font-family:inherit; box-sizing:border-box;"></textarea>
+    </div>
+    <div id="save-error" class="error-msg"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="hideSummary()">← แก้ไขคำตอบ</button>
+      <button class="btn btn-primary" id="btn-save" onclick="saveResult()">บันทึกผลการประเมิน</button>
+    </div>
+  </div>
+
+  <!-- Bottom actions -->
+  <div id="bottom-actions" class="btn-row" style="margin-top:8px;">
+    <button class="btn btn-secondary" id="btn-back">← กลับ</button>
+    <button class="btn btn-primary" id="btn-summary" onclick="showSummary()" style="display:none;">สรุปคะแนน →</button>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> &nbsp;·&nbsp; มหาวิทยาลัยกาฬสินธุ์
+</footer>
+
+<script src="js/questions.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/supabase.js"></script>
+<script>
+  Auth.requireAuth();
+
+  const evalId = localStorage.getItem('sst_eval_target_id');
+  if (!evalId) window.location.href = 'eval-search.html';
+
+  document.getElementById('btn-back').onclick = () => {
+    window.location.href = 'eval-score.html?id=' + evalId;
+  };
+
+  // answers[domain][qid] = score
+  const answers = { domain1: {}, domain2: {}, domain3: {} };
+  ['domain1','domain2','domain3'].forEach(dk => {
+    try { answers[dk] = JSON.parse(localStorage.getItem('sst_eval_' + dk) || '{}'); } catch {}
+  });
+
+  // Render questions for each domain
+  ['domain1','domain2','domain3'].forEach(dk => {
+    const domain    = QUESTIONS[dk];
+    const panel     = document.getElementById('panel-' + dk);
+    const saved     = answers[dk];
+
+    const header = document.createElement('div');
+    header.innerHTML = `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:16px; font-weight:700; color:var(--primary-dark);">${domain.title}</div>
+        <div style="font-size:13px; color:var(--text-muted);">${domain.subtitle}</div>
+      </div>
+      <div id="err-${dk}" class="error-msg">⚠️ กรุณาตอบทุกข้อ</div>`;
+    panel.appendChild(header);
+
+    const container = document.createElement('div');
+    container.id = 'questions-' + dk;
+
+    domain.questions.forEach((q, i) => {
+      const choicesHtml = q.choices.map(c => `
+        <label class="choice ${saved[q.id] == c.score ? 'selected' : ''}"
+          data-qid="${q.id}" data-score="${c.score}" data-domain="${dk}">
+          <input type="radio" name="${dk}_${q.id}" value="${c.score}" ${saved[q.id] == c.score ? 'checked' : ''} />
+          <div class="choice-indicator"></div>
+          <span class="choice-score">${c.score} คะแนน</span>
+          <span class="choice-text">${c.text}</span>
+        </label>`).join('');
+
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = 'card-' + dk + '-' + q.id;
+      card.innerHTML = `
+        <div class="question-number">ข้อที่ ${i+1} จาก ${domain.questions.length}</div>
+        <div class="question-text">${q.text}</div>
+        <div class="choices">${choicesHtml}</div>`;
+      container.appendChild(card);
+    });
+
+    container.addEventListener('click', e => {
+      const choice = e.target.closest('.choice');
+      if (!choice) return;
+      const qid = choice.dataset.qid;
+      const d   = choice.dataset.domain;
+      container.querySelectorAll(`.choice[data-qid="${qid}"]`).forEach(el => el.classList.remove('selected'));
+      choice.classList.add('selected');
+      choice.querySelector('input').checked = true;
+      answers[d][qid] = parseInt(choice.dataset.score);
+      document.getElementById('card-' + d + '-' + qid).style.border = '';
+      localStorage.setItem('sst_eval_' + d, JSON.stringify(answers[d]));
+      updateTabStatus();
+      checkAllAnswered();
+    });
+
+    panel.appendChild(container);
+  });
+
+  function updateTabStatus() {
+    ['domain1','domain2','domain3'].forEach(dk => {
+      const done = QUESTIONS[dk].questions.every(q => answers[dk][q.id] !== undefined);
+      const btn  = document.getElementById('tab-btn-' + dk);
+      btn.classList.toggle('done', done);
+    });
+  }
+
+  function checkAllAnswered() {
+    const allDone = ['domain1','domain2','domain3'].every(dk =>
+      QUESTIONS[dk].questions.every(q => answers[dk][q.id] !== undefined)
+    );
+    document.getElementById('btn-summary').style.display = allDone ? '' : 'none';
+  }
+
+  let currentTab = 'domain1';
+  function switchTab(dk) {
+    ['domain1','domain2','domain3'].forEach(d => {
+      document.getElementById('panel-' + d).style.display = d === dk ? 'block' : 'none';
+      document.getElementById('tab-btn-' + d).classList.toggle('active', d === dk);
+    });
+    document.getElementById('panel-summary').style.display = 'none';
+    document.getElementById('bottom-actions').style.display = '';
+    currentTab = dk;
+  }
+
+  function showSummary() {
+    const d1 = Object.values(answers.domain1).reduce((s,v) => s+(v||0), 0);
+    const d2 = Object.values(answers.domain2).reduce((s,v) => s+(v||0), 0);
+    const d3 = Object.values(answers.domain3).reduce((s,v) => s+(v||0), 0);
+    const total = d1 + d2 + d3;
+    const level = total >= 60 ? 'ดีมาก' : total >= 46 ? 'ดี' : total >= 31 ? 'พอใช้' : 'ควรปรับปรุง';
+
+    document.getElementById('summary-domain-scores').innerHTML =
+      [['การจัดการเรียนรู้', d1], ['เครือข่ายและบริบท', d2], ['สมรรถนะและภาวะผู้นำ', d3]]
+        .map(([label, score], i) => `
+          <div class="summary-domain-card">
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">ด้านที่ ${i+1}</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:6px;">${label}</div>
+            <div style="font-size:30px; font-weight:800; color:var(--primary-dark);">${score}</div>
+            <div style="font-size:11px; color:var(--text-muted);">/ 24</div>
+          </div>`).join('');
+
+    document.getElementById('summary-total').innerHTML = `
+      <div style="font-size:13px; opacity:.85;">คะแนนรวมทั้งหมด</div>
+      <div style="font-size:44px; font-weight:900; line-height:1.1;">${total}</div>
+      <div style="font-size:13px; opacity:.85;">/ 72 คะแนน</div>
+      <div style="font-size:17px; font-weight:700; margin-top:8px;">ระดับ: ${level}</div>`;
+
+    ['domain1','domain2','domain3'].forEach(d => {
+      document.getElementById('panel-' + d).style.display = 'none';
+    });
+    document.getElementById('bottom-actions').style.display = 'none';
+    document.getElementById('panel-summary').style.display = 'block';
+  }
+
+  function hideSummary() {
+    document.getElementById('panel-summary').style.display = 'none';
+    document.getElementById('bottom-actions').style.display = '';
+    switchTab(currentTab);
+  }
+
+  async function saveResult() {
+    const btn = document.getElementById('btn-save');
+    const err = document.getElementById('save-error');
+    btn.disabled = true;
+    btn.textContent = 'กำลังบันทึก...';
+    err.classList.remove('show');
+    try {
+      const suggestions = document.getElementById('suggestions').value.trim();
+      await SupabaseClient.saveEvalScore(evalId, answers, suggestions);
+      window.location.href = 'eval-result.html?id=' + evalId;
+    } catch (e) {
+      err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+      err.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'บันทึกผลการประเมิน';
+    }
+  }
+
+  updateTabStatus();
+  checkAllAnswered();
+</script>
+</body>
+</html>
