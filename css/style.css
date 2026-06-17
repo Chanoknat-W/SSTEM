@@ -980,3 +980,42 @@ input[type="file"] { display: none; }
   .step-line { width: 14px; }
   .step-dot { width: 28px; height: 28px; font-size: 12px; }
 }
+
+
+/* ===== Login Responsive ===== */
+@media (max-width: 768px) {
+
+  .cover > div {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+  }
+
+  .cover > div > img {
+    width: 110px !important;
+    height: 110px !important;
+    margin-top: 0 !important;
+  }
+
+  .cover > div > div {
+    text-align: center !important;
+    padding-top: 0 !important;
+  }
+
+  .cover h1 {
+    font-size: 32px !important;
+  }
+
+  .cover .subtitle {
+    font-size: 14px !important;
+    text-align: center !important;
+    line-height: 1.5;
+  }
+
+  .univ-logo {
+    width: 120px;
+    height: auto;
+  }
+
+}
