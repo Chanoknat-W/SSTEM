@@ -1,95 +1,100 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>เข้าสู่ระบบ | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
-<main class="page">
-  <div class="cover" style="padding-bottom:8px;">
-    <!-- <img src="img/ksu-logo.svg" alt="มหาวิทยาลัยกาฬสินธุ์" class="univ-logo" onerror="this.style.display='none'" /> -->
-    <div style="display:flex; align-items:flex-start; gap:30px; justify-content:flex-start; flex-wrap:wrap;">
-      <img src="logo.png" alt="SST-EM" style="width:160px; height:160px; object-fit:contain; flex-shrink:0; margin-top:5px;" />
-      <img src="logo_division.png" alt="SST-EM_division" style="width:100px; height:100px; object-fit:contain; flex-shrink:0; margin-top:5px;" />
-      <div style="text-align:left; padding-top:5px;">
-        <h1 style="margin-bottom:6px; font-size:48px;">SST-EM</h1>
-        <p class="subtitle" style="text-align:left; margin-bottom:8px; color:#1e4d8c;">
-          ระบบประเมินการจัดการศึกษาสำหรับครูในสถานศึกษาขนาดเล็ก<br/>
-          Small School Teacher Evaluation Model
-        </p>
+  <main class="page">
+    <div class="cover" style="padding-bottom:8px;">
+      <!-- <img src="img/ksu-logo.svg" alt="มหาวิทยาลัยกาฬสินธุ์" class="univ-logo" onerror="this.style.display='none'" /> -->
+      <div style="display:flex; align-items:flex-start; gap:30px; justify-content:flex-start; flex-wrap:wrap;">
+        <img src="logo.png" alt="SST-EM"
+          style="width:160px; height:160px; object-fit:contain; flex-shrink:0; margin-top:5px;" />
+        <img src="logo_division.png" alt="SST-EM_division"
+          style="width:100px; height:100px; object-fit:contain; flex-shrink:0; margin-top:5px;" />
+        <div style="text-align:left; padding-top:25px;">
+          <h1 style="margin-bottom:6px; font-size:48px;">SST-EM</h1>
+          <p class="subtitle" style="text-align:left; margin-bottom:8px; color:#1e4d8c;">
+            ระบบประเมินการจัดการศึกษาสำหรับครูในสถานศึกษาขนาดเล็ก<br />
+            Small School Teacher Evaluation Model
+          </p>
+        </div>
       </div>
     </div>
-  </div>
-  
 
-  <div class="card">
-    <div class="page-header" style="text-align:left; margin-bottom:20px;">
-      <h1>เข้าสู่ระบบ</h1>
-      <p>กรอก Email และรหัสผ่านของท่าน</p>
+
+    <div class="card">
+      <div class="page-header" style="text-align:left; margin-bottom:20px;">
+        <h1>เข้าสู่ระบบ</h1>
+        <p>กรอก Email และรหัสผ่านของท่าน</p>
+      </div>
+
+      <div id="error-msg" class="error-msg"></div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="example@email.com" autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label for="password">รหัสผ่าน</label>
+        <input type="password" id="password" placeholder="รหัสผ่าน" autocomplete="current-password" />
+      </div>
+
+      <button class="btn btn-primary" id="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
+
+      <p style="text-align:center; margin-top:20px; font-size:14px; color:var(--text-muted);">
+        ยังไม่มีบัญชี?
+        <a href="register.html" style="color:var(--primary); font-weight:700;">สมัครสมาชิก</a>
+      </p>
     </div>
+  </main>
 
-    <div id="error-msg" class="error-msg"></div>
+  <footer class="site-footer">
+    พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> นักศึกษาปริญญาเอก สาขานวัตกรรมการจัดการเรียนรู้ chownuaja@gmai.com
 
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="example@email.com" autocomplete="email" />
-    </div>
-    <div class="form-group">
-      <label for="password">รหัสผ่าน</label>
-      <input type="password" id="password" placeholder="รหัสผ่าน" autocomplete="current-password" />
-    </div>
+  </footer>
 
-    <button class="btn btn-primary" id="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
+  <script src="js/auth.js"></script>
+  <script>
+    // redirect if already logged in
+    (function () {
+      if (Auth.getUser() && Auth.getToken()) Auth.redirectAfterLogin();
+    })();
 
-    <p style="text-align:center; margin-top:20px; font-size:14px; color:var(--text-muted);">
-      ยังไม่มีบัญชี?
-      <a href="register.html" style="color:var(--primary); font-weight:700;">สมัครสมาชิก</a>
-    </p>
-  </div>
-</main>
+    async function doLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const err = document.getElementById('error-msg');
+      const btn = document.getElementById('btn-login');
 
-<footer class="site-footer">
-  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> นักศึกษาปริญญาเอก สาขานวัตกรรมการจัดการเรียนรู้ chownuaja@gmai.com
+      if (!email || !password) {
+        err.textContent = 'กรุณากรอก Email และรหัสผ่าน';
+        err.classList.add('show');
+        return;
+      }
 
-</footer>
+      btn.disabled = true;
+      btn.textContent = 'กำลังเข้าสู่ระบบ...';
+      err.classList.remove('show');
 
-<script src="js/auth.js"></script>
-<script>
-  // redirect if already logged in
-  (function () {
-    if (Auth.getUser() && Auth.getToken()) Auth.redirectAfterLogin();
-  })();
-
-  async function doLogin() {
-    const email    = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const err      = document.getElementById('error-msg');
-    const btn      = document.getElementById('btn-login');
-
-    if (!email || !password) {
-      err.textContent = 'กรุณากรอก Email และรหัสผ่าน';
-      err.classList.add('show');
-      return;
+      try {
+        await Auth.login(email, password);
+        Auth.redirectAfterLogin();
+      } catch (e) {
+        err.textContent = e.message;
+        err.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'เข้าสู่ระบบ';
+      }
     }
 
-    btn.disabled = true;
-    btn.textContent = 'กำลังเข้าสู่ระบบ...';
-    err.classList.remove('show');
-
-    try {
-      await Auth.login(email, password);
-      Auth.redirectAfterLogin();
-    } catch (e) {
-      err.textContent = e.message;
-      err.classList.add('show');
-      btn.disabled = false;
-      btn.textContent = 'เข้าสู่ระบบ';
-    }
-  }
-
-  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-</script>
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  </script>
 </body>
+
 </html>
