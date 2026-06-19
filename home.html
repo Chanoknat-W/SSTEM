@@ -1,71 +1,70 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>หน้าหลัก | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
-<main class="page">
-  <div class="cover">
-    <img src="img/ksu-logo.svg" alt="มหาวิทยาลัยกาฬสินธุ์" class="univ-logo" onerror="this.style.display='none'" />
-    <div style="display:flex; align-items:flex-start; gap:60px; justify-content:flex-start; flex-wrap:wrap;">
-      <img src="logo.png" alt="SST-EM" style="width:160px; height:160px; object-fit:contain; flex-shrink:0; margin-top:20px;" />
-      <div style="text-align:left; padding-top:40px;">
-        <h1 style="margin-bottom:6px; font-size:48px;">SST-EM</h1>
-        <p class="subtitle" style="text-align:left; margin-bottom:8px; color:#1e4d8c;">
-          ระบบประเมินการจัดการศึกษาสำหรับครูในสถานศึกษาขนาดเล็ก<br/>
-          Small School Teacher Evaluation Model
-        </p>
+  <main class="page">
+    <div id="header-container"></div>
+
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <div>
+          <div style="font-size:14px; color:var(--text-muted);">เข้าสู่ระบบในชื่อ</div>
+          <div id="user-name" style="font-size:16px; font-weight:700; color:var(--primary-dark);"></div>
+          <div id="user-info" style="font-size:13px; color:var(--text-muted);"></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary" onclick="window.location.href='profile.html'"
+            style="padding:8px 14px; font-size:14px;">✏️ แก้ไขข้อมูล</button>
+          <button class="btn btn-secondary" onclick="Auth.logout()"
+            style="padding:8px 14px; font-size:14px;">ออกจากระบบ</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-      <div>
-        <div style="font-size:14px; color:var(--text-muted);">เข้าสู่ระบบในชื่อ</div>
-        <div id="user-name" style="font-size:16px; font-weight:700; color:var(--primary-dark);"></div>
-        <div id="user-info" style="font-size:13px; color:var(--text-muted);"></div>
-      </div>
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-secondary" onclick="window.location.href='profile.html'" style="padding:8px 14px; font-size:14px;">✏️ แก้ไขข้อมูล</button>
-        <button class="btn btn-secondary" onclick="Auth.logout()" style="padding:8px 14px; font-size:14px;">ออกจากระบบ</button>
-      </div>
+    <p class="role-prompt">เลือกบทบาทที่ต้องการในครั้งนี้</p>
+
+    <div class="role-cards">
+      <button class="role-card" onclick="window.location.href='index.html'">
+        <div class="role-number">1</div>
+        <div class="role-icon-large">👨‍🏫</div>
+        <div class="role-label">ผู้รับการประเมิน</div>
+        <div class="role-sub">ส่งเอกสาร · ดูผลประเมิน</div>
+      </button>
+      <button class="role-card" onclick="window.location.href='eval-search.html'">
+        <div class="role-number">2</div>
+        <div class="role-icon-large">📋</div>
+        <div class="role-label">ผู้ประเมิน</div>
+        <div class="role-sub">ครู · ผู้อำนวยการ · ศึกษานิเทศก์</div>
+      </button>
     </div>
-  </div>
+  </main>
 
-  <p class="role-prompt">เลือกบทบาทที่ต้องการในครั้งนี้</p>
 
-  <div class="role-cards">
-    <button class="role-card" onclick="window.location.href='index.html'">
-      <div class="role-number">1</div>
-      <div class="role-icon-large">👨‍🏫</div>
-      <div class="role-label">ผู้รับการประเมิน</div>
-      <div class="role-sub">ส่งเอกสาร · ดูผลประเมิน</div>
-    </button>
-    <button class="role-card" onclick="window.location.href='eval-search.html'">
-      <div class="role-number">2</div>
-      <div class="role-icon-large">📋</div>
-      <div class="role-label">ผู้ประเมิน</div>
-      <div class="role-sub">ครู · ผู้อำนวยการ · ศึกษานิเทศก์</div>
-    </button>
-  </div>
-</main>
+  <div id="footer-container"></div>
 
-<footer class="site-footer">
-  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> นักศึกษาปริญญาเอก สาขานวัตกรรมการจัดการเรียนรู้ chownuaja@gmai.com
-</footer>
 
-<script src="js/auth.js"></script>
-<script>
-  const user = Auth.requireAuth();
-  if (!user) throw new Error('not auth');
+  <script src="js/auth.js"></script>
+  <script src="js/include.js"></script>
 
-  document.getElementById('user-name').textContent = user.display_name || user.email;
-  const info = [user.position, user.school].filter(Boolean).join(' · ');
-  document.getElementById('user-info').textContent = info;
-</script>
+
+  <script>
+    loadComponent('header-container', 'components/header.html');
+    loadComponent('footer-container', 'components/footer.html');
+
+    const user = Auth.requireAuth();
+    if (!user) throw new Error('not auth');
+
+    document.getElementById('user-name').textContent = user.display_name || user.email;
+    const info = [user.position, user.school].filter(Boolean).join(' · ');
+    document.getElementById('user-info').textContent = info;
+  </script>
 </body>
+
 </html>
