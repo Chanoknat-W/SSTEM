@@ -993,8 +993,8 @@ input[type="file"] { display: none; }
   }
 
   .cover > div > img {
-    width: 350px !important;
-    height: 350px !important;
+    width: 250px !important;
+    height: 250px !important;
     margin-top: 0 !important;
   }
 
