@@ -82,10 +82,11 @@
 
   <div id="footer-container"></div>
 
-
+  <script src="js/state.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/include.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
@@ -145,6 +146,7 @@
       err.classList.remove('show');
 
       evalInfo = { name, position, school, district };
+      
       localStorage.setItem('sst_eval_info', JSON.stringify(evalInfo));
 
       document.getElementById('eval-name-display').textContent =
@@ -211,6 +213,8 @@
 
         if (!result.isConfirmed) return;
       }
+
+      State.save('eval_info', { name, position, school, district });
 
       window.location.href = `eval-score.html?id=${id}`;
     }

@@ -128,6 +128,9 @@ const SupabaseClient = {
 
   // Save evaluator's scores (scores = {domain1:{...answers}, domain2:{...}, domain3:{...}})
   async saveEvalScore(evalId, scores, suggestions) {
+
+    const evalInfo = localStorage.getItem('sst_eval_info');
+
     const user = Auth.getUser();
     const d1   = Object.values(scores.domain1||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
     const d2   = Object.values(scores.domain2||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
@@ -139,7 +142,7 @@ const SupabaseClient = {
         eval_scores:      scores,
         eval_suggestions: suggestions,
         eval_by:          user?.id,
-        eval_by_name:     user?.display_name,
+        eval_by_name:     evalInfo?.name,
         eval_status:      'evaluated',
         evaluated_at:     new Date().toISOString(),
         domain1_total:    d1,
@@ -147,6 +150,18 @@ const SupabaseClient = {
         domain3_total:    d3,
         total_score:      d1+d2+d3,
       }),
+      // body: JSON.stringify({
+      //   eval_scores:      scores,
+      //   eval_suggestions: suggestions,
+      //   eval_by:          user?.id,
+      //   eval_by_name:     user?.display_name,
+      //   eval_status:      'evaluated',
+      //   evaluated_at:     new Date().toISOString(),
+      //   domain1_total:    d1,
+      //   domain2_total:    d2,
+      //   domain3_total:    d3,
+      //   total_score:      d1+d2+d3,
+      // }),
     });
     if (!res.ok) throw new Error(await res.text());
   },
