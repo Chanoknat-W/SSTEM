@@ -193,13 +193,14 @@
       }).join('');
     }
 
-    function selectTeacher(id, status) {
+    async function selectTeacher(id, status) {
+
       if (status === 'evaluated') {
 
         const result = await Swal.fire({
           icon: 'warning',
           title: 'ประเมินแล้ว',
-          text: 'ต้องการแก้ไขผลการประเมินหรือไม่?',
+          text: 'ต้องการเปิดเพื่อแก้ไขผลการประเมินหรือไม่?',
           showCancelButton: true,
           confirmButtonText: 'เปิด',
           cancelButtonText: 'ยกเลิก'
