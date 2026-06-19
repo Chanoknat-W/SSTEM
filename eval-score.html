@@ -50,14 +50,16 @@
     </div>
   </main>
 
-  <footer class="site-footer">
-    พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> นักศึกษาปริญญาเอก สาขานวัตกรรมการจัดการเรียนรู้ chownuaja@gmai.com
+  <div id="footer-container"></div>
 
-  </footer>
 
   <script src="js/auth.js"></script>
   <script src="js/supabase.js"></script>
+<script src="js/include.js"></script>
+
   <script>
+    loadComponent('footer-container', 'components/footer.html');
+
     const user = Auth.requireAuth();
     if (!user) throw new Error('not auth');
 

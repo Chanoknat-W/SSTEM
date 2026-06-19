@@ -76,14 +76,16 @@
 
 </main>
 
-<footer class="site-footer">
-  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> นักศึกษาปริญญาเอก สาขานวัตกรรมการจัดการเรียนรู้ chownuaja@gmai.com
+<div id="footer-container"></div>
 
-</footer>
 
 <script src="js/auth.js"></script>
 <script src="js/supabase.js"></script>
+<script src="js/include.js"></script>
+
 <script>
+    loadComponent('footer-container', 'components/footer.html');
+
   const user = Auth.requireAuth();
   if (!user) throw new Error('not auth');
 
@@ -171,6 +173,7 @@
 
     list.innerHTML = rows.map(row => {
       const st = STATUS_LABEL[row.eval_status] || { text: row.eval_status, color:'#757575', bg:'#F5F5F5' };
+      console.log(${row});
       return `
         <div class="card eval-card" onclick="selectTeacher('${row.id}')" style="cursor:pointer; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
