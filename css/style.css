@@ -994,7 +994,7 @@ input[type="file"] { display: none; }
 
   .cover > div > img {
     width: 250px !important;
-    height: 250px !important;
+    height: 100px !important;
     margin-top: 0 !important;
   }
 
