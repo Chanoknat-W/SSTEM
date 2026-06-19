@@ -173,7 +173,6 @@
 
     list.innerHTML = rows.map(row => {
       const st = STATUS_LABEL[row.eval_status] || { text: row.eval_status, color:'#757575', bg:'#F5F5F5' };
-      console.log(${row});
       return `
         <div class="card eval-card" onclick="selectTeacher('${row.id}')" style="cursor:pointer; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
