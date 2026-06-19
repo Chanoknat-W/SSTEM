@@ -1,180 +1,183 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ผู้ประเมิน | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
-<main class="page">
+  <main class="page">
 
-  <!-- Evaluator Info Section -->
-  <div id="section-eval-info">
-    <div class="page-header">
-      <div class="badge">ผู้ประเมิน</div>
-      <h1>ข้อมูลผู้ประเมิน</h1>
-      <p>ตรวจสอบข้อมูลก่อนเริ่มประเมิน สามารถแก้ไขได้สำหรับการประเมินครั้งนี้</p>
+    <!-- Evaluator Info Section -->
+    <div id="section-eval-info">
+      <div class="page-header">
+        <div class="badge">ผู้ประเมิน</div>
+        <h1>ข้อมูลผู้ประเมิน</h1>
+        <p>ตรวจสอบข้อมูลก่อนเริ่มประเมิน สามารถแก้ไขได้สำหรับการประเมินครั้งนี้</p>
+      </div>
+
+      <div class="card">
+        <div id="error-eval" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
+
+        <div class="form-group">
+          <label for="eval-name">ชื่อ-นามสกุล</label>
+          <input type="text" id="eval-name" placeholder="ชื่อ-นามสกุลผู้ประเมิน" />
+        </div>
+        <div class="form-group">
+          <label for="eval-position">ตำแหน่ง</label>
+          <select id="eval-position">
+            <option value="">-- เลือกตำแหน่ง --</option>
+            <option>ครู</option>
+            <option>ผู้อำนวยการโรงเรียน</option>
+            <option>ศึกษานิเทศก์</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="eval-school">โรงเรียน</label>
+          <input type="text" id="eval-school" placeholder="โรงเรียนของผู้ประเมิน" />
+        </div>
+        <div class="form-group">
+          <label for="eval-district">สังกัด</label>
+          <input type="text" id="eval-district" placeholder="เช่น สพป.กาฬสินธุ์ เขต 3" />
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="window.location.href='home.html'">← เปลี่ยนบทบาท</button>
+          <button class="btn btn-primary" onclick="showTeacherList()">ต่อไป: ดูรายชื่อครู →</button>
+        </div>
+      </div>
     </div>
 
-    <div class="card">
-      <div id="error-eval" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
-
-      <div class="form-group">
-        <label for="eval-name">ชื่อ-นามสกุล</label>
-        <input type="text" id="eval-name" placeholder="ชื่อ-นามสกุลผู้ประเมิน" />
-      </div>
-      <div class="form-group">
-        <label for="eval-position">ตำแหน่ง</label>
-        <select id="eval-position">
-          <option value="">-- เลือกตำแหน่ง --</option>
-          <option>ครู</option>
-          <option>ผู้อำนวยการโรงเรียน</option>
-          <option>ศึกษานิเทศก์</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="eval-school">โรงเรียน</label>
-        <input type="text" id="eval-school" placeholder="โรงเรียนของผู้ประเมิน" />
-      </div>
-      <div class="form-group">
-        <label for="eval-district">สังกัด</label>
-        <input type="text" id="eval-district" placeholder="เช่น สพป.กาฬสินธุ์ เขต 3" />
+    <!-- Teacher List Section -->
+    <div id="section-teacher-list" style="display:none;">
+      <div class="page-header">
+        <div class="badge">ผู้ประเมิน</div>
+        <h1>รายชื่อครูที่รอการประเมิน</h1>
+        <p id="eval-name-display" style="font-size:13px; color:var(--text-muted);"></p>
       </div>
 
-      <div class="btn-row">
-        <button class="btn btn-secondary" onclick="window.location.href='home.html'">← เปลี่ยนบทบาท</button>
-        <button class="btn btn-primary" onclick="showTeacherList()">ต่อไป: ดูรายชื่อครู →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Teacher List Section -->
-  <div id="section-teacher-list" style="display:none;">
-    <div class="page-header">
-      <div class="badge">ผู้ประเมิน</div>
-      <h1>รายชื่อครูที่รอการประเมิน</h1>
-      <p id="eval-name-display" style="font-size:13px; color:var(--text-muted);"></p>
-    </div>
-
-    <div style="display:flex; gap:10px; margin-bottom:16px;">
-      <input type="text" id="search" placeholder="ค้นหาชื่อ / โรงเรียน..." oninput="doSearch()"
-        style="flex:1; padding:10px 14px; border:2px solid var(--border); border-radius:8px;
+      <div style="display:flex; gap:10px; margin-bottom:16px;">
+        <input type="text" id="search" placeholder="ค้นหาชื่อ / โรงเรียน..." oninput="doSearch()" style="flex:1; padding:10px 14px; border:2px solid var(--border); border-radius:8px;
                font-size:15px; font-family:inherit;" />
-      <button class="btn btn-secondary" onclick="window.location.href='home.html'" style="padding:10px 16px; font-size:14px; white-space:nowrap;">ออก</button>
+        <button class="btn btn-secondary" onclick="window.location.href='home.html'"
+          style="padding:10px 16px; font-size:14px; white-space:nowrap;">ออก</button>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+        <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">ทั้งหมด</button>
+        <button class="filter-btn" id="filter-pending" onclick="setFilter('pending')">🕐 รอประเมิน</button>
+        <button class="filter-btn" id="filter-evaluated" onclick="setFilter('evaluated')">✅ ประเมินแล้ว</button>
+      </div>
+
+      <div id="loading" style="text-align:center; color:var(--text-muted); padding:32px;">กำลังโหลด...</div>
+      <div id="list"></div>
     </div>
 
-    <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
-      <button class="filter-btn active" id="filter-all"       onclick="setFilter('all')">ทั้งหมด</button>
-      <button class="filter-btn"        id="filter-pending"   onclick="setFilter('pending')">🕐 รอประเมิน</button>
-      <button class="filter-btn"        id="filter-evaluated" onclick="setFilter('evaluated')">✅ ประเมินแล้ว</button>
-    </div>
+  </main>
 
-    <div id="loading" style="text-align:center; color:var(--text-muted); padding:32px;">กำลังโหลด...</div>
-    <div id="list"></div>
-  </div>
-
-</main>
-
-<div id="footer-container"></div>
+  <div id="footer-container"></div>
 
 
-<script src="js/auth.js"></script>
-<script src="js/supabase.js"></script>
-<script src="js/include.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/include.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
+  <script>
     loadComponent('footer-container', 'components/footer.html');
 
-  const user = Auth.requireAuth();
-  if (!user) throw new Error('not auth');
+    const user = Auth.requireAuth();
+    if (!user) throw new Error('not auth');
 
-  // Fetch fresh profile and pre-fill
-  (async () => {
-    try {
-      const res = await fetch(
-        `https://otnrmfgquzjfidycehqo.supabase.co/rest/v1/profiles?id=eq.${user.id}&select=*`,
-        {
-          headers: {
-            apikey: 'sb_publishable_wO5l7ypI7_u1tw8nt5ce-g_PMzAU-lM',
-            Authorization: `Bearer ${Auth.getToken()}`,
-          },
+    // Fetch fresh profile and pre-fill
+    (async () => {
+      try {
+        const res = await fetch(
+          `https://otnrmfgquzjfidycehqo.supabase.co/rest/v1/profiles?id=eq.${user.id}&select=*`,
+          {
+            headers: {
+              apikey: 'sb_publishable_wO5l7ypI7_u1tw8nt5ce-g_PMzAU-lM',
+              Authorization: `Bearer ${Auth.getToken()}`,
+            },
+          }
+        );
+        const data = await res.json();
+        if (data[0]) {
+          const p = { ...user, ...data[0] };
+          localStorage.setItem('sst_user', JSON.stringify(p));
+          document.getElementById('eval-name').value = p.display_name || '';
+          document.getElementById('eval-position').value = p.position || '';
+          document.getElementById('eval-school').value = p.school || '';
+          document.getElementById('eval-district').value = p.district || '';
+          return;
         }
-      );
-      const data = await res.json();
-      if (data[0]) {
-        const p = { ...user, ...data[0] };
-        localStorage.setItem('sst_user', JSON.stringify(p));
-        document.getElementById('eval-name').value     = p.display_name || '';
-        document.getElementById('eval-position').value = p.position     || '';
-        document.getElementById('eval-school').value   = p.school       || '';
-        document.getElementById('eval-district').value = p.district     || '';
+      } catch { /* fallback */ }
+      document.getElementById('eval-name').value = user.display_name || '';
+      document.getElementById('eval-position').value = user.position || '';
+      document.getElementById('eval-school').value = user.school || '';
+      document.getElementById('eval-district').value = user.district || '';
+    })();
+
+    let evalInfo = {};
+    let allRows = [];
+    let currentFilter = 'all';
+
+    const STATUS_LABEL = {
+      pending: { text: '🕐 รอประเมิน', color: '#E65100', bg: '#FFF3E0' },
+      evaluated: { text: '✅ ประเมินแล้ว', color: '#1B5E20', bg: '#E8F5E9' },
+    };
+
+    function showTeacherList() {
+      const name = document.getElementById('eval-name').value.trim();
+      const position = document.getElementById('eval-position').value;
+      const school = document.getElementById('eval-school').value.trim();
+      const district = document.getElementById('eval-district').value.trim();
+      const err = document.getElementById('error-eval');
+
+      if (!name || !position || !school || !district) {
+        err.classList.add('show'); return;
+      }
+      err.classList.remove('show');
+
+      evalInfo = { name, position, school, district };
+      localStorage.setItem('sst_eval_info', JSON.stringify(evalInfo));
+
+      document.getElementById('eval-name-display').textContent =
+        `${name} · ${position} · ${school}`;
+
+      document.getElementById('section-eval-info').style.display = 'none';
+      document.getElementById('section-teacher-list').style.display = 'block';
+      load();
+    }
+
+    async function load(search) {
+      try {
+        allRows = await SupabaseClient.getPendingEvaluations(search || '');
+        render();
+      } catch (e) {
+        document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+      }
+    }
+
+    function render() {
+      document.getElementById('loading').style.display = 'none';
+      const list = document.getElementById('list');
+      const rows = currentFilter === 'all'
+        ? allRows
+        : allRows.filter(r => r.eval_status === currentFilter);
+
+      if (!rows.length) {
+        list.innerHTML = '<div class="card" style="text-align:center;color:var(--text-muted);padding:32px;">ไม่พบรายชื่อครู</div>';
         return;
       }
-    } catch { /* fallback */ }
-    document.getElementById('eval-name').value     = user.display_name || '';
-    document.getElementById('eval-position').value = user.position     || '';
-    document.getElementById('eval-school').value   = user.school       || '';
-    document.getElementById('eval-district').value = user.district     || '';
-  })();
 
-  let evalInfo = {};
-  let allRows  = [];
-  let currentFilter = 'all';
-
-  const STATUS_LABEL = {
-    pending:   { text:'🕐 รอประเมิน',    color:'#E65100', bg:'#FFF3E0' },
-    evaluated: { text:'✅ ประเมินแล้ว',   color:'#1B5E20', bg:'#E8F5E9' },
-  };
-
-  function showTeacherList() {
-    const name     = document.getElementById('eval-name').value.trim();
-    const position = document.getElementById('eval-position').value;
-    const school   = document.getElementById('eval-school').value.trim();
-    const district = document.getElementById('eval-district').value.trim();
-    const err      = document.getElementById('error-eval');
-
-    if (!name || !position || !school || !district) {
-      err.classList.add('show'); return;
-    }
-    err.classList.remove('show');
-
-    evalInfo = { name, position, school, district };
-    localStorage.setItem('sst_eval_info', JSON.stringify(evalInfo));
-
-    document.getElementById('eval-name-display').textContent =
-      `${name} · ${position} · ${school}`;
-
-    document.getElementById('section-eval-info').style.display  = 'none';
-    document.getElementById('section-teacher-list').style.display = 'block';
-    load();
-  }
-
-  async function load(search) {
-    try {
-      allRows = await SupabaseClient.getPendingEvaluations(search || '');
-      render();
-    } catch (e) {
-      document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
-    }
-  }
-
-  function render() {
-    document.getElementById('loading').style.display = 'none';
-    const list = document.getElementById('list');
-    const rows = currentFilter === 'all'
-      ? allRows
-      : allRows.filter(r => r.eval_status === currentFilter);
-
-    if (!rows.length) {
-      list.innerHTML = '<div class="card" style="text-align:center;color:var(--text-muted);padding:32px;">ไม่พบรายชื่อครู</div>';
-      return;
-    }
-
-    list.innerHTML = rows.map(row => {
-      const st = STATUS_LABEL[row.eval_status] || { text: row.eval_status, color:'#757575', bg:'#F5F5F5' };
-      return `
-        <div class="card eval-card" onclick="selectTeacher('${row.id}')" style="cursor:pointer; margin-bottom:12px;">
+      list.innerHTML = rows.map(row => {
+        const st = STATUS_LABEL[row.eval_status] || { text: row.eval_status, color: '#757575', bg: '#F5F5F5' };
+        return `
+        <div class="card eval-card" onclick="selectTeacher('${row.id}','${row.eval_status}')" style="cursor:pointer; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
             <div>
               <div style="font-size:16px; font-weight:700; color:var(--primary-dark);">${row.teacher_name || '-'}</div>
@@ -187,26 +190,41 @@
               background:${st.bg}; color:${st.color}; white-space:nowrap;">${st.text}</span>
           </div>
         </div>`;
-    }).join('');
-  }
+      }).join('');
+    }
 
-  function selectTeacher(id) {
-    window.location.href = `eval-score.html?id=${id}`;
-  }
+    function selectTeacher(id, status) {
+      if (status === 'evaluated') {
 
-  function setFilter(f) {
-    currentFilter = f;
-    ['all','pending','evaluated'].forEach(k => {
-      document.getElementById(`filter-${k}`).classList.toggle('active', k === f);
-    });
-    render();
-  }
+        const result = await Swal.fire({
+          icon: 'warning',
+          title: 'ประเมินแล้ว',
+          text: 'ต้องการแก้ไขผลการประเมินหรือไม่?',
+          showCancelButton: true,
+          confirmButtonText: 'เปิด',
+          cancelButtonText: 'ยกเลิก'
+        });
 
-  let searchTimer;
-  function doSearch() {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => load(document.getElementById('search').value.trim()), 400);
-  }
-</script>
+        if (!result.isConfirmed) return;
+      }
+
+      window.location.href = `eval-score.html?id=${id}`;
+    }
+
+    function setFilter(f) {
+      currentFilter = f;
+      ['all', 'pending', 'evaluated'].forEach(k => {
+        document.getElementById(`filter-${k}`).classList.toggle('active', k === f);
+      });
+      render();
+    }
+
+    let searchTimer;
+    function doSearch() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => load(document.getElementById('search').value.trim()), 400);
+    }
+  </script>
 </body>
+
 </html>
