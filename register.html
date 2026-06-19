@@ -8,11 +8,8 @@
 </head>
 <body>
 <main class="page">
-  <div class="cover" style="padding-bottom:8px;">
-    <img src="img/ksu-logo.svg" alt="มหาวิทยาลัยกาฬสินธุ์" class="univ-logo" onerror="this.style.display='none'" />
-    <h1>SST-EM</h1>
-    <p class="subtitle">ระบบประเมินการจัดการศึกษาสำหรับครูในสถานศึกษาขนาดเล็ก</p>
-  </div>
+  <div id="header-container"></div>
+
 
   <div class="card">
     <div class="page-header" style="text-align:left; margin-bottom:20px;">
@@ -90,14 +87,18 @@
     </p>
   </div>
 </main>
+<div id="footer-container"></div>
 
-<footer class="site-footer">
-  พัฒนาโดย <strong>นายวชิระ ชาวเหนือ</strong> นักศึกษาปริญญาเอก สาขานวัตกรรมการจัดการเรียนรู้ chownuaja@gmai.com
 
-</footer>
+
 
 <script src="js/auth.js"></script>
+<script src="js/include.js"></script>
+
 <script>
+  loadComponent('header-container','components/header.html');
+    loadComponent('footer-container','components/footer.html');
+    
   async function doRegister() {
     const email       = document.getElementById('email').value.trim();
     const password    = document.getElementById('password').value;
