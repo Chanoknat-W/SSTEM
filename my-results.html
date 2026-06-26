@@ -94,7 +94,7 @@
               ${row.submitted_at ? `<div style="font-size:12px; color:var(--text-muted);">📤 ส่งเมื่อ ${new Date(row.submitted_at).toLocaleString('th-TH')}</div>` : ''}
               ${row.evaluated_at ? `<div style="font-size:12px; color:var(--text-muted);">✅ ประเมินเมื่อ ${new Date(row.evaluated_at).toLocaleString('th-TH')}</div>` : ''}
               ${row.eval_by_name ? `<div style="font-size:12px; color:var(--text-muted);">👤 ประเมินโดย: <strong>${row.eval_by_name}</strong></div>` : ''}
-              ${row.level ? `<div style="font-size:13px; font-weight:700; color:var(--primary-dark); margin-top:4px;">ระดับ: ${row.level}</div>` : ''}
+              ${row.level && row.eval_status !== 'doc_rejected' ? `<div style="font-size:13px; font-weight:700; color:var(--primary-dark); margin-top:4px;">ระดับ: ${row.level}</div>` : ''}
               ${failedDocsHtml}
             </div>
             <span style="padding:4px 12px; border-radius:20px; font-size:13px; font-weight:700;
