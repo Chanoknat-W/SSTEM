@@ -200,6 +200,26 @@
 
       list.innerHTML = rows.map(row => {
         const st = STATUS_LABEL[row.eval_status] || { text: row.eval_status, color: '#757575', bg: '#F5F5F5' };
+        const evalSummary = row.eval_status === 'evaluated' ? `
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; margin-top:10px;">
+            <div style="text-align:center; background:var(--primary-light); border-radius:6px; padding:6px 4px;">
+              <div style="font-size:10px; color:var(--text-muted);">ด้านที่ 1</div>
+              <div style="font-size:16px; font-weight:800; color:var(--primary-dark);">${row.domain1_total ?? '-'}</div>
+            </div>
+            <div style="text-align:center; background:var(--primary-light); border-radius:6px; padding:6px 4px;">
+              <div style="font-size:10px; color:var(--text-muted);">ด้านที่ 2</div>
+              <div style="font-size:16px; font-weight:800; color:var(--primary-dark);">${row.domain2_total ?? '-'}</div>
+            </div>
+            <div style="text-align:center; background:var(--primary-light); border-radius:6px; padding:6px 4px;">
+              <div style="font-size:10px; color:var(--text-muted);">ด้านที่ 3</div>
+              <div style="font-size:16px; font-weight:800; color:var(--primary-dark);">${row.domain3_total ?? '-'}</div>
+            </div>
+            <div style="text-align:center; background:var(--primary-dark); border-radius:6px; padding:6px 4px;">
+              <div style="font-size:10px; color:rgba(255,255,255,0.8);">รวม</div>
+              <div style="font-size:16px; font-weight:800; color:#fff;">${row.total_score ?? '-'}</div>
+            </div>
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px; text-align:right;">ระดับ: <strong>${row.level || '-'}</strong></div>` : '';
         return `
         <div class="card eval-card" onclick="selectTeacher('${row.id}','${row.eval_status}')" style="cursor:pointer; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
@@ -213,6 +233,7 @@
             <span style="padding:4px 12px; border-radius:20px; font-size:13px; font-weight:700;
               background:${st.bg}; color:${st.color}; white-space:nowrap;">${st.text}</span>
           </div>
+          ${evalSummary}
         </div>`;
       }).join('');
     }
