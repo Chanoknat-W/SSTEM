@@ -34,6 +34,7 @@
         <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">ทั้งหมด</button>
         <button class="filter-btn" id="filter-pending" onclick="setFilter('pending')">🕐 รอประเมิน</button>
         <button class="filter-btn" id="filter-evaluated" onclick="setFilter('evaluated')">✅ ประเมินแล้ว</button>
+        <button class="filter-btn" id="filter-doc_rejected" onclick="setFilter('doc_rejected')">❌ เอกสารไม่ถูกต้อง</button>
       </div>
 
       <div id="loading" style="text-align:center; color:var(--text-muted); padding:32px;">กำลังโหลด...</div>
@@ -186,7 +187,7 @@
 
     function setFilter(f) {
       currentFilter = f;
-      ['all', 'pending', 'evaluated'].forEach(k => {
+      ['all', 'pending', 'evaluated', 'doc_rejected'].forEach(k => {
         document.getElementById(`filter-${k}`).classList.toggle('active', k === f);
       });
       render();
