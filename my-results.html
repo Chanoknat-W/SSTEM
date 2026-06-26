@@ -38,7 +38,7 @@
 
   const user = Auth.requireAuth();
   if (!user) throw new Error('not auth');
-  document.getElementById('user-name').textContent = user.display_name || user.email;
+  document.getElementById('user-name').textContent = user.email;
 
   const STATUS_LABEL = {
     draft:     { text: 'ยังไม่ส่ง',                    color: '#757575', bg: '#F5F5F5' },
