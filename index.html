@@ -100,6 +100,8 @@
 
     let currentProfile = { ...user };
 
+    if (new URLSearchParams(location.search).get('start') === '1') showForm();
+
     function renderProfileDisplay(p) {
       const isSupervisor = p.position === 'ศึกษานิเทศก์';
       const rows = [
