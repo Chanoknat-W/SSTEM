@@ -100,7 +100,7 @@
             <span style="padding:4px 12px; border-radius:20px; font-size:13px; font-weight:700;
               background:${st.bg}; color:${st.color};">${st.text}</span>
           </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; ${row.eval_status === 'doc_rejected' ? 'display:none;' : ''}">
             ${['การจัดการเรียนรู้','สถาบันและบริบท','พฤติกรรมวิชาชีพ']
               .map((d, i) => `<div style="text-align:center; background:var(--primary-light); border-radius:8px; padding:8px;">
                 <div style="font-size:11px; color:var(--text-muted);">ด้านที่ ${i+1}</div>
