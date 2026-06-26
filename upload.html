@@ -209,7 +209,13 @@
 
     function validateDomains() {
       const missing = ALL_KEYS.filter(k => !hasFile(k));
-      if (missing.length) return 'กรุณาอัปโหลดเอกสารให้ครบทุกไฟล์ (ยังขาด: ' + missing.join(', ') + ')';
+      if (missing.length) {
+        const labels = missing.map(k => {
+          const parts = k.split('_');
+          return 'ด้านที่ ' + parts[0].replace('d','') + ' ไฟล์ ' + parts[1];
+        });
+        return 'กรุณาอัปโหลดเอกสารให้ครบทุกไฟล์ (ยังขาด: ' + labels.join(', ') + ')';
+      }
       return null;
     }
 
