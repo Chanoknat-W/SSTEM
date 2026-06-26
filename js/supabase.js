@@ -139,7 +139,7 @@ const SupabaseClient = {
     const d3   = Object.values(scores.domain3||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
     const res  = await this._fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
       method: 'PATCH',
-      headers: { ...this._headers(), Prefer: 'return=minimal' },
+      headers: { ...this._headers(), Prefer: 'return=representation' },
       body: JSON.stringify({
         eval_scores:      scores,
         eval_suggestions: suggestions,
@@ -152,20 +152,10 @@ const SupabaseClient = {
         domain3_total:    d3,
         total_score:      d1+d2+d3,
       }),
-      // body: JSON.stringify({
-      //   eval_scores:      scores,
-      //   eval_suggestions: suggestions,
-      //   eval_by:          user?.id,
-      //   eval_by_name:     user?.display_name,
-      //   eval_status:      'evaluated',
-      //   evaluated_at:     new Date().toISOString(),
-      //   domain1_total:    d1,
-      //   domain2_total:    d2,
-      //   domain3_total:    d3,
-      //   total_score:      d1+d2+d3,
-      // }),
     });
     if (!res.ok) throw new Error(await res.text());
+    const rows = await res.json();
+    if (!rows.length) throw new Error('บันทึกไม่สำเร็จ: ไม่มีสิทธิ์อัปเดตข้อมูลนี้ (กรุณาตรวจสอบ RLS policy ใน Supabase)');
   },
 
   // Upload file to Supabase Storage, returns public URL

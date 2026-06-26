@@ -1,5 +1,5 @@
-const SUPABASE_URL = 'https://otnrmfgquzjfidycehqo.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_wO5l7ypI7_u1tw8nt5ce-g_PMzAU-lM';
+const SUPABASE_URL = 'https://lqdsekacmdmtnjettuzy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_IdTUQ-exlEwmJ4b7IornSw_AfW4g7YJ';
 
 const Auth = {
   async login(email, password) {
