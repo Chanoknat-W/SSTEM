@@ -211,22 +211,22 @@
 
       // Doc checks section
       const docChecks = row.doc_checks || {};
-      const docCheckKeys = Object.keys(docChecks);
+      const submittedFiles = row.files || {};
+      const fileKeys = Object.keys(submittedFiles);
       let docChecksHtml = '';
-      if (docCheckKeys.length) {
+      if (fileKeys.length) {
         const domainRows = DOC_DOMAINS.map(({ prefix, label }) => {
-          const keys = docCheckKeys.filter(k => k.startsWith(prefix));
+          const keys = fileKeys.filter(k => k.startsWith(prefix));
           if (!keys.length) return '';
           const items = keys.map(k => {
             const status = docChecks[k];
-            const isPass = status === 'pass';
-            const color  = isPass ? '#2E7D32' : '#B71C1C';
-            const bg     = isPass ? '#E8F5E9' : '#FFEBEE';
-            const icon   = isPass ? '✓' : '✗';
-            const text   = isPass ? 'ผ่าน' : 'ไม่ผ่าน';
+            const color  = status === 'pass' ? '#2E7D32' : status === 'fail' ? '#B71C1C' : '#757575';
+            const bg     = status === 'pass' ? '#E8F5E9' : status === 'fail' ? '#FFEBEE' : '#F5F5F5';
+            const icon   = status === 'pass' ? '✓' : status === 'fail' ? '✗' : '—';
+            const text   = status === 'pass' ? 'ผ่าน' : status === 'fail' ? 'ไม่ผ่าน' : 'ยังไม่ได้ตรวจ';
             return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 12px;background:${bg};border-radius:6px;margin-bottom:6px;">
-              <span style="font-size:13px;color:#333;">${FILE_LABEL[k] || k}</span>
-              <span style="font-size:12px;font-weight:700;color:${color};white-space:nowrap;">${icon} ${text}</span>
+              <a href="${submittedFiles[k].url}" target="_blank" style="font-size:13px;color:#333;text-decoration:none;">📄 ${FILE_LABEL[k] || k}</a>
+              <span style="font-size:12px;font-weight:700;color:${color};white-space:nowrap;margin-left:8px;">${icon} ${text}</span>
             </div>`;
           }).join('');
           return `<div style="margin-bottom:10px;">
