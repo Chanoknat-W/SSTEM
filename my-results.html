@@ -68,13 +68,19 @@
         const st = STATUS_LABEL[row.eval_status] || STATUS_LABEL.draft;
 
         let failedDocsHtml = '';
-        if (row.eval_status === 'doc_rejected' && row.doc_checks) {
-          const failed = Object.keys(row.doc_checks).filter(k => row.doc_checks[k] === 'fail');
+        if (row.eval_status === 'doc_rejected') {
+          console.log('doc_rejected row id:', row.id, 'doc_checks:', row.doc_checks);
+          let checks = row.doc_checks;
+          if (typeof checks === 'string') { try { checks = JSON.parse(checks); } catch { checks = {}; } }
+          checks = checks || {};
+          const failed = Object.keys(checks).filter(k => checks[k] === 'fail');
           if (failed.length) {
             failedDocsHtml = '<div style="margin-top:8px; padding:10px 12px; background:#FFEBEE; border-radius:8px; border-left:3px solid #B71C1C;">'
               + '<div style="font-size:12px; font-weight:700; color:#B71C1C; margin-bottom:6px;">เอกสารที่ไม่ถูกต้อง:</div>'
               + failed.map(k => `<div style="font-size:12px; color:#B71C1C;">✗ ${FILE_LABEL[k] || k}</div>`).join('')
               + '</div>';
+          } else {
+            failedDocsHtml = '<div style="margin-top:8px; padding:6px 12px; background:#FFEBEE; border-radius:8px; font-size:12px; color:#B71C1C;">มีเอกสารไม่ถูกต้อง</div>';
           }
         }
         const card = document.createElement('div');
