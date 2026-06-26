@@ -98,8 +98,9 @@ const SupabaseClient = {
   // Get teacher's own evaluations
   async getMyEvaluations() {
     const user = Auth.getUser();
+    const cols = 'id,user_id,teacher_name,school,grade,semester,eval_status,eval_by_name,submitted_at,evaluated_at,level,domain1_total,domain2_total,domain3_total,files,doc_checks';
     const res  = await this._fetch(
-      `${SUPABASE_URL}/rest/v1/evaluations?user_id=eq.${user.id}&order=created_at.desc&select=*`,
+      `${SUPABASE_URL}/rest/v1/evaluations?user_id=eq.${user.id}&order=created_at.desc&select=${cols}`,
       { headers: this._headers() }
     );
     if (!res.ok) throw new Error(await res.text());
