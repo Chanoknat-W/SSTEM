@@ -235,9 +235,20 @@
           </div>`;
         }).join('');
 
+        const anyFail   = fileKeys.some(k => docChecks[k] === 'fail');
+        const allChecked = fileKeys.every(k => docChecks[k] === 'pass' || docChecks[k] === 'fail');
+        const overallPass = allChecked && !anyFail;
+        const overallColor = overallPass ? '#2E7D32' : '#B71C1C';
+        const overallBg    = overallPass ? '#E8F5E9' : '#FFEBEE';
+        const overallText  = overallPass ? '✓ ผ่าน' : '✗ ไม่ผ่าน';
+
         docChecksHtml = `
           <h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-top:20px;margin-bottom:12px;">ผลการตรวจเอกสารประกอบ</h3>
           <div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:4px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+              <span style="font-size:14px;font-weight:700;color:#333;">ผลรวมเอกสาร</span>
+              <span style="font-size:14px;font-weight:800;color:${overallColor};background:${overallBg};padding:4px 16px;border-radius:20px;border:1.5px solid ${overallColor};">${overallText}</span>
+            </div>
             ${domainRows}
           </div>`;
       }
