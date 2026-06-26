@@ -241,21 +241,24 @@
     async function selectTeacher(id, status) {
 
       if (status === 'evaluated') {
-
         const result = await Swal.fire({
-          icon: 'warning',
           title: 'ประเมินแล้ว',
-          text: 'ต้องการแก้ไขผลการประเมินหรือไม่?',
+          text: 'ต้องการทำอะไรกับการประเมินนี้?',
+          showDenyButton: true,
           showCancelButton: true,
-          confirmButtonText: 'แก้ไข',
+          confirmButtonText: '📊 ดูผลประเมิน',
+          denyButtonText: '✏️ แก้ไข',
           cancelButtonText: 'ยกเลิก',
-          confirmButtonColor: '#3a72b8'
+          confirmButtonColor: '#2E7D32',
+          denyButtonColor: '#3a72b8',
         });
 
-        if (!result.isConfirmed) return;
+        if (result.isConfirmed) {
+          window.location.href = `eval-result.html?id=${id}`;
+          return;
+        }
+        if (!result.isDenied) return;
       }
-
-      // State.save('eval_info', { eval_name, school, district });
 
       window.location.href = `eval-score.html?id=${id}`;
     }
