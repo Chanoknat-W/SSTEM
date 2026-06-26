@@ -203,15 +203,13 @@
       }
     }
 
-    function hasFileForDomain(prefix) {
-      return ALL_KEYS.filter(k => k.startsWith(prefix))
-        .some(k => existingFiles[k] || newFiles[k]);
+    function hasFile(key) {
+      return !!(existingFiles[key] || newFiles[key]);
     }
 
     function validateDomains() {
-      if (!hasFileForDomain('d1')) return 'ด้านที่ 1: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
-      if (!hasFileForDomain('d2')) return 'ด้านที่ 2: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
-      if (!hasFileForDomain('d3')) return 'ด้านที่ 3: กรุณาอัปโหลดอย่างน้อย 1 ไฟล์';
+      const missing = ALL_KEYS.filter(k => !hasFile(k));
+      if (missing.length) return 'กรุณาอัปโหลดเอกสารให้ครบทุกไฟล์ (ยังขาด: ' + missing.join(', ') + ')';
       return null;
     }
 
