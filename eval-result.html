@@ -230,40 +230,41 @@
       // Answer details section (evaluator only)
       if (viewMode !== 'self' && typeof QUESTIONS !== 'undefined') {
         const domainAnswers = { domain1: d1Ans, domain2: d2Ans, domain3: d3Ans };
-        const detailHtml = `
-          <div class="card no-print" style="margin-bottom:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleAnswers()">
-              <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin:0;">รายละเอียดคำตอบแต่ละข้อ</h3>
-              <span id="answers-toggle-icon" style="font-size:18px; color:var(--primary);">▼</span>
-            </div>
-            <div id="answers-detail" style="display:none; margin-top:16px;">
-              ${['domain1','domain2','domain3'].map((dk, di) => {
-                const ans = domainAnswers[dk] || {};
-                const qs = QUESTIONS[dk];
-                return `
-                  <div style="margin-bottom:20px;">
-                    <div style="font-size:14px; font-weight:700; color:var(--primary-dark); margin-bottom:10px; padding-bottom:6px; border-bottom:2px solid var(--primary-light);">
-                      ด้านที่ ${di+1} — ${DOMAIN_NAMES[di]}
-                    </div>
-                    ${qs.questions.map((q, qi) => {
-                      const score = ans[q.id];
-                      const chosen = q.choices.find(c => c.score === score);
-                      return \`
-                        <div style="margin-bottom:10px; padding:10px 12px; border-radius:8px; background:#FAFAFA; border:1px solid var(--border);">
-                          <div style="font-size:13px; color:var(--text-muted); margin-bottom:6px;">ข้อ ${qi+1}. ${q.text}</div>
-                          \${chosen
-                            ? \`<div style="display:flex; align-items:center; gap:8px;">
-                                <span style="background:var(--primary-dark); color:#fff; font-size:12px; font-weight:700; padding:2px 8px; border-radius:10px; white-space:nowrap;">\${score} คะแนน</span>
-                                <span style="font-size:13px; color:#333;">\${chosen.text}</span>
-                               </div>\`
-                            : \`<span style="font-size:13px; color:var(--text-muted); font-style:italic;">ยังไม่มีคำตอบ</span>\`
-                          }
-                        </div>\`;
-                    }).join('')}
-                  </div>`;
-              }).join('')}
-            </div>
-          </div>`;
+
+        function buildAnswerRows(dk, di) {
+          const ans = domainAnswers[dk] || {};
+          const qs = QUESTIONS[dk];
+          let rows = '';
+          qs.questions.forEach(function(q, qi) {
+            const score = ans[q.id];
+            const chosen = q.choices.find(function(c) { return c.score === score; });
+            const answerHtml = chosen
+              ? '<div style="display:flex;align-items:center;gap:8px;">'
+                + '<span style="background:var(--primary-dark);color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;">' + score + ' คะแนน</span>'
+                + '<span style="font-size:13px;color:#333;">' + chosen.text + '</span>'
+                + '</div>'
+              : '<span style="font-size:13px;color:var(--text-muted);font-style:italic;">ยังไม่มีคำตอบ</span>';
+            rows += '<div style="margin-bottom:10px;padding:10px 12px;border-radius:8px;background:#FAFAFA;border:1px solid var(--border);">'
+              + '<div style="font-size:13px;color:var(--text-muted);margin-bottom:6px;">ข้อ ' + (qi+1) + '. ' + q.text + '</div>'
+              + answerHtml
+              + '</div>';
+          });
+          return '<div style="margin-bottom:20px;">'
+            + '<div style="font-size:14px;font-weight:700;color:var(--primary-dark);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary-light);">'
+            + 'ด้านที่ ' + (di+1) + ' — ' + DOMAIN_NAMES[di]
+            + '</div>' + rows + '</div>';
+        }
+
+        const detailHtml = '<div class="card no-print" style="margin-bottom:20px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleAnswers()">'
+          + '<h3 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin:0;">รายละเอียดคำตอบแต่ละข้อ</h3>'
+          + '<span id="answers-toggle-icon" style="font-size:18px;color:var(--primary);">▼</span>'
+          + '</div>'
+          + '<div id="answers-detail" style="display:none;margin-top:16px;">'
+          + buildAnswerRows('domain1', 0)
+          + buildAnswerRows('domain2', 1)
+          + buildAnswerRows('domain3', 2)
+          + '</div></div>';
         document.querySelector('#action-btns').insertAdjacentHTML('beforebegin', detailHtml);
       }
 
