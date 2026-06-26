@@ -323,6 +323,7 @@ body {
 .btn-print {
   background: var(--accent);
   color: var(--white);
+  margin-top: 8px;
 }
 
 .btn-print:hover {
