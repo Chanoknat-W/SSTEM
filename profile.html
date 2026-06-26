@@ -92,7 +92,8 @@
   const user = Auth.requireAuth();
   if (!user) throw new Error('not auth');
 
-  const _from = new URLSearchParams(location.search).get('from');
+  const _from = new URLSearchParams(location.search).get('from') ||
+                (document.referrer.includes('start.html') ? 'start' : 'home');
 
   function goBack() {
     window.location.href = _from === 'start' ? 'start.html' : 'home.html';
@@ -156,7 +157,6 @@
       await Auth.updateProfile({ display_name, position, grade, school, district, semester });
       document.getElementById('success-msg').style.display = 'block';
       document.getElementById('success-msg').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => goBack(), 1200);
     } catch (e) {
       if (e.message === '__SESSION_EXPIRED__') return;
       err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
