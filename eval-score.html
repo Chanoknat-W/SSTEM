@@ -88,6 +88,7 @@
     };
 
     const docChecks = JSON.parse(localStorage.getItem('sst_doc_checks') || '{}');
+    let allFileKeys = [];
 
     function setDocCheck(key, status) {
       if (docChecks[key] === status) {
@@ -141,6 +142,7 @@
         if (!fileKeys.length) {
           document.getElementById('no-files').style.display = 'block';
         } else {
+          allFileKeys = fileKeys;
           renderFiles('d1', files, fileKeys);
           renderFiles('d2', files, fileKeys);
           renderFiles('d3', files, fileKeys);
@@ -158,6 +160,11 @@
     }
 
     function startEval() {
+      const unchecked = allFileKeys.filter(k => !docChecks[k]);
+      if (unchecked.length) {
+        alert(`กรุณาติ๊กผ่านหรือไม่ผ่านให้ครบทุกเอกสารก่อน\nยังไม่ได้ติ๊ก ${unchecked.length} รายการ`);
+        return;
+      }
       window.location.href = 'eval-domain.html';
     }
 
