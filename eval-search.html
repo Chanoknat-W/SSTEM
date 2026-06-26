@@ -53,18 +53,15 @@
 
     <!-- Teacher List Section -->
     <div id="section-teacher-list" style="display:none;">
-      <div style="margin-bottom:12px;">
-        <button class="btn btn-secondary" onclick="window.location.href='home.html'"
-          style="padding:7px 14px; font-size:14px;">← กลับ</button>
-      </div>
-
       <div class="page-header">
         <div class="badge">ผู้ประเมิน</div>
         <p id="eval-name-display" style="font-size:14px; font-weight:600; color:var(--primary-dark); margin:4px 0 0;"></p>
         <h1>รายชื่อครูที่รอการประเมิน</h1>
       </div>
 
-      <div style="display:flex; gap:10px; margin-bottom:16px;">
+      <div style="display:flex; gap:10px; margin-bottom:16px; align-items:stretch;">
+        <button class="btn btn-secondary" onclick="window.location.href='home.html'"
+          style="padding:0 16px; font-size:14px; white-space:nowrap;">← กลับ</button>
         <input type="text" id="search" placeholder="ค้นหาชื่อ / โรงเรียน..." oninput="doSearch()" style="flex:1; padding:10px 14px; border:2px solid var(--border); border-radius:8px;
                font-size:15px; font-family:inherit;" />
       </div>
