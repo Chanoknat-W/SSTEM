@@ -176,6 +176,17 @@
           return;
         }
         if (!result.isDenied) return;
+
+        const confirm = await Swal.fire({
+          title: 'ยืนยันการแก้ไข?',
+          text: 'ผลการประเมินเดิมจะถูกบันทึกทับด้วยข้อมูลใหม่',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'ใช่ แก้ไขเลย',
+          cancelButtonText: 'ยกเลิก',
+          confirmButtonColor: '#E65100',
+        });
+        if (!confirm.isConfirmed) return;
       }
 
       window.location.href = `eval-score.html?id=${id}`;
