@@ -71,6 +71,15 @@
           <input type="text" id="teacher-name" placeholder="เช่น นางสาวสมใจ ใจดี" />
         </div>
         <div class="form-group">
+          <label for="position">ตำแหน่ง</label>
+          <select id="position" onchange="toggleFields()">
+            <option value="">-- เลือกตำแหน่ง --</option>
+            <option>ครู</option>
+            <option>ผู้อำนวยการโรงเรียน</option>
+            <option>ศึกษานิเทศก์</option>
+          </select>
+        </div>
+        <div class="form-group" id="grade-group">
           <label for="grade">ชั้นที่สอน</label>
           <select id="grade">
             <option value="">-- เลือกชั้นที่สอน --</option>
@@ -99,7 +108,7 @@
             </optgroup>
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="school-group">
           <label for="school">โรงเรียน</label>
           <input type="text" id="school" placeholder="เช่น โรงเรียนบ้านหนองเล็ก" />
         </div>
@@ -163,10 +172,12 @@
       } catch { /* ใช้ข้อมูล cache แทน */ }
 
       document.getElementById('teacher-name').value = profile.display_name || '';
+      document.getElementById('position').value = profile.position || '';
       document.getElementById('grade').value = profile.grade || '';
       document.getElementById('school').value = profile.school || '';
       document.getElementById('district').value = profile.district || '';
       document.getElementById('semester').value = profile.semester || '';
+      toggleFields();
     }
 
     function showMenu() {
@@ -174,19 +185,31 @@
       document.getElementById('section-menu').style.display = 'block';
     }
 
+    function toggleFields() {
+      const isSupervisor = document.getElementById('position').value === 'ศึกษานิเทศก์';
+      document.getElementById('grade-group').style.display = isSupervisor ? 'none' : '';
+      document.getElementById('school-group').style.display = isSupervisor ? 'none' : '';
+      if (isSupervisor) {
+        document.getElementById('grade').value = '';
+        document.getElementById('school').value = '';
+      }
+    }
+
     function goToUpload() {
       const teacher_name = document.getElementById('teacher-name').value.trim();
+      const position = document.getElementById('position').value;
       const grade = document.getElementById('grade').value;
       const school = document.getElementById('school').value.trim();
       const district = document.getElementById('district').value.trim();
       const semester = document.getElementById('semester').value.trim();
       const err = document.getElementById('error-msg');
+      const isSupervisor = position === 'ศึกษานิเทศก์';
 
-      if (!teacher_name || !grade || !school || !district || !semester) {
+      if (!teacher_name || !position || (!isSupervisor && !grade) || (!isSupervisor && !school) || !district || !semester) {
         err.classList.add('show'); return;
       }
       err.classList.remove('show');
-      State.save('sst_info', { teacher_name, grade, school, district, semester });
+      State.save('sst_info', { teacher_name, position, grade, school, district, semester });
       window.location.href = 'upload.html';
     }
   </script>
