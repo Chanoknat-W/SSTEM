@@ -136,11 +136,13 @@ const SupabaseClient = {
       localStorage.getItem('sst_eval_info') || '{}'
     );
 
-    const user = Auth.getUser();
-    const d1   = Object.values(scores.domain1||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
-    const d2   = Object.values(scores.domain2||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
-    const d3   = Object.values(scores.domain3||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
-    const res  = await this._fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
+    const user  = Auth.getUser();
+    const d1    = Object.values(scores.domain1||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
+    const d2    = Object.values(scores.domain2||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
+    const d3    = Object.values(scores.domain3||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
+    const total = d1+d2+d3;
+    const level = total >= 60 ? 'ดีมาก' : total >= 46 ? 'ดี' : total >= 31 ? 'พอใช้' : 'ควรปรับปรุง';
+    const res   = await this._fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
       method: 'PATCH',
       headers: { ...this._headers(), Prefer: 'return=representation' },
       body: JSON.stringify({
@@ -153,7 +155,8 @@ const SupabaseClient = {
         domain1_total:    d1,
         domain2_total:    d2,
         domain3_total:    d3,
-        total_score:      d1+d2+d3,
+        total_score:      total,
+        level:            level,
       }),
     });
     if (!res.ok) throw new Error(await res.text());
