@@ -11,17 +11,14 @@
 <body class="evaluator-theme">
   <main class="page">
 
-    <!-- Top banner -->
-    <div style="background:var(--primary); color:#fff; margin:-24px -16px 20px; padding:14px 20px; display:flex; align-items:center; gap:12px;">
-      <span style="font-size:28px;">📋</span>
-      <div>
-        <div style="font-size:11px; opacity:0.8; letter-spacing:0.5px;">บทบาทปัจจุบัน</div>
-        <div style="font-size:17px; font-weight:700;">ผู้ประเมิน</div>
-      </div>
-    </div>
-
     <!-- Evaluator Info Section -->
     <div id="section-eval-info">
+      <div class="page-header">
+        <div style="font-size:48px; margin-bottom:8px;">📋</div>
+        <div class="badge">ผู้ประเมิน</div>
+        <h1>ข้อมูลผู้ประเมิน</h1>
+        <p>ตรวจสอบข้อมูลก่อนเริ่มประเมิน สามารถแก้ไขได้สำหรับการประเมินครั้งนี้</p>
+      </div>
 
       <div class="card">
         <div id="error-eval" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
@@ -57,7 +54,12 @@
 
     <!-- Teacher List Section -->
     <div id="section-teacher-list" style="display:none;">
-      <p id="eval-name-display" style="font-size:14px; font-weight:600; color:var(--primary-dark); margin:0 0 12px;"></p>
+      <div class="page-header">
+        <div style="font-size:48px; margin-bottom:8px;">📋</div>
+        <div class="badge">ผู้ประเมิน</div>
+        <p id="eval-name-display" style="font-size:14px; font-weight:600; color:var(--primary-dark); margin:4px 0 0;"></p>
+        <h1>รายชื่อครูที่รอการประเมิน</h1>
+      </div>
 
       <div style="display:flex; gap:10px; margin-bottom:16px; align-items:stretch;">
         <button class="btn btn-secondary" onclick="window.location.href='home.html'"
