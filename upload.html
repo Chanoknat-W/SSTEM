@@ -212,7 +212,7 @@
       if (missing.length) {
         const labels = missing.map(k => {
           const parts = k.split('_');
-          return 'ด้านที่ ' + parts[0].replace('d','') + ' ไฟล์ ' + parts[1];
+          return 'ไฟล์ที่ ' + parts[0].replace('d','') + '.' + parts[1];
         });
         return 'กรุณาอัปโหลดเอกสารให้ครบทุกไฟล์ (ยังขาด: ' + labels.join(', ') + ')';
       }
