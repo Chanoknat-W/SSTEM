@@ -15,8 +15,6 @@
     <div id="section-menu">
       <div class="page-header">
         <div class="badge">ผู้รับการประเมิน</div>
-        <h1 id="greeting">สวัสดี</h1>
-        <p id="greeting-sub" style="font-size:14px; color:var(--text-muted);"></p>
       </div>
 
       <div class="role-cards">
@@ -94,9 +92,6 @@
 
     const user = Auth.requireAuth();
     if (!user) throw new Error('not auth');
-
-    document.getElementById('greeting').textContent = `สวัสดี, ${user.display_name || ''}`;
-    document.getElementById('greeting-sub').textContent = [user.position, user.school].filter(Boolean).join(' · ');
 
     let currentProfile = { ...user };
 
