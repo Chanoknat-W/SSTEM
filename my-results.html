@@ -112,7 +112,7 @@
             ${row.eval_status === 'draft' ? `
               <a href="upload.html?id=${row.id}" class="btn btn-secondary" style="flex:1; font-size:14px; text-decoration:none; text-align:center;">✏️ แก้ไขและส่งเอกสาร</a>
             ` : row.eval_status === 'doc_rejected' ? `
-              <a href="eval-result.html?id=${row.id}&view=self" class="btn btn-primary" style="flex:1; font-size:14px; text-decoration:none; text-align:center; background:#B71C1C;">ดูรายละเอียด</a>
+              <div style="flex:1; text-align:center; font-size:14px; font-weight:700; color:#B71C1C; padding:14px 0;">กรุณาส่งแบบประเมินใหม่</div>
             ` : row.eval_status === 'evaluated' ? `
               <a href="eval-result.html?id=${row.id}&view=self" class="btn btn-primary" style="flex:1; font-size:14px; text-decoration:none; text-align:center;">ดูผลการประเมิน</a>
             ` : `
