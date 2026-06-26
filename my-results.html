@@ -67,8 +67,8 @@
             <div>
               <div style="font-size:16px; font-weight:700; color:var(--primary-dark);">${row.teacher_name || '-'}</div>
               <div style="font-size:13px; color:var(--text-muted);">${row.school || ''} ${row.grade ? '· ' + row.grade : ''} · ${row.semester || ''}</div>
-              ${row.submitted_at ? `<div style="font-size:12px; color:#aaa;">📤 ส่งเมื่อ ${new Date(row.submitted_at).toLocaleString('th-TH')}</div>` : ''}
-              ${row.evaluated_at ? `<div style="font-size:12px; color:#aaa;">✅ ประเมินเมื่อ ${new Date(row.evaluated_at).toLocaleString('th-TH')}</div>` : ''}
+              ${row.submitted_at ? `<div style="font-size:12px; color:var(--text-muted);">📤 ส่งเมื่อ ${new Date(row.submitted_at).toLocaleString('th-TH')}</div>` : ''}
+              ${row.evaluated_at ? `<div style="font-size:12px; color:var(--text-muted);">✅ ประเมินเมื่อ ${new Date(row.evaluated_at).toLocaleString('th-TH')}</div>` : ''}
               ${row.eval_by_name ? `<div style="font-size:12px; color:var(--text-muted);">👤 ประเมินโดย: <strong>${row.eval_by_name}</strong></div>` : ''}
               ${row.level ? `<div style="font-size:13px; font-weight:700; color:var(--primary-dark); margin-top:4px;">ระดับ: ${row.level}</div>` : ''}
             </div>
