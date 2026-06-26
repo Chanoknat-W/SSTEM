@@ -15,6 +15,13 @@
   --radius: 12px;
 }
 
+/* ===== Evaluator (Purple) Theme ===== */
+body.evaluator-theme {
+  --primary: #7C3AED;
+  --primary-dark: #5B21B6;
+  --primary-light: #EDE9FE;
+}
+
 body {
   font-family: 'Sarabun', 'Leelawadee UI', 'Noto Sans Thai', 'Thonburi', sans-serif;
   background: #f0f4fa;

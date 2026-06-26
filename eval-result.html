@@ -27,6 +27,7 @@
   const params   = new URLSearchParams(location.search);
   const evalId   = params.get('id');
   const viewMode = params.get('view'); // 'self' = teacher viewing
+  if (viewMode !== 'self') document.body.classList.add('evaluator-theme');
 
   if (!evalId) window.location.href = 'login.html';
 
