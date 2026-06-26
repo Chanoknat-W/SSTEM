@@ -28,14 +28,14 @@
         </div>
         <div class="form-group">
           <label for="eval-position">ตำแหน่ง</label>
-          <select id="eval-position">
+          <select id="eval-position" onchange="toggleEvalSchool()">
             <option value="">-- เลือกตำแหน่ง --</option>
             <option>ครู</option>
             <option>ผู้อำนวยการโรงเรียน</option>
             <option>ศึกษานิเทศก์</option>
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="eval-school-group">
           <label for="eval-school">โรงเรียน</label>
           <input type="text" id="eval-school" placeholder="โรงเรียนของผู้ประเมิน" />
         </div>
@@ -146,24 +146,31 @@
       evaluated: { text: '✅ ประเมินแล้ว', color: '#1B5E20', bg: '#E8F5E9' },
     };
 
+    function toggleEvalSchool() {
+      const isSupervisor = document.getElementById('eval-position').value === 'ศึกษานิเทศก์';
+      document.getElementById('eval-school-group').style.display = isSupervisor ? 'none' : '';
+      if (isSupervisor) document.getElementById('eval-school').value = '';
+    }
+
     function showTeacherList() {
       const name = document.getElementById('eval-name').value.trim();
       const position = document.getElementById('eval-position').value;
       const school = document.getElementById('eval-school').value.trim();
       const district = document.getElementById('eval-district').value.trim();
       const err = document.getElementById('error-eval');
+      const isSupervisor = position === 'ศึกษานิเทศก์';
 
-      if (!name || !position || !school || !district) {
+      if (!name || !position || (!isSupervisor && !school) || !district) {
         err.classList.add('show'); return;
       }
       err.classList.remove('show');
 
       evalInfo = { name, position, school, district };
-      
+
       localStorage.setItem('sst_eval_info', JSON.stringify(evalInfo));
 
       document.getElementById('eval-name-display').textContent =
-        `${name} · ${position} · ${school}`;
+        isSupervisor ? `${name} · ${position}` : `${name} · ${position} · ${school}`;
 
       document.getElementById('section-eval-info').style.display = 'none';
       document.getElementById('section-teacher-list').style.display = 'block';
