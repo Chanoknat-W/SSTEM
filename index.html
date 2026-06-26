@@ -61,69 +61,16 @@
         <div class="page-header" style="text-align:left; margin-bottom:20px;">
           <div class="badge">ขั้นตอนที่ 1 จาก 3</div>
           <h1>ตรวจสอบข้อมูลเบื้องต้น</h1>
-          <p>ข้อมูลดึงมาจากโปรไฟล์ของท่าน สามารถแก้ไขได้สำหรับการประเมินครั้งนี้</p>
+          <p>ข้อมูลดึงมาจากโปรไฟล์ของท่าน หากต้องการแก้ไขกรุณาไปที่หน้าแก้ไขโปรไฟล์</p>
         </div>
 
-        <div id="error-msg" class="error-msg">กรุณากรอกข้อมูลให้ครบทุกช่อง</div>
-
-        <div class="form-group">
-          <label for="teacher-name">ชื่อ-นามสกุล</label>
-          <input type="text" id="teacher-name" placeholder="เช่น นางสาวสมใจ ใจดี" />
-        </div>
-        <div class="form-group">
-          <label for="position">ตำแหน่ง</label>
-          <select id="position" onchange="toggleFields()">
-            <option value="">-- เลือกตำแหน่ง --</option>
-            <option>ครู</option>
-            <option>ผู้อำนวยการโรงเรียน</option>
-            <option>ศึกษานิเทศก์</option>
-          </select>
-        </div>
-        <div class="form-group" id="grade-group">
-          <label for="grade">ชั้นที่สอน</label>
-          <select id="grade">
-            <option value="">-- เลือกชั้นที่สอน --</option>
-            <optgroup label="อนุบาล">
-              <option>อนุบาล 1</option>
-              <option>อนุบาล 2</option>
-              <option>อนุบาล 3</option>
-            </optgroup>
-            <optgroup label="ประถมศึกษา">
-              <option>ป.1</option>
-              <option>ป.2</option>
-              <option>ป.3</option>
-              <option>ป.4</option>
-              <option>ป.5</option>
-              <option>ป.6</option>
-            </optgroup>
-            <optgroup label="มัธยมศึกษาตอนต้น">
-              <option>ม.1</option>
-              <option>ม.2</option>
-              <option>ม.3</option>
-            </optgroup>
-            <optgroup label="มัธยมศึกษาตอนปลาย">
-              <option>ม.4</option>
-              <option>ม.5</option>
-              <option>ม.6</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="form-group" id="school-group">
-          <label for="school">โรงเรียน</label>
-          <input type="text" id="school" placeholder="เช่น โรงเรียนบ้านหนองเล็ก" />
-        </div>
-        <div class="form-group">
-          <label for="district">สังกัด</label>
-          <input type="text" id="district" placeholder="เช่น สพป.กาฬสินธุ์ เขต 3" />
-        </div>
-        <div class="form-group">
-          <label for="semester">ภาคเรียน / ปีการศึกษา</label>
-          <input type="text" id="semester" placeholder="เช่น ภาคเรียนที่ 1/2567" />
-        </div>
+        <div id="error-msg" class="error-msg">ข้อมูลไม่ครบ กรุณาแก้ไขโปรไฟล์ก่อนดำเนินการต่อ</div>
+        <div id="profile-display" style="display:grid; gap:10px; margin-bottom:20px;"></div>
 
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="showMenu()">← กลับ</button>
-          <button class="btn btn-primary" onclick="goToUpload()">ถัดไป: อัปโหลดเอกสาร →</button>
+          <button class="btn btn-secondary" onclick="window.location.href='profile.html'">✏️ แก้ไขโปรไฟล์</button>
+          <button class="btn btn-primary" onclick="goToUpload()">ถัดไป →</button>
         </div>
       </div>
     </div>
@@ -148,36 +95,42 @@
     document.getElementById('greeting').textContent = `สวัสดี, ${user.display_name || ''}`;
     document.getElementById('greeting-sub').textContent = [user.position, user.school].filter(Boolean).join(' · ');
 
+    let currentProfile = { ...user };
+
+    function renderProfileDisplay(p) {
+      const isSupervisor = p.position === 'ศึกษานิเทศก์';
+      const rows = [
+        { label: 'ชื่อ-นามสกุล', value: p.display_name },
+        { label: 'ตำแหน่ง',      value: p.position },
+        !isSupervisor ? { label: 'ชั้นที่สอน', value: p.grade }    : null,
+        !isSupervisor ? { label: 'โรงเรียน',   value: p.school }   : null,
+        { label: 'สังกัด',       value: p.district },
+        { label: 'ภาคเรียน',     value: p.semester },
+      ].filter(Boolean);
+      document.getElementById('profile-display').innerHTML = rows.map(r =>
+        `<div style="display:flex; gap:8px; padding:8px 12px; background:var(--primary-light); border-radius:8px;">
+          <span style="font-size:13px; color:var(--text-muted); min-width:90px;">${r.label}</span>
+          <span style="font-size:14px; font-weight:600; color:var(--primary-dark);">${r.value || '<span style="color:var(--text-muted);font-weight:400;">ยังไม่ได้กรอก</span>'}</span>
+        </div>`
+      ).join('');
+    }
+
     async function showForm() {
       document.getElementById('section-menu').style.display = 'none';
       document.getElementById('section-form').style.display = 'block';
+      renderProfileDisplay(currentProfile);
 
-      // Fetch fresh profile from Supabase to get latest data
-      let profile = user;
       try {
-        const res = await fetch(
-          `https://otnrmfgquzjfidycehqo.supabase.co/rest/v1/profiles?id=eq.${user.id}&select=*`,
-          {
-            headers: {
-              apikey: 'sb_publishable_wO5l7ypI7_u1tw8nt5ce-g_PMzAU-lM',
-              Authorization: `Bearer ${Auth.getToken()}`,
-            },
-          }
-        );
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=*`, {
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${Auth.getToken()}` }
+        });
         const data = await res.json();
         if (data[0]) {
-          profile = { ...user, ...data[0] };
-          localStorage.setItem('sst_user', JSON.stringify(profile));
+          currentProfile = { ...user, ...data[0] };
+          localStorage.setItem('sst_user', JSON.stringify(currentProfile));
+          renderProfileDisplay(currentProfile);
         }
-      } catch { /* ใช้ข้อมูล cache แทน */ }
-
-      document.getElementById('teacher-name').value = profile.display_name || '';
-      document.getElementById('position').value = profile.position || '';
-      document.getElementById('grade').value = profile.grade || '';
-      document.getElementById('school').value = profile.school || '';
-      document.getElementById('district').value = profile.district || '';
-      document.getElementById('semester').value = profile.semester || '';
-      toggleFields();
+      } catch { /* ใช้ cache แทน */ }
     }
 
     function showMenu() {
@@ -185,31 +138,23 @@
       document.getElementById('section-menu').style.display = 'block';
     }
 
-    function toggleFields() {
-      const isSupervisor = document.getElementById('position').value === 'ศึกษานิเทศก์';
-      document.getElementById('grade-group').style.display = isSupervisor ? 'none' : '';
-      document.getElementById('school-group').style.display = isSupervisor ? 'none' : '';
-      if (isSupervisor) {
-        document.getElementById('grade').value = '';
-        document.getElementById('school').value = '';
-      }
-    }
-
     function goToUpload() {
-      const teacher_name = document.getElementById('teacher-name').value.trim();
-      const position = document.getElementById('position').value;
-      const grade = document.getElementById('grade').value;
-      const school = document.getElementById('school').value.trim();
-      const district = document.getElementById('district').value.trim();
-      const semester = document.getElementById('semester').value.trim();
+      const p = currentProfile;
+      const isSupervisor = p.position === 'ศึกษานิเทศก์';
       const err = document.getElementById('error-msg');
-      const isSupervisor = position === 'ศึกษานิเทศก์';
 
-      if (!teacher_name || !position || (!isSupervisor && !grade) || (!isSupervisor && !school) || !district || !semester) {
+      if (!p.display_name || !p.position || (!isSupervisor && !p.grade) || (!isSupervisor && !p.school) || !p.district || !p.semester) {
         err.classList.add('show'); return;
       }
       err.classList.remove('show');
-      State.save('sst_info', { teacher_name, position, grade, school, district, semester });
+      State.save('sst_info', {
+        teacher_name: p.display_name,
+        position: p.position,
+        grade: p.grade || '',
+        school: p.school || '',
+        district: p.district,
+        semester: p.semester,
+      });
       window.location.href = 'upload.html';
     }
   </script>
