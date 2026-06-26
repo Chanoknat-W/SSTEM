@@ -28,6 +28,7 @@
   <div class="page-header">
     <div class="badge">ผู้ประเมิน</div>
     <h1>สรุปผลประเมิน</h1>
+    <p id="page-subtitle" style="display:none;">ตรวจสอบผลการประเมินอีกครั้งก่อนบันทึกผล</p>
   </div>
 
   <!-- Document viewer (collapsible) -->
@@ -269,11 +270,13 @@
     });
     document.getElementById('bottom-actions').style.display = 'none';
     document.getElementById('panel-summary').style.display = 'block';
+    document.getElementById('page-subtitle').style.display = '';
   }
 
   function hideSummary() {
     document.getElementById('panel-summary').style.display = 'none';
     document.getElementById('bottom-actions').style.display = '';
+    document.getElementById('page-subtitle').style.display = 'none';
     switchTab(currentTab);
   }
 
