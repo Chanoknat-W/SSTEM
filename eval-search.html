@@ -128,6 +128,19 @@
     let allRows = [];
     let currentFilter = 'all';
 
+    // Auto-skip to teacher list if eval info already saved
+    const savedEvalInfo = localStorage.getItem('sst_eval_info');
+    if (savedEvalInfo) {
+      try {
+        evalInfo = JSON.parse(savedEvalInfo);
+        document.getElementById('eval-name-display').textContent =
+          `${evalInfo.name} · ${evalInfo.position} · ${evalInfo.school}`;
+        document.getElementById('section-eval-info').style.display = 'none';
+        document.getElementById('section-teacher-list').style.display = 'block';
+        load();
+      } catch { /* fallback to showing eval info form */ }
+    }
+
     const STATUS_LABEL = {
       pending: { text: '🕐 รอประเมิน', color: '#E65100', bg: '#FFF3E0' },
       evaluated: { text: '✅ ประเมินแล้ว', color: '#1B5E20', bg: '#E8F5E9' },
