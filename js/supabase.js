@@ -117,11 +117,9 @@ const SupabaseClient = {
     return rows[0] || null;
   },
 
-  // Get all pending/evaluated evaluations (for evaluators) — exclude own submissions
+  // Get all pending/evaluated evaluations (for evaluators)
   async getPendingEvaluations(search) {
-    const user = Auth.getUser();
     let url = `${SUPABASE_URL}/rest/v1/evaluations?eval_status=in.(pending,evaluated)&order=created_at.desc&select=*`;
-    if (user) url += `&user_id=neq.${user.id}`;
     if (search) {
       const q = encodeURIComponent(`%${search}%`);
       url += `&or=(teacher_name.ilike.${q},school.ilike.${q})`;

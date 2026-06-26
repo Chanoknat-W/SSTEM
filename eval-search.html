@@ -93,8 +93,7 @@
 
     async function load(search) {
       try {
-        const rows = await SupabaseClient.getPendingEvaluations(search || '');
-        allRows = rows.filter(r => r.user_id !== user.id);
+        allRows = await SupabaseClient.getPendingEvaluations(search || '');
         render();
       } catch (e) {
         if (e.message === '__SESSION_EXPIRED__') return;
