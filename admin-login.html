@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เข้าสู่ระบบผู้บริหาร | SST-EM</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { background:var(--primary-dark); min-height:100vh; display:flex; align-items:center; justify-content:center; margin:0; }
+    .login-card { background:#fff; border-radius:16px; padding:40px 32px; width:100%; max-width:380px; box-shadow:0 8px 32px rgba(0,0,0,0.2); }
+    .login-icon  { font-size:52px; text-align:center; margin-bottom:8px; }
+    .login-title { text-align:center; font-size:22px; font-weight:800; color:var(--primary-dark); margin:0 0 4px; }
+    .login-sub   { text-align:center; font-size:13px; color:var(--text-muted); margin:0 0 28px; }
+    .form-group  { margin-bottom:16px; }
+    .form-group label { display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; }
+    .form-group input { width:100%; padding:10px 14px; border:2px solid var(--border); border-radius:8px; font-size:15px; font-family:inherit; box-sizing:border-box; transition:.15s; }
+    .form-group input:focus { outline:none; border-color:var(--primary); }
+    #error-msg { color:#B71C1C; font-size:13px; text-align:center; margin-bottom:12px; display:none; background:#FFEBEE; padding:8px 12px; border-radius:8px; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="login-icon">🏛️</div>
+    <h2 class="login-title">ระบบผู้บริหาร</h2>
+    <p class="login-sub">SST-EM · Teacher Evaluation System</p>
+    <div id="error-msg"></div>
+    <div class="form-group">
+      <label for="username">ชื่อผู้ใช้</label>
+      <input type="text" id="username" placeholder="username" autocomplete="username" />
+    </div>
+    <div class="form-group">
+      <label for="password">รหัสผ่าน</label>
+      <input type="password" id="password" placeholder="password" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter') doLogin()" />
+    </div>
+    <button class="btn btn-primary" id="btn-login" style="width:100%; margin-top:8px;" onclick="doLogin()">
+      เข้าสู่ระบบ
+    </button>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script>
+    if (sessionStorage.getItem('sst_admin') && sessionStorage.getItem('sst_admin_token')) {
+      window.location.href = 'admin-dashboard.html';
+    }
+
+    async function doLogin() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const err      = document.getElementById('error-msg');
+      const btn      = document.getElementById('btn-login');
+
+      err.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'กำลังเข้าสู่ระบบ...';
+
+      const ok = await AdminAuth.login(username, password);
+      if (ok) {
+        window.location.href = 'admin-dashboard.html';
+      } else {
+        err.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'เข้าสู่ระบบ';
+      }
+    }
+  </script>
+</body>
+</html>

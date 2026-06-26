@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard ผู้บริหาร | SST-EM</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ---- header ---- */
+    .admin-header {
+      background: var(--primary-dark);
+      color: #fff;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .admin-header-left { display:flex; align-items:center; gap:10px; }
+    .admin-header-title { font-size:17px; font-weight:800; }
+    .admin-header-sub   { font-size:12px; opacity:.75; }
+
+    /* ---- semester filter ---- */
+    .semester-filter { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+    .sem-btn {
+      padding:6px 16px; border-radius:20px; font-size:13px; font-weight:600;
+      border:2px solid var(--border); background:#fff; cursor:pointer;
+      color:var(--text-muted); font-family:inherit; transition:.15s;
+    }
+    .sem-btn.active { background:var(--primary-dark); color:#fff; border-color:var(--primary-dark); }
+
+    /* ---- summary cards ---- */
+    .summary-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:20px; }
+    @media(min-width:600px) { .summary-grid { grid-template-columns:repeat(4,1fr); } }
+    .stat-card { background:#fff; border-radius:12px; padding:16px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+    .stat-num  { font-size:36px; font-weight:900; line-height:1; }
+    .stat-label{ font-size:12px; color:var(--text-muted); margin-top:6px; font-weight:600; }
+
+    /* ---- section card ---- */
+    .dash-card { background:#fff; border-radius:12px; padding:20px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+    .dash-card h3 { margin:0 0 16px; font-size:15px; font-weight:800; color:var(--primary-dark); }
+
+    /* ---- progress bar ---- */
+    .prog-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .prog-label { font-size:13px; font-weight:600; width:90px; flex-shrink:0; }
+    .prog-track { flex:1; background:#F0F0F0; border-radius:20px; height:14px; overflow:hidden; }
+    .prog-fill  { height:100%; border-radius:20px; transition:.4s; }
+    .prog-count { font-size:13px; font-weight:700; width:60px; text-align:right; flex-shrink:0; }
+
+    /* ---- domain avg ---- */
+    .domain-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .domain-label { font-size:13px; font-weight:600; width:160px; flex-shrink:0; color:var(--text-muted); }
+    .domain-score { font-size:18px; font-weight:900; color:var(--primary-dark); width:52px; flex-shrink:0; }
+    .domain-max   { font-size:12px; color:var(--text-muted); }
+
+    /* ---- school table ---- */
+    .school-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .school-table th { text-align:left; padding:8px 10px; background:var(--primary-light); font-weight:700; color:var(--primary-dark); font-size:12px; }
+    .school-table td { padding:8px 10px; border-bottom:1px solid var(--border); }
+    .school-table tr:last-child td { border-bottom:none; }
+    .school-table tr:hover td { background:#F8F9FF; }
+    .level-badge { padding:2px 8px; border-radius:20px; font-size:11px; font-weight:700; }
+
+    /* ---- no data ---- */
+    .no-data { text-align:center; color:var(--text-muted); padding:32px; font-size:14px; }
+  </style>
+</head>
+<body class="evaluator-theme" style="background:#F4F6FB; padding:0;">
+
+  <!-- Header -->
+  <div class="admin-header">
+    <div class="admin-header-left">
+      <span style="font-size:28px;">🏛️</span>
+      <div>
+        <div class="admin-header-title">Dashboard ผู้บริหาร</div>
+        <div class="admin-header-sub">SST-EM · Teacher Evaluation System</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span id="admin-name" style="font-size:13px; opacity:.85;"></span>
+      <button onclick="AdminAuth.logout()"
+        style="background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff;
+               padding:6px 14px; border-radius:8px; font-size:13px; cursor:pointer; font-family:inherit;">
+        ออกจากระบบ
+      </button>
+    </div>
+  </div>
+
+  <main style="max-width:860px; margin:0 auto; padding:20px 16px;">
+
+    <!-- Semester filter -->
+    <div class="semester-filter" id="semester-filter">
+      <button class="sem-btn active" data-sem="all" onclick="setFilter('all')">ทั้งหมด</button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="dash-card" style="text-align:center; color:var(--text-muted); padding:40px;">
+      กำลังโหลดข้อมูล...
+    </div>
+
+    <div id="content" style="display:none;">
+
+      <!-- Summary cards -->
+      <div class="summary-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-total" style="color:var(--primary-dark);">0</div>
+          <div class="stat-label">ส่งแล้วทั้งหมด</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-evaluated" style="color:#1B5E20;">0</div>
+          <div class="stat-label">ประเมินแล้ว</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-pending" style="color:#E65100;">0</div>
+          <div class="stat-label">รอประเมิน</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-rejected" style="color:#B71C1C;">0</div>
+          <div class="stat-label">เอกสารไม่ถูกต้อง</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+
+        <!-- Level distribution -->
+        <div class="dash-card" style="margin-bottom:0;">
+          <h3>ระดับผลการประเมิน</h3>
+          <div id="level-section">
+            <div class="no-data">ยังไม่มีข้อมูลการประเมิน</div>
+          </div>
+        </div>
+
+        <!-- Domain averages -->
+        <div class="dash-card" style="margin-bottom:0;">
+          <h3>คะแนนเฉลี่ยรายด้าน</h3>
+          <div id="domain-section">
+            <div class="no-data">ยังไม่มีข้อมูลการประเมิน</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- School breakdown -->
+      <div class="dash-card">
+        <h3>แยกตามโรงเรียน</h3>
+        <div style="overflow-x:auto;">
+          <table class="school-table">
+            <thead>
+              <tr>
+                <th>โรงเรียน</th>
+                <th style="text-align:center;">ส่งแล้ว</th>
+                <th style="text-align:center;">ประเมินแล้ว</th>
+                <th style="text-align:center;">คะแนนเฉลี่ย</th>
+                <th style="text-align:center;">ระดับที่พบบ่อย</th>
+              </tr>
+            </thead>
+            <tbody id="school-tbody">
+              <tr><td colspan="5" class="no-data">ไม่มีข้อมูล</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script>
+    if (!AdminAuth.requireAuth()) throw new Error('not auth');
+    document.getElementById('admin-name').textContent = '👤 ' + AdminAuth.getUsername();
+
+    const LEVEL_COLOR = {
+      'ดีมาก':      { color:'#1B5E20', bg:'#E8F5E9', fill:'#2E7D32' },
+      'ดี':          { color:'#1B5E20', bg:'#E8F5E9', fill:'#4CAF50' },
+      'พอใช้':       { color:'#E65100', bg:'#FFF3E0', fill:'#FF9800' },
+      'ควรปรับปรุง': { color:'#B71C1C', bg:'#FFEBEE', fill:'#F44336' },
+    };
+    const LEVEL_ORDER = ['ดีมาก','ดี','พอใช้','ควรปรับปรุง'];
+
+    let allRows     = [];
+    let currentSem  = 'all';
+
+    // ---- Fetch all evaluations ----
+    async function fetchAll() {
+      const token = AdminAuth.getToken();
+      const cols  = 'id,school,district,semester,eval_status,level,domain1_total,domain2_total,domain3_total,total_score';
+      const res   = await fetch(
+        `${SUPABASE_URL}/rest/v1/evaluations?eval_status=in.(pending,evaluated,doc_rejected)&order=created_at.desc&select=${cols}`,
+        { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` } }
+      );
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    // ---- Build semester filter tabs ----
+    function buildSemesterFilter(rows) {
+      const sems = [...new Set(rows.map(r => r.semester).filter(Boolean))].sort().reverse();
+      const container = document.getElementById('semester-filter');
+      sems.forEach(s => {
+        const btn = document.createElement('button');
+        btn.className = 'sem-btn';
+        btn.dataset.sem = s;
+        btn.textContent = s;
+        btn.onclick = () => setFilter(s);
+        container.appendChild(btn);
+      });
+    }
+
+    function setFilter(sem) {
+      currentSem = sem;
+      document.querySelectorAll('.sem-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.sem === sem);
+      });
+      render(sem === 'all' ? allRows : allRows.filter(r => r.semester === sem));
+    }
+
+    // ---- Aggregate data ----
+    function aggregate(rows) {
+      const evaluated    = rows.filter(r => r.eval_status === 'evaluated');
+      const pending      = rows.filter(r => r.eval_status === 'pending');
+      const doc_rejected = rows.filter(r => r.eval_status === 'doc_rejected');
+
+      // Level counts
+      const levels = {};
+      LEVEL_ORDER.forEach(l => levels[l] = 0);
+      evaluated.forEach(r => { if (r.level && levels[r.level] !== undefined) levels[r.level]++; });
+
+      // Domain averages
+      const evalCount = evaluated.length;
+      const d1avg = evalCount ? evaluated.reduce((s, r) => s + (r.domain1_total || 0), 0) / evalCount : null;
+      const d2avg = evalCount ? evaluated.reduce((s, r) => s + (r.domain2_total || 0), 0) / evalCount : null;
+      const d3avg = evalCount ? evaluated.reduce((s, r) => s + (r.domain3_total || 0), 0) / evalCount : null;
+
+      // School breakdown
+      const schools = {};
+      rows.forEach(r => {
+        const key = r.school || 'ไม่ระบุโรงเรียน';
+        if (!schools[key]) schools[key] = { total: 0, evaluated: 0, scores: [], levels: {} };
+        schools[key].total++;
+        if (r.eval_status === 'evaluated') {
+          schools[key].evaluated++;
+          if (r.total_score !== null && r.total_score !== undefined) schools[key].scores.push(r.total_score);
+          const lv = r.level || '';
+          if (lv) schools[key].levels[lv] = (schools[key].levels[lv] || 0) + 1;
+        }
+      });
+
+      return {
+        total: rows.length,
+        evaluated: evalCount,
+        pending: pending.length,
+        doc_rejected: doc_rejected.length,
+        levels, d1avg, d2avg, d3avg, schools,
+      };
+    }
+
+    // ---- Render dashboard ----
+    function render(rows) {
+      const agg = aggregate(rows);
+
+      // Summary cards
+      document.getElementById('stat-total').textContent     = agg.total;
+      document.getElementById('stat-evaluated').textContent = agg.evaluated;
+      document.getElementById('stat-pending').textContent   = agg.pending;
+      document.getElementById('stat-rejected').textContent  = agg.doc_rejected;
+
+      // Level distribution
+      const levelEl = document.getElementById('level-section');
+      if (agg.evaluated === 0) {
+        levelEl.innerHTML = '<div class="no-data">ยังไม่มีข้อมูลการประเมิน</div>';
+      } else {
+        levelEl.innerHTML = LEVEL_ORDER.map(lv => {
+          const cnt  = agg.levels[lv] || 0;
+          const pct  = Math.round((cnt / agg.evaluated) * 100);
+          const c    = LEVEL_COLOR[lv] || { fill:'#9E9E9E', color:'#757575' };
+          return `<div class="prog-row">
+            <div class="prog-label" style="color:${c.color};">${lv}</div>
+            <div class="prog-track">
+              <div class="prog-fill" style="width:${pct}%; background:${c.fill};"></div>
+            </div>
+            <div class="prog-count" style="color:${c.color};">${cnt} คน</div>
+          </div>`;
+        }).join('');
+      }
+
+      // Domain averages
+      const domainEl = document.getElementById('domain-section');
+      if (agg.d1avg === null) {
+        domainEl.innerHTML = '<div class="no-data">ยังไม่มีข้อมูลการประเมิน</div>';
+      } else {
+        const domains = [
+          { label: 'ด้านที่ 1 การจัดการเรียนรู้',   avg: agg.d1avg },
+          { label: 'ด้านที่ 2 สถาบันและบริบท',       avg: agg.d2avg },
+          { label: 'ด้านที่ 3 พฤติกรรมวิชาชีพ',     avg: agg.d3avg },
+        ];
+        domainEl.innerHTML = domains.map(d => {
+          const pct = Math.round((d.avg / 24) * 100);
+          return `<div class="domain-row">
+            <div class="domain-label">${d.label}</div>
+            <div class="domain-score">${d.avg.toFixed(1)}</div>
+            <div style="flex:1;">
+              <div class="prog-track">
+                <div class="prog-fill" style="width:${pct}%; background:var(--primary);"></div>
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">จาก 24 คะแนน</div>
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      // School table
+      const tbody = document.getElementById('school-tbody');
+      const schoolEntries = Object.entries(agg.schools)
+        .sort((a, b) => b[1].total - a[1].total);
+
+      if (!schoolEntries.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="no-data">ไม่มีข้อมูล</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = schoolEntries.map(([school, data]) => {
+        const avgScore = data.scores.length
+          ? (data.scores.reduce((s, v) => s + v, 0) / data.scores.length).toFixed(1)
+          : '-';
+        const topLevel = data.evaluated > 0
+          ? Object.entries(data.levels).sort((a, b) => b[1] - a[1])[0]?.[0] || '-'
+          : '-';
+        const lc = LEVEL_COLOR[topLevel] || { color:'#757575', bg:'#F5F5F5' };
+        const evalPct = data.total > 0 ? Math.round((data.evaluated / data.total) * 100) : 0;
+        return `<tr>
+          <td style="font-weight:600; color:var(--primary-dark);">${school}</td>
+          <td style="text-align:center;">${data.total}</td>
+          <td style="text-align:center;">
+            ${data.evaluated}
+            <span style="font-size:11px; color:var(--text-muted);"> (${evalPct}%)</span>
+          </td>
+          <td style="text-align:center; font-weight:700; color:var(--primary-dark);">${avgScore}</td>
+          <td style="text-align:center;">
+            ${topLevel !== '-'
+              ? `<span class="level-badge" style="background:${lc.bg}; color:${lc.color};">${topLevel}</span>`
+              : '<span style="color:var(--text-muted);">-</span>'}
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ---- Init ----
+    async function init() {
+      try {
+        allRows = await fetchAll();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        buildSemesterFilter(allRows);
+        render(allRows);
+      } catch (e) {
+        document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
