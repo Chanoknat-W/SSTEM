@@ -291,6 +291,7 @@
       ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3','sst_eval_target_id'].forEach(k => localStorage.removeItem(k));
       window.location.href = 'eval-result.html?id=' + evalId;
     } catch (e) {
+      if (e.message === '__SESSION_EXPIRED__') return;
       err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
       err.classList.add('show');
       btn.disabled = false;

@@ -283,6 +283,7 @@
       }
 
     } catch (e) {
+      if (e.message === '__SESSION_EXPIRED__') return;
       document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
     }
   }

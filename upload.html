@@ -272,6 +272,7 @@
         document.getElementById('draft-banner').style.display = 'block';
         showToast();
       } catch (e) {
+        if (e.message === '__SESSION_EXPIRED__') return;
         err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
         err.classList.add('show');
         hideProgress();
@@ -315,6 +316,7 @@
         setProgress(100, 'ส่งเรียบร้อย!');
         setTimeout(() => { window.location.href = 'result.html'; }, 500);
       } catch (e) {
+        if (e.message === '__SESSION_EXPIRED__') return;
         err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
         err.classList.add('show');
         hideProgress();

@@ -7,11 +7,11 @@ const SupabaseClient = {
         const ok = await Auth.refreshToken();
         if (ok) {
           const newOpts = { ...options, headers: { ...options.headers, Authorization: `Bearer ${Auth.getToken()}` } };
-          return fetch(url, newOpts);
+          const retryRes = await fetch(url, newOpts);
+          if (retryRes.ok) return retryRes;
         }
-        // Refresh token หมดอายุ — ต้องล็อกอินใหม่
         Auth.logout();
-        return new Response(text, { status: res.status, statusText: res.statusText });
+        throw new Error('__SESSION_EXPIRED__');
       }
       return new Response(text, { status: res.status, statusText: res.statusText });
     }

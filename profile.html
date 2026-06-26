@@ -151,6 +151,7 @@
       document.getElementById('success-msg').style.display = 'block';
       document.getElementById('success-msg').scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (e) {
+      if (e.message === '__SESSION_EXPIRED__') return;
       err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
       err.classList.add('show');
     } finally {
