@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>อัปโหลดเอกสาร | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .upload-item-fail { border:2px solid #B71C1C !important; border-radius:10px; padding:4px; background:#FFF5F5; }
+    .upload-fail-tag  { font-size:11px; font-weight:700; color:#B71C1C; margin-top:4px; display:block; }
+  </style>
 </head>
 <body>
 
@@ -20,9 +24,9 @@
 
   <main class="page">
     <div class="page-header">
-      <div class="badge">ขั้นตอนที่ 2 จาก 3</div>
-      <h1>อัปโหลดเอกสารประกอบ</h1>
-      <p>สามารถบันทึก draft และกลับมาแก้ไขได้ภายหลัง · ต้องส่งเอกสารให้ครบทุกไฟล์</p>
+      <div class="badge" id="page-badge">ขั้นตอนที่ 2 จาก 3</div>
+      <h1 id="page-title">อัปโหลดเอกสารประกอบ</h1>
+      <p id="page-subtitle">สามารถบันทึก draft และกลับมาแก้ไขได้ภายหลัง · ต้องส่งเอกสารให้ครบทุกไฟล์</p>
     </div>
 
     <div id="draft-banner" style="display:none;" class="draft-banner">
@@ -142,15 +146,56 @@
     if (!user) throw new Error('not auth');
 
     const ALL_KEYS = ['d1_1','d1_2','d1_3','d2_1','d2_2','d2_3','d3_1','d3_2','d3_3','d3_4'];
-    const newFiles    = {};   // files selected this session
-    let existingFiles = {};   // files already saved to Supabase
+    const newFiles    = {};
+    let existingFiles = {};
     let currentEvalId = null;
+    let failedKeys    = [];
 
-    // ---- Load existing draft ----
-    const urlId = new URLSearchParams(location.search).get('id');
-    const storedId = localStorage.getItem('sst_eval_id');
+    const urlParams  = new URLSearchParams(location.search);
+    const urlId      = urlParams.get('id');
+    const isResubmit = urlParams.get('resubmit') === 'true';
+    const storedId   = localStorage.getItem('sst_eval_id');
     currentEvalId = urlId || storedId || null;
 
+    // ---- Resubmit mode: update UI ----
+    if (isResubmit) {
+      document.getElementById('page-badge').textContent    = 'แก้ไขเอกสาร';
+      document.getElementById('page-title').textContent    = 'แก้ไขเอกสารและส่งใหม่';
+      document.getElementById('page-subtitle').textContent = 'อัปโหลดเอกสารที่ไม่ผ่านใหม่ แล้วส่งให้ผู้ประเมินตรวจอีกครั้ง';
+      document.getElementById('btn-draft').style.display   = 'none';
+      document.getElementById('btn-submit').textContent    = 'ส่งเอกสารใหม่ →';
+      document.querySelector('nav.progress-bar').style.display = 'none';
+    }
+
+    // ---- Load for resubmit mode ----
+    async function loadResubmit() {
+      if (!currentEvalId) { window.location.href = 'my-results.html'; return; }
+      try {
+        const row = await SupabaseClient.getEvaluation(currentEvalId);
+        if (!row || row.eval_status !== 'doc_rejected') { window.location.href = 'my-results.html'; return; }
+        existingFiles = row.files || {};
+        const checks  = row.doc_checks || {};
+        failedKeys    = Object.keys(checks).filter(k => checks[k] === 'fail');
+        showResubmitFiles();
+      } catch { window.location.href = 'my-results.html'; }
+    }
+
+    function showResubmitFiles() {
+      Object.entries(existingFiles).forEach(([key, val]) => {
+        const nameEl = document.getElementById(`name-${key}`);
+        const wrap   = document.getElementById(`wrap-${key}`);
+        if (!nameEl) return;
+        if (failedKeys.includes(key)) {
+          wrap.classList.add('upload-item-fail');
+          nameEl.innerHTML = `<a href="${val.url}" target="_blank" style="color:#B71C1C; text-decoration:underline;">📄 ${val.name}</a><span class="upload-fail-tag">⚠️ เอกสารนี้ไม่ผ่าน — กรุณาอัปโหลดใหม่</span>`;
+        } else {
+          wrap.classList.add('upload-item-done');
+          nameEl.innerHTML = `<a href="${val.url}" target="_blank" style="color:var(--primary); text-decoration:underline;">✓ ${val.name}</a>`;
+        }
+      });
+    }
+
+    // ---- Load existing draft ----
     async function loadDraft() {
       if (!currentEvalId) return;
       try {
@@ -162,7 +207,6 @@
           document.getElementById('draft-banner').style.display = 'block';
           showExistingFiles();
         }
-        // Restore info from DB if not in localStorage
         if (!State.load('sst_info')) {
           State.save('sst_info', {
             teacher_name: row.teacher_name,
@@ -191,10 +235,17 @@
         newFiles[key] = file;
         nameEl.innerHTML = `<span style="color:var(--primary);">📎 ${file.name} <small style="color:var(--text-muted);">(ใหม่)</small></span>`;
         wrap.classList.add('upload-item-done');
+        wrap.classList.remove('upload-item-fail');
       } else {
         delete newFiles[key];
         if (existingFiles[key]) {
-          nameEl.innerHTML = `<a href="${existingFiles[key].url}" target="_blank" style="color:var(--primary);">✓ ${existingFiles[key].name}</a>`;
+          if (isResubmit && failedKeys.includes(key)) {
+            wrap.classList.add('upload-item-fail');
+            wrap.classList.remove('upload-item-done');
+            nameEl.innerHTML = `<a href="${existingFiles[key].url}" target="_blank" style="color:#B71C1C; text-decoration:underline;">📄 ${existingFiles[key].name}</a><span class="upload-fail-tag">⚠️ เอกสารนี้ไม่ผ่าน — กรุณาอัปโหลดใหม่</span>`;
+          } else {
+            nameEl.innerHTML = `<a href="${existingFiles[key].url}" target="_blank" style="color:var(--primary);">✓ ${existingFiles[key].name}</a>`;
+          }
         } else {
           nameEl.textContent = 'ยังไม่ได้เลือกไฟล์';
           nameEl.style.color = '';
@@ -208,6 +259,17 @@
     }
 
     function validateDomains() {
+      if (isResubmit) {
+        const missing = failedKeys.filter(k => !newFiles[k]);
+        if (missing.length) {
+          const labels = missing.map(k => {
+            const parts = k.split('_');
+            return 'ไฟล์ที่ ' + parts[0].replace('d','') + '.' + parts[1];
+          });
+          return 'กรุณาอัปโหลดเอกสารที่ไม่ผ่านใหม่ให้ครบ (ยังขาด: ' + labels.join(', ') + ')';
+        }
+        return null;
+      }
       const missing = ALL_KEYS.filter(k => !hasFile(k));
       if (missing.length) {
         const labels = missing.map(k => {
@@ -268,7 +330,6 @@
         }
 
         existingFiles = mergedFiles;
-        // Clear newFiles and refresh display
         Object.keys(newFiles).forEach(k => delete newFiles[k]);
         showExistingFiles();
         hideProgress();
@@ -310,22 +371,34 @@
           : { ...existingFiles };
         setProgress(95, 'กำลังส่งเอกสาร...');
 
-        if (currentEvalId) {
-          await SupabaseClient.updateEvaluation(currentEvalId, { files: mergedFiles, eval_status: 'pending' });
+        if (isResubmit) {
+          await SupabaseClient.updateEvaluation(currentEvalId, {
+            files:        mergedFiles,
+            eval_status:  'pending',
+            doc_checks:   {},
+            eval_by:      null,
+            eval_by_name: null,
+            evaluated_at: null,
+          });
+          setProgress(100, 'ส่งเรียบร้อย!');
+          setTimeout(() => { window.location.href = 'my-results.html'; }, 500);
         } else {
-          currentEvalId = await SupabaseClient.saveEvaluation(mergedFiles, 'pending');
+          if (currentEvalId) {
+            await SupabaseClient.updateEvaluation(currentEvalId, { files: mergedFiles, eval_status: 'pending' });
+          } else {
+            currentEvalId = await SupabaseClient.saveEvaluation(mergedFiles, 'pending');
+          }
+          localStorage.setItem('sst_eval_id', currentEvalId);
+          setProgress(100, 'ส่งเรียบร้อย!');
+          setTimeout(() => { window.location.href = 'result.html'; }, 500);
         }
-        localStorage.setItem('sst_eval_id', currentEvalId);
-
-        setProgress(100, 'ส่งเรียบร้อย!');
-        setTimeout(() => { window.location.href = 'result.html'; }, 500);
       } catch (e) {
         if (e.message === '__SESSION_EXPIRED__') return;
         err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
         err.classList.add('show');
         hideProgress();
         btnD.disabled = false; btnS.disabled = false;
-        btnS.textContent = 'ส่งเอกสารสำหรับประเมิน →';
+        btnS.textContent = isResubmit ? 'ส่งเอกสารใหม่ →' : 'ส่งเอกสารสำหรับประเมิน →';
       }
     }
 
@@ -339,7 +412,11 @@
       }, 2500);
     }
 
-    loadDraft();
+    if (isResubmit) {
+      loadResubmit();
+    } else {
+      loadDraft();
+    }
   </script>
 </body>
 </html>
