@@ -16,6 +16,7 @@
 <div id="footer-container"></div>
 
 
+<script src="js/questions.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/include.js"></script>
@@ -226,6 +227,46 @@
         </div>`;
       document.getElementById('suggestions-area').insertAdjacentHTML('afterend', criteriaHtml);
 
+      // Answer details section (evaluator only)
+      if (viewMode !== 'self' && typeof QUESTIONS !== 'undefined') {
+        const domainAnswers = { domain1: d1Ans, domain2: d2Ans, domain3: d3Ans };
+        const detailHtml = `
+          <div class="card no-print" style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleAnswers()">
+              <h3 style="font-size:15px; font-weight:700; color:var(--primary-dark); margin:0;">รายละเอียดคำตอบแต่ละข้อ</h3>
+              <span id="answers-toggle-icon" style="font-size:18px; color:var(--primary);">▼</span>
+            </div>
+            <div id="answers-detail" style="display:none; margin-top:16px;">
+              ${['domain1','domain2','domain3'].map((dk, di) => {
+                const ans = domainAnswers[dk] || {};
+                const qs = QUESTIONS[dk];
+                return `
+                  <div style="margin-bottom:20px;">
+                    <div style="font-size:14px; font-weight:700; color:var(--primary-dark); margin-bottom:10px; padding-bottom:6px; border-bottom:2px solid var(--primary-light);">
+                      ด้านที่ ${di+1} — ${DOMAIN_NAMES[di]}
+                    </div>
+                    ${qs.questions.map((q, qi) => {
+                      const score = ans[q.id];
+                      const chosen = q.choices.find(c => c.score === score);
+                      return \`
+                        <div style="margin-bottom:10px; padding:10px 12px; border-radius:8px; background:#FAFAFA; border:1px solid var(--border);">
+                          <div style="font-size:13px; color:var(--text-muted); margin-bottom:6px;">ข้อ ${qi+1}. ${q.text}</div>
+                          \${chosen
+                            ? \`<div style="display:flex; align-items:center; gap:8px;">
+                                <span style="background:var(--primary-dark); color:#fff; font-size:12px; font-weight:700; padding:2px 8px; border-radius:10px; white-space:nowrap;">\${score} คะแนน</span>
+                                <span style="font-size:13px; color:#333;">\${chosen.text}</span>
+                               </div>\`
+                            : \`<span style="font-size:13px; color:var(--text-muted); font-style:italic;">ยังไม่มีคำตอบ</span>\`
+                          }
+                        </div>\`;
+                    }).join('')}
+                  </div>`;
+              }).join('')}
+            </div>
+          </div>`;
+        document.querySelector('#action-btns').insertAdjacentHTML('beforebegin', detailHtml);
+      }
+
       // Action buttons
       const btnArea = document.getElementById('action-btns');
       if (viewMode === 'self') {
@@ -243,6 +284,15 @@
     } catch (e) {
       document.getElementById('loading').textContent = 'เกิดข้อผิดพลาด: ' + e.message;
     }
+  }
+
+  function toggleAnswers() {
+    const el = document.getElementById('answers-detail');
+    const icon = document.getElementById('answers-toggle-icon');
+    if (!el) return;
+    const open = el.style.display === 'none';
+    el.style.display = open ? 'block' : 'none';
+    icon.textContent = open ? '▲' : '▼';
   }
 
   load();
