@@ -72,6 +72,19 @@
               ${row.evaluated_at ? `<div style="font-size:12px; color:var(--text-muted);">✅ ประเมินเมื่อ ${new Date(row.evaluated_at).toLocaleString('th-TH')}</div>` : ''}
               ${row.eval_by_name ? `<div style="font-size:12px; color:var(--text-muted);">👤 ประเมินโดย: <strong>${row.eval_by_name}</strong></div>` : ''}
               ${row.level ? `<div style="font-size:13px; font-weight:700; color:var(--primary-dark); margin-top:4px;">ระดับ: ${row.level}</div>` : ''}
+              ${row.eval_status === 'doc_rejected' && row.doc_checks ? (() => {
+                const FILE_LABEL = {
+                  d1_1:'1.1 แบบบันทึกการสะท้อนคิด', d1_2:'1.2 แบบสังเกตการสอน / ร่องรอยใบงาน', d1_3:'1.3 แบบสังเกตห้องเรียน / ภาพถ่ายสื่อ',
+                  d2_1:'2.1 แบบประเมินการมีส่วนร่วมชุมชน', d2_2:'2.2 บันทึกเชิญวิทยากร / ภาพถ่ายกิจกรรม', d2_3:'2.3 แบบสัมภาษณ์ตัวแทนกรรมการสถานศึกษา',
+                  d3_1:'3.1 เกณฑ์รูบริคภาวะผู้นำทางวิชาการ', d3_2:'3.2 แบบบันทึก One-Page Reflector', d3_3:'3.3 แบบสังเกตพฤติกรรม / สัมภาษณ์เพื่อนครู', d3_4:'3.4 แบบสังเกตพฤติกรรมการทำงาน',
+                };
+                const failed = Object.entries(row.doc_checks).filter(([,v]) => v === 'fail');
+                if (!failed.length) return '';
+                return '<div style="margin-top:8px; padding:10px 12px; background:#FFEBEE; border-radius:8px; border-left:3px solid #B71C1C;">'
+                  + '<div style="font-size:12px; font-weight:700; color:#B71C1C; margin-bottom:6px;">เอกสารที่ไม่ถูกต้อง:</div>'
+                  + failed.map(([k]) => `<div style="font-size:12px; color:#B71C1C;">✗ ${FILE_LABEL[k] || k}</div>`).join('')
+                  + '</div>';
+              })() : ''}
             </div>
             <span style="padding:4px 12px; border-radius:20px; font-size:13px; font-weight:700;
               background:${st.bg}; color:${st.color};">${st.text}</span>
@@ -87,7 +100,7 @@
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             ${row.eval_status === 'draft' ? `
               <a href="upload.html?id=${row.id}" class="btn btn-secondary" style="flex:1; font-size:14px; text-decoration:none; text-align:center;">✏️ แก้ไขและส่งเอกสาร</a>
-            ` : row.eval_status === 'evaluated' ? `
+            ` : row.eval_status === 'evaluated' || row.eval_status === 'doc_rejected' ? `
               <a href="eval-result.html?id=${row.id}&view=self" class="btn btn-primary" style="flex:1; font-size:14px; text-decoration:none; text-align:center;">ดูผลการประเมิน</a>
             ` : `
               <div style="flex:1; text-align:center; font-size:14px; color:var(--text-muted); padding:14px 0;">รอผู้ประเมินดำเนินการ</div>
