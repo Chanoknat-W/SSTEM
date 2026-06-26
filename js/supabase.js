@@ -3,7 +3,7 @@ const SupabaseClient = {
     let res = await fetch(url, options);
     if (res.status === 401 || res.status === 403) {
       const text = await res.text();
-      if (text.includes('expired') || text.includes('JWT')) {
+      if (text.includes('expired') || text.includes('JWT') || text.includes('exp') || text.includes('Unauthorized')) {
         const ok = await Auth.refreshToken();
         if (ok) {
           const newOpts = { ...options, headers: { ...options.headers, Authorization: `Bearer ${Auth.getToken()}` } };
