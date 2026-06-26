@@ -11,33 +11,8 @@
 <body>
   <main class="page">
 
-    <!-- Menu -->
-    <div id="section-menu">
-      <div class="page-header">
-        <div class="badge">ผู้รับการประเมิน</div>
-      </div>
-
-      <div class="role-cards">
-        <button class="role-card" onclick="showForm()">
-          <div class="role-icon-large">📝</div>
-          <div class="role-label">รับการประเมินใหม่</div>
-          <div class="role-sub">อัปโหลดเอกสารประกอบ</div>
-        </button>
-        <button class="role-card" onclick="window.location.href='my-results.html'">
-          <div class="role-icon-large">📊</div>
-          <div class="role-label">ดูผลประเมิน</div>
-          <div class="role-sub">ประวัติการประเมินทั้งหมด</div>
-        </button>
-      </div>
-
-      <div style="text-align:center; margin-top:8px;">
-        <button class="btn btn-secondary" onclick="window.location.href='home.html'"
-          style="font-size:14px; padding:8px 20px;">← เปลี่ยนบทบาท</button>
-      </div>
-    </div>
-
     <!-- Info Form -->
-    <div id="section-form" style="display:none;">
+    <div id="section-form">
       <nav class="progress-bar"
         style="margin: -24px -16px 24px; position:static; box-shadow:none; border-bottom:1px solid var(--border);">
         <div class="progress-steps">
@@ -95,7 +70,7 @@
 
     let currentProfile = { ...user };
 
-    if (new URLSearchParams(location.search).get('start') === '1') showForm();
+    showForm();
 
     function renderProfileDisplay(p) {
       const isSupervisor = p.position === 'ศึกษานิเทศก์';
@@ -116,8 +91,6 @@
     }
 
     async function showForm() {
-      document.getElementById('section-menu').style.display = 'none';
-      document.getElementById('section-form').style.display = 'block';
       renderProfileDisplay(currentProfile);
 
       try {
@@ -131,11 +104,6 @@
           renderProfileDisplay(currentProfile);
         }
       } catch { /* ใช้ cache แทน */ }
-    }
-
-    function showMenu() {
-      document.getElementById('section-form').style.display = 'none';
-      document.getElementById('section-menu').style.display = 'block';
     }
 
     function goToUpload() {
