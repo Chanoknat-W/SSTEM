@@ -136,6 +136,18 @@
           </div>
           <div style="font-size:14px; color:var(--text-muted);">ภาคเรียน: ${row.semester || '-'}</div>`;
 
+        // Pre-populate doc_checks from DB before rendering (so buttons show correct state)
+        const existingChecks = row.doc_checks && Object.keys(row.doc_checks).length ? row.doc_checks : {};
+        Object.assign(docChecks, existingChecks);
+
+        // Pre-populate eval answers from DB
+        ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3'].forEach(k => localStorage.removeItem(k));
+        if (row.eval_scores) {
+          ['domain1','domain2','domain3'].forEach(dk => {
+            if (row.eval_scores[dk]) localStorage.setItem('sst_eval_' + dk, JSON.stringify(row.eval_scores[dk]));
+          });
+        }
+
         const files    = row.files || {};
         const fileKeys = Object.keys(files);
 
@@ -150,8 +162,11 @@
 
         // Store target eval id for domain pages
         localStorage.setItem('sst_eval_target_id', evalId);
-        // Clear previous eval answers and doc checks
-        ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3','sst_doc_checks'].forEach(k => localStorage.removeItem(k));
+        if (Object.keys(existingChecks).length) {
+          localStorage.setItem('sst_doc_checks', JSON.stringify(docChecks));
+        } else {
+          localStorage.removeItem('sst_doc_checks');
+        }
 
       } catch (e) {
         if (e.message === '__SESSION_EXPIRED__') return;
