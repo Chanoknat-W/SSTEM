@@ -74,7 +74,7 @@
     </div>
 
     <div class="btn-row">
-      <button class="btn btn-secondary" onclick="window.location.href='home.html'">← กลับ</button>
+      <button class="btn btn-secondary" onclick="goBack()">← กลับ</button>
       <button class="btn btn-primary" id="btn-save" onclick="saveProfile()">บันทึก</button>
     </div>
   </div>
@@ -91,6 +91,12 @@
 
   const user = Auth.requireAuth();
   if (!user) throw new Error('not auth');
+
+  const _from = new URLSearchParams(location.search).get('from');
+
+  function goBack() {
+    window.location.href = _from === 'start' ? 'start.html' : 'home.html';
+  }
 
   // Pre-fill fields
   document.getElementById('email').value = user.email || '';
