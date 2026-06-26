@@ -344,14 +344,22 @@
         body.innerHTML = '<div style="font-size:13px;color:var(--text-muted);">ยังไม่มีเอกสารแนบ</div>';
         return;
       }
+      const docChecks = JSON.parse(localStorage.getItem('sst_doc_checks') || '{}');
       body.innerHTML = DOC_DOMAINS.map(({ prefix, label }) => {
         const domainKeys = keys.filter(k => k.startsWith(prefix));
         if (!domainKeys.length) return '';
         return `<div class="doc-domain-label">${label}</div>` +
-          domainKeys.map(k => `
-            <a href="${files[k].url}" target="_blank" class="doc-file-link">
-              📄 ${FILE_LABEL[k] || k}
-            </a>`).join('');
+          domainKeys.map(k => {
+            const status = docChecks[k];
+            const badge = status === 'pass'
+              ? `<span style="margin-left:auto;font-size:11px;font-weight:700;color:#2E7D32;background:#E8F5E9;border-radius:10px;padding:2px 8px;">✓ ผ่าน</span>`
+              : status === 'fail'
+              ? `<span style="margin-left:auto;font-size:11px;font-weight:700;color:#B71C1C;background:#FFEBEE;border-radius:10px;padding:2px 8px;">✗ ไม่ผ่าน</span>`
+              : '';
+            return `<a href="${files[k].url}" target="_blank" class="doc-file-link">
+              📄 ${FILE_LABEL[k] || k}${badge}
+            </a>`;
+          }).join('');
       }).join('');
     } catch {
       document.getElementById('doc-panel-body').innerHTML = '<div style="font-size:13px;color:var(--text-muted);">โหลดเอกสารไม่สำเร็จ</div>';
