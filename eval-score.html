@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ตรวจเอกสาร | SST-EM</title>
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .doc-check-row { display:flex; gap:8px; margin-top:6px; }
+    .doc-check-btn { padding:5px 14px; border-radius:20px; font-size:12px; font-weight:700; border:1.5px solid; cursor:pointer; background:none; transition:.15s; }
+    .doc-check-btn.pass { color:#2E7D32; border-color:#2E7D32; }
+    .doc-check-btn.fail { color:#B71C1C; border-color:#B71C1C; }
+    .doc-check-btn.pass.active { background:#2E7D32; color:#fff; }
+    .doc-check-btn.fail.active { background:#B71C1C; color:#fff; }
+  </style>
 </head>
 <body class="evaluator-theme">
 
@@ -79,6 +87,19 @@
       d3_4:'3.4 แบบสังเกตพฤติกรรมการทำงาน',
     };
 
+    const docChecks = JSON.parse(localStorage.getItem('sst_doc_checks') || '{}');
+
+    function setDocCheck(key, status) {
+      if (docChecks[key] === status) {
+        delete docChecks[key];
+      } else {
+        docChecks[key] = status;
+      }
+      localStorage.setItem('sst_doc_checks', JSON.stringify(docChecks));
+      document.getElementById('chk-pass-' + key).classList.toggle('active', docChecks[key] === 'pass');
+      document.getElementById('chk-fail-' + key).classList.toggle('active', docChecks[key] === 'fail');
+    }
+
     function renderFiles(prefix, files, fileKeys) {
       const domainKeys = fileKeys.filter(k => k.startsWith(prefix));
       if (!domainKeys.length) return;
@@ -90,6 +111,10 @@
           <div class="upload-label">${FILE_LABEL[k] || k}</div>
           <a href="${files[k].url}" target="_blank" class="upload-btn-label">เปิดไฟล์</a>
           <span class="upload-filename" style="color:var(--primary);">✓ ${files[k].name}</span>
+          <div class="doc-check-row">
+            <button class="doc-check-btn pass${docChecks[k] === 'pass' ? ' active' : ''}" id="chk-pass-${k}" onclick="setDocCheck('${k}','pass')">✓ ผ่าน</button>
+            <button class="doc-check-btn fail${docChecks[k] === 'fail' ? ' active' : ''}" id="chk-fail-${k}" onclick="setDocCheck('${k}','fail')">✗ ไม่ผ่าน</button>
+          </div>
         </div>`).join('');
     }
 
@@ -123,8 +148,8 @@
 
         // Store target eval id for domain pages
         localStorage.setItem('sst_eval_target_id', evalId);
-        // Clear previous eval answers
-        ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3'].forEach(k => localStorage.removeItem(k));
+        // Clear previous eval answers and doc checks
+        ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3','sst_doc_checks'].forEach(k => localStorage.removeItem(k));
 
       } catch (e) {
         if (e.message === '__SESSION_EXPIRED__') return;
