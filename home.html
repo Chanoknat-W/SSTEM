@@ -13,13 +13,13 @@
     <div id="header-container"></div>
 
     <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-        <div>
-          <div style="font-size:14px; color:var(--text-muted);">เข้าสู่ระบบในชื่อ</div>
-          <div id="user-name" style="font-size:16px; font-weight:700; color:var(--primary-dark);"></div>
-          <div id="user-info" style="font-size:13px; color:var(--text-muted);"></div>
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <div id="user-profile-block">
+          <div style="font-size:13px; color:var(--text-muted); margin-bottom:4px;">ข้อมูลส่วนตัว</div>
+          <div id="user-name" style="font-size:17px; font-weight:700; color:var(--primary-dark);"></div>
+          <div id="user-fields" style="margin-top:6px; display:grid; gap:3px;"></div>
         </div>
-        <div style="display:flex; gap:8px;">
+        <div style="display:flex; gap:8px; flex-shrink:0;">
           <button class="btn btn-secondary" onclick="window.location.href='profile.html'"
             style="padding:8px 14px; font-size:14px;">✏️ แก้ไขข้อมูล</button>
           <button class="btn btn-secondary" onclick="Auth.logout()"
@@ -61,9 +61,37 @@
     const user = Auth.requireAuth();
     if (!user) throw new Error('not auth');
 
-    document.getElementById('user-name').textContent = user.display_name || user.email;
-    const info = [user.position, user.school].filter(Boolean).join(' · ');
-    document.getElementById('user-info').textContent = info;
+    function renderProfile(p) {
+      document.getElementById('user-name').textContent = p.display_name || p.email || '-';
+      const isSupervisor = p.position === 'ศึกษานิเทศก์';
+      const fields = [
+        { label: 'ตำแหน่ง', value: p.position },
+        !isSupervisor ? { label: 'ชั้นที่สอน', value: p.grade } : null,
+        !isSupervisor ? { label: 'โรงเรียน', value: p.school } : null,
+        { label: 'สังกัด', value: p.district },
+        { label: 'ภาคเรียน', value: p.semester },
+      ].filter(Boolean);
+      document.getElementById('user-fields').innerHTML = fields.map(f =>
+        `<div style="font-size:13px; color:var(--text-muted);"><strong style="color:#555;">${f.label}:</strong> ${f.value || '-'}</div>`
+      ).join('');
+    }
+
+    renderProfile(user);
+
+    // Fetch fresh profile from Supabase
+    (async () => {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=*`, {
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${Auth.getToken()}` }
+        });
+        const data = await res.json();
+        if (data[0]) {
+          const fresh = { ...user, ...data[0] };
+          localStorage.setItem('sst_user', JSON.stringify(fresh));
+          renderProfile(fresh);
+        }
+      } catch { /* ใช้ cache แทน */ }
+    })();
   </script>
 </body>
 
