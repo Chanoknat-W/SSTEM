@@ -92,10 +92,10 @@
   const user = Auth.requireAuth();
   if (!user) throw new Error('not auth');
 
-  const _from = new URLSearchParams(location.search).get('from') ||
-                (document.referrer.includes('start.html') ? 'start' : 'home');
+  const _from = sessionStorage.getItem('profile_from') || 'home';
 
   function goBack() {
+    sessionStorage.removeItem('profile_from');
     window.location.href = _from === 'start' ? 'start.html' : 'home.html';
   }
 
