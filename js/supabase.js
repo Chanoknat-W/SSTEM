@@ -9,6 +9,9 @@ const SupabaseClient = {
           const newOpts = { ...options, headers: { ...options.headers, Authorization: `Bearer ${Auth.getToken()}` } };
           return fetch(url, newOpts);
         }
+        // Refresh token หมดอายุ — ต้องล็อกอินใหม่
+        Auth.logout();
+        return new Response(text, { status: res.status, statusText: res.statusText });
       }
       return new Response(text, { status: res.status, statusText: res.statusText });
     }
