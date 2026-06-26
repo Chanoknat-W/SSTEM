@@ -177,16 +177,7 @@
         }
         if (!result.isDenied) return;
 
-        const confirmEdit = await Swal.fire({
-          title: 'ยืนยันการแก้ไข?',
-          text: 'ผลการประเมินเดิมจะถูกบันทึกทับด้วยข้อมูลใหม่',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'ใช่ แก้ไขเลย',
-          cancelButtonText: 'ยกเลิก',
-          confirmButtonColor: '#E65100',
-        });
-        if (!confirmEdit.isConfirmed) return;
+        if (!window.confirm('ยืนยันการแก้ไข?\nผลการประเมินเดิมจะถูกบันทึกทับด้วยข้อมูลใหม่')) return;
       }
 
       window.location.href = `eval-score.html?id=${id}`;
