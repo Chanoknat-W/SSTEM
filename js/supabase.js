@@ -132,9 +132,8 @@ const SupabaseClient = {
   // Save evaluator's scores (scores = {domain1:{...answers}, domain2:{...}, domain3:{...}})
   async saveEvalScore(evalId, scores, suggestions) {
 
-    const evalInfo = JSON.parse(
-      localStorage.getItem('sst_eval_info') || '{}'
-    );
+    const evalInfo  = JSON.parse(localStorage.getItem('sst_eval_info') || '{}');
+    const docChecks = JSON.parse(localStorage.getItem('sst_doc_checks') || '{}');
 
     const user  = Auth.getUser();
     const d1    = Object.values(scores.domain1||{}).reduce((s,v)=>s+(parseInt(v)||0),0);
@@ -157,6 +156,7 @@ const SupabaseClient = {
         domain3_total:    d3,
         total_score:      total,
         level:            level,
+        doc_checks:       docChecks,
       }),
     });
     if (!res.ok) throw new Error(await res.text());

@@ -287,7 +287,7 @@
     try {
       const suggestions = document.getElementById('suggestions')?.value.trim() || '';
       await SupabaseClient.saveEvalScore(evalId, answers, suggestions);
-      ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3','sst_eval_target_id'].forEach(k => localStorage.removeItem(k));
+      ['sst_eval_domain1','sst_eval_domain2','sst_eval_domain3','sst_eval_target_id','sst_doc_checks'].forEach(k => localStorage.removeItem(k));
       window.location.href = 'eval-result.html?id=' + evalId;
     } catch (e) {
       if (e.message === '__SESSION_EXPIRED__') return;
