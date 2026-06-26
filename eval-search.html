@@ -133,8 +133,15 @@
     if (savedEvalInfo) {
       try {
         evalInfo = JSON.parse(savedEvalInfo);
+        // ใช้ชื่อจาก profile ปัจจุบันเสมอ ไม่ใช่ cache
+        const currentUser = Auth.getUser();
+        if (currentUser && currentUser.display_name) {
+          evalInfo.name = currentUser.display_name;
+          localStorage.setItem('sst_eval_info', JSON.stringify(evalInfo));
+        }
+        const isSupervisor = evalInfo.position === 'ศึกษานิเทศก์';
         document.getElementById('eval-name-display').textContent =
-          `${evalInfo.name} · ${evalInfo.position} · ${evalInfo.school}`;
+          isSupervisor ? `${evalInfo.name} · ${evalInfo.position}` : `${evalInfo.name} · ${evalInfo.position} · ${evalInfo.school}`;
         document.getElementById('section-eval-info').style.display = 'none';
         document.getElementById('section-teacher-list').style.display = 'block';
         load();
