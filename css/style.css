@@ -17,9 +17,9 @@
 
 /* ===== Evaluator (Purple) Theme ===== */
 body.evaluator-theme {
-  --primary: #16A34A;
-  --primary-dark: #15803D;
-  --primary-light: #DCFCE7;
+  --primary: #7C3AED;
+  --primary-dark: #5B21B6;
+  --primary-light: #EDE9FE;
 }
 
 body {
