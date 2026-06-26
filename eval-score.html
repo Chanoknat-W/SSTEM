@@ -50,9 +50,11 @@
         ยังไม่มีเอกสารแนบ
       </div>
 
+      <div id="save-reject-error" class="error-msg"></div>
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="window.location.href='eval-search.html'">← กลับ</button>
-        <button class="btn btn-primary" onclick="startEval()">เริ่มตอบคำถามประเมิน →</button>
+        <button class="btn btn-primary" id="btn-start-eval" onclick="startEval()">เริ่มตอบคำถามประเมิน →</button>
+        <button class="btn btn-danger" id="btn-reject" onclick="saveDocRejection()" style="display:none; background:#B71C1C; color:#fff; border:none;">บันทึกผลว่าเอกสารไม่ถูกต้อง</button>
       </div>
     </div>
   </main>
@@ -99,6 +101,13 @@
       localStorage.setItem('sst_doc_checks', JSON.stringify(docChecks));
       document.getElementById('chk-pass-' + key).classList.toggle('active', docChecks[key] === 'pass');
       document.getElementById('chk-fail-' + key).classList.toggle('active', docChecks[key] === 'fail');
+      updateActionButtons();
+    }
+
+    function updateActionButtons() {
+      const anyFail = allFileKeys.some(k => docChecks[k] === 'fail');
+      document.getElementById('btn-start-eval').style.display = anyFail ? 'none' : '';
+      document.getElementById('btn-reject').style.display    = anyFail ? '' : 'none';
     }
 
     function renderFiles(prefix, files, fileKeys) {
@@ -162,6 +171,7 @@
 
         // Store target eval id for domain pages
         localStorage.setItem('sst_eval_target_id', evalId);
+        updateActionButtons();
         if (Object.keys(existingChecks).length) {
           localStorage.setItem('sst_doc_checks', JSON.stringify(docChecks));
         } else {
@@ -181,6 +191,42 @@
         return;
       }
       window.location.href = 'eval-domain.html';
+    }
+
+    async function saveDocRejection() {
+      const unchecked = allFileKeys.filter(k => !docChecks[k]);
+      if (unchecked.length) {
+        alert(`กรุณาติ๊กผ่านหรือไม่ผ่านให้ครบทุกเอกสารก่อน\nยังไม่ได้ติ๊ก ${unchecked.length} รายการ`);
+        return;
+      }
+      const btn = document.getElementById('btn-reject');
+      const err = document.getElementById('save-reject-error');
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+      err.classList.remove('show');
+      try {
+        const evalInfo = JSON.parse(localStorage.getItem('sst_eval_info') || '{}');
+        const user = Auth.getUser();
+        const res = await SupabaseClient._fetch(`${SUPABASE_URL}/rest/v1/evaluations?id=eq.${evalId}`, {
+          method: 'PATCH',
+          headers: { ...SupabaseClient._headers(), Prefer: 'return=minimal' },
+          body: JSON.stringify({
+            doc_checks:   docChecks,
+            eval_by:      user?.id,
+            eval_by_name: evalInfo.name,
+            eval_status:  'doc_rejected',
+            evaluated_at: new Date().toISOString(),
+          }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        window.location.href = 'eval-search.html';
+      } catch (e) {
+        if (e.message === '__SESSION_EXPIRED__') return;
+        err.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+        err.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'บันทึกผลว่าเอกสารไม่ถูกต้อง';
+      }
     }
 
     load();

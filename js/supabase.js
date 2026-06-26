@@ -119,7 +119,7 @@ const SupabaseClient = {
 
   // Get all pending/evaluated evaluations (for evaluators)
   async getPendingEvaluations(search) {
-    let url = `${SUPABASE_URL}/rest/v1/evaluations?eval_status=in.(pending,evaluated)&order=created_at.desc&select=*`;
+    let url = `${SUPABASE_URL}/rest/v1/evaluations?eval_status=in.(pending,evaluated,doc_rejected)&order=created_at.desc&select=*`;
     if (search) {
       const q = encodeURIComponent(`%${search}%`);
       url += `&or=(teacher_name.ilike.${q},school.ilike.${q})`;

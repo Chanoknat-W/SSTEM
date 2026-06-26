@@ -87,8 +87,9 @@
     })();
 
     const STATUS_LABEL = {
-      pending: { text: '🕐 รอประเมิน', color: '#E65100', bg: '#FFF3E0' },
-      evaluated: { text: '✅ ประเมินแล้ว', color: '#1B5E20', bg: '#E8F5E9' },
+      pending:      { text: '🕐 รอประเมิน',           color: '#E65100', bg: '#FFF3E0' },
+      evaluated:    { text: '✅ ประเมินแล้ว',          color: '#1B5E20', bg: '#E8F5E9' },
+      doc_rejected: { text: '❌ เอกสารไม่ถูกต้อง',    color: '#B71C1C', bg: '#FFEBEE' },
     };
 
     async function load(search) {

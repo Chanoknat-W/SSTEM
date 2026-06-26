@@ -41,9 +41,10 @@
   document.getElementById('user-name').textContent = user.email;
 
   const STATUS_LABEL = {
-    draft:     { text: 'ยังไม่ส่ง',                    color: '#757575', bg: '#F5F5F5' },
-    pending:   { text: '🕐 รอรับการประเมิน',           color: '#E65100', bg: '#FFF3E0' },
-    evaluated: { text: '✅ ได้รับการประเมินแล้ว',       color: '#1B5E20', bg: '#E8F5E9' },
+    draft:        { text: 'ยังไม่ส่ง',                    color: '#757575', bg: '#F5F5F5' },
+    pending:      { text: '🕐 รอรับการประเมิน',           color: '#E65100', bg: '#FFF3E0' },
+    evaluated:    { text: '✅ ได้รับการประเมินแล้ว',       color: '#1B5E20', bg: '#E8F5E9' },
+    doc_rejected: { text: '❌ เอกสารไม่ถูกต้อง',          color: '#B71C1C', bg: '#FFEBEE' },
   };
 
   async function load() {
